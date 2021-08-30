@@ -26,7 +26,8 @@ param bastionHost object = {
 param windowsConfiguration object = {
   name: 'windowsfeatures'
   description: 'A configuration for installing Hyper-V.'
-  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/hyperv.ps1'
+  // script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/hyperv.ps1'
+  script: 'https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-automation-state-configuration/scripts/windows-config.ps1'
 }
 
 param location string = resourceGroup().location

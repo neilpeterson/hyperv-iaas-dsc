@@ -1,6 +1,9 @@
 configuration Hypervisor { 
 
-    Node localhost {
+    Import-DscResource -ModuleName PsDesiredStateConfiguration
+
+    node localhost {
+
         LocalConfigurationManager {
             ActionAfterReboot = 'ContinueConfiguration'            
             ConfigurationMode = 'ApplyOnly'
@@ -19,5 +22,4 @@ configuration Hypervisor {
             IncludeAllSubFeature = $true		
         }
     }
-
 } 
