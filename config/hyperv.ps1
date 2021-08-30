@@ -7,6 +7,7 @@ configuration windowsfeatures {
         WindowsFeature WebServer {
             Ensure = "Present"
             Name = "Hyper-V"
+            IncludeAllSubFeature = $true
         }
     }
 }
