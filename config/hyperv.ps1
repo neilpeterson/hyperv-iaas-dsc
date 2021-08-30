@@ -6,7 +6,7 @@ configuration windowsfeatures {
 
         WindowsFeature WebServer {
             Ensure = "Present"
-            Name = "Web-Server"
+            Name = "Hyper-V"
         }
     }
 }
