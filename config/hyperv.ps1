@@ -1,25 +1,12 @@
-configuration Hypervisor { 
+configuration hypervisor { 
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
 
     node localhost {
 
-        LocalConfigurationManager {
-            ActionAfterReboot = 'ContinueConfiguration'            
-            ConfigurationMode = 'ApplyOnly'
-            RebootNodeIfNeeded = $true
-        }
-
-        WindowsFeature Hyper-V { 
+        WindowsFeature hypervisor { 
             Ensure = "Present" 
-            Name = "Hyper-V"
-            IncludeAllSubFeature = $true		
-        }
-
-        WindowsFeature Hyper-V-PowerShell { 
-            Ensure = "Present" 
-            Name = "Hyper-V-PowerShell"
-            IncludeAllSubFeature = $true		
+            Name = "Hyper-V"	
         }
     }
 } 
