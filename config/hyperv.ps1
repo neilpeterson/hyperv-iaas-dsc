@@ -6,7 +6,7 @@ configuration Hypervisor {
 
         WindowsFeature Hyper-V { 
             Ensure = "Present" 
-            Name = "DNS"
+            Name = "Web-Server"
             IncludeAllSubFeature = $true		
         }
     }
