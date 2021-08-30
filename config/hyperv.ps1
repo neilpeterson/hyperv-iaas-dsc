@@ -1,12 +1,13 @@
-configuration hypervisor { 
+configuration Hypervisor { 
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
 
     node localhost {
 
-        WindowsFeature hypervisor { 
+        WindowsFeature Hyper-V { 
             Ensure = "Present" 
-            Name = "Hyper-V"	
+            Name = "Hyper-V"
+            IncludeAllSubFeature = $true		
         }
     }
 } 
