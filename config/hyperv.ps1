@@ -1,9 +1,9 @@
 configuration windowsfeatures {
 
-    param(
-        [Parameter(Mandatory=$true)]
-        [string] $Pass
-    )
+    # param(
+    #     [Parameter(Mandatory=$true)]
+    #     [string] $Pass
+    # )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
 
