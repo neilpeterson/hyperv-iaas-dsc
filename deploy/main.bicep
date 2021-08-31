@@ -60,7 +60,7 @@ resource automationAccountName 'Microsoft.Automation/automationAccounts@2020-01-
   }
 }
 
-resource automationAccountName_windowsConfiguration_name 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+resource config 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccountName
   name: '${windowsConfiguration.name}'
   location: location
@@ -74,22 +74,22 @@ resource automationAccountName_windowsConfiguration_name 'Microsoft.Automation/a
   }
 }
 
-resource Microsoft_Automation_automationAccounts_compilationjobs_automationAccountName_windowsConfiguration_name 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-  parent: automationAccountName
-  name: '${windowsConfiguration.name}'
-  location: location
-  properties: {
-    configuration: {
-      name: windowsConfiguration.name
-    }
-    parameters: {
-      Pass: pass
-    }
-  }
-  dependsOn: [
-    automationAccountName_windowsConfiguration_name
-  ]
-}
+// resource compilationjob 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+//   parent: automationAccountName
+//   name: '${windowsConfiguration.name}'
+//   location: location
+//   properties: {
+//     configuration: {
+//       name: windowsConfiguration.name
+//     }
+//     // parameters: {
+//     //   Pass: pass
+//     // }
+//   }
+//   dependsOn: [
+//     config
+//   ]
+// }
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   name: hubNetwork.name
@@ -360,72 +360,72 @@ resource vmNameWindowsResource 'Microsoft.Compute/virtualMachines@2019-07-01' = 
   }
 }
 
-resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: '${vmNameWindows}/Microsoft.Powershell.DSC'
-  location: location
-  dependsOn: [
-    vmNameWindowsResource
-  ]
-  properties: {
-    publisher: 'Microsoft.Powershell'
-    type: 'DSC'
-    typeHandlerVersion: '2.76'
-    protectedSettings: {
-      Items: {
-        registrationKeyPrivate: listKeys(automationAccountName.id, '2019-06-01').Keys[0].value
-      }
-    }
-    settings: {
-      Properties: [
-        {
-          Name: 'RegistrationKey'
-          Value: {
-            UserName: 'PLACEHOLDER_DONOTUSE'
-            Password: 'PrivateSettingsRef:registrationKeyPrivate'
-          }
-          TypeName: 'System.Management.Automation.PSCredential'
-        }
-        {
-          Name: 'RegistrationUrl'
-          Value: automationAccountName.properties.registrationUrl
-          TypeName: 'System.String'
-        }
-        {
-          Name: 'NodeConfigurationName'
-          Value: '${windowsConfiguration.name}.localhost'
-          TypeName: 'System.String'
-        }
-        {
-          Name: 'ConfigurationMode'
-          Value: 'ApplyAndMonitor'
-          TypeName: 'System.String'
-        }
-        {
-          Name: 'ConfigurationModeFrequencyMins'
-          Value: 15
-          TypeName: 'System.Int32'
-        }
-        {
-          Name: 'RefreshFrequencyMins'
-          Value: 30
-          TypeName: 'System.Int32'
-        }
-        {
-          Name: 'RebootNodeIfNeeded'
-          Value: true
-          TypeName: 'System.Boolean'
-        }
-        {
-          Name: 'ActionAfterReboot'
-          Value: 'ContinueConfiguration'
-          TypeName: 'System.String'
-        }
-        {
-          Name: 'AllowModuleOverwrite'
-          Value: false
-          TypeName: 'System.Boolean'
-        }
-      ]
-    }
-  }
-}
+// resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+//   name: '${vmNameWindows}/Microsoft.Powershell.DSC'
+//   location: location
+//   dependsOn: [
+//     vmNameWindowsResource
+//   ]
+//   properties: {
+//     publisher: 'Microsoft.Powershell'
+//     type: 'DSC'
+//     typeHandlerVersion: '2.76'
+//     protectedSettings: {
+//       Items: {
+//         registrationKeyPrivate: listKeys(automationAccountName.id, '2019-06-01').Keys[0].value
+//       }
+//     }
+//     settings: {
+//       Properties: [
+//         {
+//           Name: 'RegistrationKey'
+//           Value: {
+//             UserName: 'PLACEHOLDER_DONOTUSE'
+//             Password: 'PrivateSettingsRef:registrationKeyPrivate'
+//           }
+//           TypeName: 'System.Management.Automation.PSCredential'
+//         }
+//         {
+//           Name: 'RegistrationUrl'
+//           Value: automationAccountName.properties.registrationUrl
+//           TypeName: 'System.String'
+//         }
+//         {
+//           Name: 'NodeConfigurationName'
+//           Value: '${windowsConfiguration.name}.localhost'
+//           TypeName: 'System.String'
+//         }
+//         {
+//           Name: 'ConfigurationMode'
+//           Value: 'ApplyAndMonitor'
+//           TypeName: 'System.String'
+//         }
+//         {
+//           Name: 'ConfigurationModeFrequencyMins'
+//           Value: 15
+//           TypeName: 'System.Int32'
+//         }
+//         {
+//           Name: 'RefreshFrequencyMins'
+//           Value: 30
+//           TypeName: 'System.Int32'
+//         }
+//         {
+//           Name: 'RebootNodeIfNeeded'
+//           Value: true
+//           TypeName: 'System.Boolean'
+//         }
+//         {
+//           Name: 'ActionAfterReboot'
+//           Value: 'ContinueConfiguration'
+//           TypeName: 'System.String'
+//         }
+//         {
+//           Name: 'AllowModuleOverwrite'
+//           Value: false
+//           TypeName: 'System.Boolean'
+//         }
+//       ]
+//     }
+//   }
+// }
