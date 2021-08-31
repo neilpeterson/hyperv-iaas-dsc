@@ -74,22 +74,22 @@ resource config 'Microsoft.Automation/automationAccounts/configurations@2019-06-
   }
 }
 
-// resource compilationjob 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-//   parent: automationAccountName
-//   name: '${windowsConfiguration.name}'
-//   location: location
-//   properties: {
-//     configuration: {
-//       name: windowsConfiguration.name
-//     }
-//     // parameters: {
-//     //   Pass: pass
-//     // }
-//   }
-//   dependsOn: [
-//     config
-//   ]
-// }
+resource compilationjob 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+  parent: automationAccountName
+  name: '${windowsConfiguration.name}'
+  location: location
+  properties: {
+    configuration: {
+      name: windowsConfiguration.name
+    }
+    // parameters: {
+    //   Pass: pass
+    // }
+  }
+  dependsOn: [
+    config
+  ]
+}
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   name: hubNetwork.name
