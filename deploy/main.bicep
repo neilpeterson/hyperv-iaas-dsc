@@ -4,6 +4,9 @@ param vmSize string = 'Standard_D8s_v3'
 @secure()
 param adminPassword string
 
+@secure()
+param pass string
+
 param hubNetwork object = {
   name: 'vnet-hub'
   addressPrefix: '10.0.0.0/20'
@@ -27,7 +30,6 @@ param windowsConfiguration object = {
   name: 'windowsfeatures'
   description: 'A configuration for installing Hyper-V.'
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/hyperv.ps1'
-  // script: 'https://raw.githubusercontent.com/mspnp/samples/master/solutions/azure-automation-state-configuration/scripts/windows-config.ps1'
 }
 
 param location string = resourceGroup().location
@@ -79,6 +81,9 @@ resource Microsoft_Automation_automationAccounts_compilationjobs_automationAccou
   properties: {
     configuration: {
       name: windowsConfiguration.name
+    }
+    parameters: {
+      Pass: pass
     }
   }
   dependsOn: [
