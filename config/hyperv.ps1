@@ -1,6 +1,7 @@
 configuration windowsfeatures {
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
+    Import-DscResource -module xHyper-V
 
     node localhost {
 
