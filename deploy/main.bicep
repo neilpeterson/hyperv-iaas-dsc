@@ -60,6 +60,17 @@ resource automationAccountName 'Microsoft.Automation/automationAccounts@2020-01-
   }
 }
 
+resource hypervmodule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  name: 'hyper-v-module'
+  parent: automationAccountName
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xhyper-v/3.18.0-preview0001'
+    }
+  }
+}
+
 resource config 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccountName
   name: '${windowsConfiguration.name}'
@@ -82,12 +93,13 @@ resource compilationjob 'Microsoft.Automation/automationAccounts/compilationjobs
     configuration: {
       name: windowsConfiguration.name
     }
-    // parameters: {
-    //   Pass: pass
-    // }
+    parameters: { 
+      // Compilation parameters
+    }
   }
   dependsOn: [
     config
+    hypervmodule
   ]
 }
 
