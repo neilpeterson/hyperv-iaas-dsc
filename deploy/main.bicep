@@ -4,8 +4,8 @@ param vmSize string = 'Standard_D8s_v3'
 @secure()
 param adminPassword string
 
-@secure()
-param pass string
+// @secure()
+// param pass string
 
 param hubNetwork object = {
   name: 'vnet-hub'
