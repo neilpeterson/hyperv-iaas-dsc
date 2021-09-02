@@ -20,7 +20,7 @@ configuration windowsfeatures {
         xVMSwitch LabSwitch {
             DependsOn = '[WindowsFeature]Hyper-V'
             Name = 'LabSwitch'
-                 Ensure = 'Present'
+            Ensure = 'Present'
             Type = 'Internal'
         }
     }
