@@ -66,6 +66,16 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-p
   }
 }
 
+resource automationCredentials 'Microsoft.Automation/automationAccounts/credentials@2020-01-13-preview' = {
+  name: 'Admincreds'
+  parent: automationAccount
+  properties: {
+    description: 'Admin credentials.'
+    password: adminPassword
+    userName: adminUserName
+  }
+}
+
 resource scriptIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: 'midentity'
   location: 'eastus'
@@ -153,19 +163,19 @@ resource addcConfig 'Microsoft.Automation/automationAccounts/configurations@2019
   ]
 }
 
-resource aadcCompilation 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-  parent: automationAccount
-  name: '${addcConfiguration.name}'
-  location: location
-  properties: {
-    configuration: {
-      name: addcConfiguration.name
-    }
-    parameters: { 
-      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
-    }
-  }
-}
+// resource aadcCompilation 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+//   parent: automationAccount
+//   name: '${addcConfiguration.name}'
+//   location: location
+//   properties: {
+//     configuration: {
+//       name: addcConfiguration.name
+//     }
+//     parameters: { 
+//       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+//     }
+//   }
+// }
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   name: hubNetwork.name

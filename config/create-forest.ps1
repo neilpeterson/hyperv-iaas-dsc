@@ -2,8 +2,8 @@ configuration CreateForest
 { 
    param 
    ( 
-        [Parameter(Mandatory)]
-        [String]$DomainName,
+        # [Parameter(Mandatory)]
+        # [String]$DomainName,
 
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$Admincreds,
