@@ -1,7 +1,8 @@
 configuration windowsfeatures {
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
-    Import-DscResource -module xHyper-V
+    Import-DscResource -ModuleName xHyper-V
+    Import-DscResource -ModuleName ComputerManagementDsc
 
     node localhost {
 
@@ -17,11 +18,28 @@ configuration windowsfeatures {
             IncludeAllSubFeature = $true
         }
 
-        # xVMSwitch LabSwitch {
-        #     DependsOn = '[WindowsFeature]Hyper-V'
-        #     Name = 'LabSwitch'
-        #     Ensure = 'Present'
-        #     Type = 'Internal'
-        # }
+        WindowsFeature Hyper-V-Tools {
+            Ensure = "Present"
+            Name = "Hyper-V-Tools"
+            IncludeAllSubFeature = $true
+        }
+
+        WindowsFeature Hyper-V-PowerShell {
+            Ensure = "Present"
+            Name = "Hyper-V-PowerShell"
+            IncludeAllSubFeature = $true
+        }
+
+        PendingReboot reboot {
+            DependsOn = '[WindowsFeature]Hyper-V'
+            name = 'reboot'
+        }
+
+        xVMSwitch LabSwitch {
+            DependsOn = '[PendingReboot]reboot'
+            Name = 'LabSwitch'
+            Ensure = 'Present'
+            Type = 'Internal'
+        }
     }
-}
+} 

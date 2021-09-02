@@ -61,15 +61,14 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-p
   }
 }
 
-
 // // This is failing to work, have added deployment script to temp remediate
 // resource hypervmodule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
 //   name: 'hyper-v-module'
-//   parent: automationAccountName
+//   parent: automationAccount
 //   location: location
 //   properties: {
 //     contentLink: {
-//       uri: 'https://devopsgallerystorage.blob.core.windows.net:443/packages/xhyper-v.3.17.0.nupkg'
+//       uri: 'https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0'
 //     }
 //   }
 // }
