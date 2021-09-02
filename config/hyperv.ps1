@@ -2,7 +2,6 @@ configuration windowsfeatures {
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     Import-DscResource -ModuleName xHyper-V
-    Import-DscResource -ModuleName ComputerManagementDsc
 
     node localhost {
 
@@ -30,13 +29,7 @@ configuration windowsfeatures {
             IncludeAllSubFeature = $true
         }
 
-        # PendingReboot reboot {
-        #     DependsOn = '[WindowsFeature]Hyper-V'
-        #     name = 'reboot'
-        # }
-
         xVMSwitch LabSwitch {
-            # DependsOn = '[PendingReboot]reboot'
             DependsOn = '[WindowsFeature]Hyper-V'
             Name = 'LabSwitch'
             Ensure = 'Present'

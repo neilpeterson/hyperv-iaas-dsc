@@ -17,6 +17,8 @@ configuration CreateForest
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
     Import-DSCResource -ModuleName StorageDsc
+
+    $Admincreds = Get-AutomationPSCredential 'Admincreds'
     
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
     $Interface=Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
@@ -30,21 +32,21 @@ configuration CreateForest
             RebootNodeIfNeeded = $true
         }
 
-        WaitForDisk Disk2
-        {
-            DiskId = 2
-            RetryIntervalSec = 60
-            RetryCount = 20
-        }
+        # WaitForDisk Disk2
+        # {
+        #     DiskId = 2
+        #     RetryIntervalSec = 60
+        #     RetryCount = 20
+        # }
         
-        Disk FVolume
-        {
-            DiskId = 2
-            DriveLetter = 'F'
-            FSLabel = 'Data'
-            FSFormat = 'NTFS'
-            DependsOn = '[WaitForDisk]Disk2'
-        }   
+        # Disk FVolume
+        # {
+        #     DiskId = 2
+        #     DriveLetter = 'F'
+        #     FSLabel = 'Data'
+        #     FSFormat = 'NTFS'
+        #     DependsOn = '[WaitForDisk]Disk2'
+        # }   
 
 	    WindowsFeature DNS 
         { 
@@ -93,9 +95,9 @@ configuration CreateForest
             DomainName = $DomainName
             DomainAdministratorCredential = $DomainCreds
             SafemodeAdministratorPassword = $DomainCreds
-            DatabasePath = "F:\NTDS"
-            LogPath = "F:\NTDS"
-            SysvolPath = "F:\SYSVOL"
+            DatabasePath = "C:\NTDS"
+            LogPath = "C:\NTDS"
+            SysvolPath = "C:\SYSVOL"
 	        DependsOn = @("[WindowsFeature]ADDSInstall")
         } 
 

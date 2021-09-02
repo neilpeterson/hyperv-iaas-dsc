@@ -4,9 +4,6 @@ param vmSize string = 'Standard_D8s_v3'
 @secure()
 param adminPassword string
 
-// @secure()
-// param pass string
-
 param hubNetwork object = {
   name: 'vnet-hub'
   addressPrefix: '10.0.0.0/20'
@@ -26,16 +23,24 @@ param bastionHost object = {
   subnetPrefix: '10.0.1.0/29'
 }
 
-param windowsConfiguration object = {
+param hypervConfiguration object = {
   name: 'windowsfeatures'
   description: 'A configuration for installing Hyper-V.'
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/hyperv.ps1'
+}
+
+param addcConfiguration object = {
+  name: 'CreateForest'
+  description: 'A configuration for installing AADC.'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/create-forest.ps1'
 }
 
 param location string = resourceGroup().location
 
 var nicNameWindows = 'nic-windows'
 var vmNameWindows = 'vm-windows'
+var nicNameWindows2 = 'nic-windows2'
+var vmNameWindows2 = 'vm-windows2'
 var windowsOSVersion = '2022-datacenter'
 var logAnalyticsWorkspaceName = uniqueString(subscription().subscriptionId, resourceGroup().id)
 var automationAccountName = uniqueString(resourceGroup().id)
@@ -61,41 +66,29 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-p
   }
 }
 
-// // This is failing to work, have added deployment script to temp remediate
-// resource hypervmodule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-//   name: 'hyper-v-module'
-//   parent: automationAccount
-//   location: location
-//   properties: {
-//     contentLink: {
-//       uri: 'https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0'
-//     }
-//   }
-// }
-
-resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+resource scriptIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: 'midentity'
   location: 'eastus'
 }
 
-resource role 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = {
+resource scriptRoleAssignment 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = {
   name: guid('${resourceGroup().id}contributor')
   properties: {
     roleDefinitionId: contributorRoleDefinitionId
-    principalId: reference(identity.id, '2018-11-30').principalId
+    principalId: reference(scriptIdentity.id, '2018-11-30').principalId
     scope: resourceGroup().id
     principalType: 'ServicePrincipal'
   }
 }
 
-resource hypervmodule 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource hypervModule 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'hypervmodule'
   kind: 'AzurePowerShell'
   location: location
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      '${identity.id}': {}
+      '${scriptIdentity.id}': {}
     }
   }
   properties: {
@@ -105,43 +98,72 @@ resource hypervmodule 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
     retentionInterval: 'P1D'
   }
   dependsOn: [
-    role
+    scriptRoleAssignment
   ]
 }
 
-resource config 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+resource hypervConfig 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccount
-  name: '${windowsConfiguration.name}'
+  name: '${hypervConfiguration.name}'
   location: location
   properties: {
     logVerbose: false
-    description: windowsConfiguration.description
+    description: hypervConfiguration.description
     source: {
       type: 'uri'
-      value: windowsConfiguration.script
+      value: hypervConfiguration.script
     }
   }
   dependsOn: [
-    hypervmodule
+    hypervModule
   ]
 }
 
-resource compilationjob 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+resource hypervCompilation 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
   parent: automationAccount
-  name: '${windowsConfiguration.name}'
+  name: '${hypervConfiguration.name}'
   location: location
   properties: {
     configuration: {
-      name: windowsConfiguration.name
+      name: hypervConfiguration.name
     }
     parameters: { 
       // Compilation parameters
     }
   }
   dependsOn: [
-    config
+    hypervConfig
   ]
 }
+
+resource addcConfig 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+  parent: automationAccount
+  name: '${addcConfiguration.name}'
+  location: location
+  properties: {
+    logVerbose: false
+    description: addcConfiguration.description
+    source: {
+      type: 'uri'
+      value: addcConfiguration.script
+    }
+  }
+  dependsOn: [
+    hypervModule
+  ]
+}
+
+// resource aadcCompilation 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+//   parent: automationAccount
+//   name: '${addcConfiguration.name}'
+//   location: location
+//   properties: {
+//     configuration: {
+//       name: addcConfiguration.name
+//     }
+//     parameters: { }
+//   }
+// }
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   name: hubNetwork.name
@@ -169,7 +191,7 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   }
 }
 
-resource diahVnetHub 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
+resource vnetHubDiagnostics 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = {
   name: 'diahVnetHub'
   scope: vnetHub
   properties: {
@@ -417,7 +439,7 @@ resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachin
   location: location
   dependsOn: [
     vmNameWindowsResource
-    hypervmodule
+    hypervModule
   ]
   properties: {
     publisher: 'Microsoft.Powershell'
@@ -445,7 +467,7 @@ resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachin
         }
         {
           Name: 'NodeConfigurationName'
-          Value: '${windowsConfiguration.name}.localhost'
+          Value: '${hypervConfiguration.name}.localhost'
           TypeName: 'System.String'
         }
         {
@@ -477,6 +499,60 @@ resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachin
           Name: 'AllowModuleOverwrite'
           Value: false
           TypeName: 'System.Boolean'
+        }
+      ]
+    }
+  }
+}
+
+resource nicNameWindowsResource2 'Microsoft.Network/networkInterfaces@2020-05-01' = {
+  name: nicNameWindows2
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipconfig'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: '${vnetHub.id}/subnets/${resourceSubnet.subnetName}'
+          }
+        }
+      }
+    ]
+  }
+}
+
+resource vmNameWindowsResource2 'Microsoft.Compute/virtualMachines@2019-07-01' = {
+  name: vmNameWindows2
+  location: location
+  dependsOn:[
+    nicNameWindowsResource2
+  ]
+  properties: {
+    hardwareProfile: {
+      vmSize: vmSize
+    }
+    osProfile: {
+      computerName: vmNameWindows2
+      adminUsername: adminUserName
+      adminPassword: adminPassword
+    }
+    storageProfile: {
+      imageReference: {
+        publisher: 'MicrosoftWindowsServer'
+        offer: 'WindowsServer'
+        sku: windowsOSVersion
+        version: 'latest'
+      }
+      osDisk: {
+        createOption: 'FromImage'
+      }
+    }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: resourceId('Microsoft.Network/networkInterfaces', nicNameWindows2)
         }
       ]
     }

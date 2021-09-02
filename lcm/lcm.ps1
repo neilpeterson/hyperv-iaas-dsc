@@ -14,3 +14,4 @@ configuration LCMConfig
 # . ./lcm.ps1
 # LCMConfig
 # Set-DscLocalConfigurationManager -Path "./LCMConfig"
+# Get-DscLocalConfigurationManager 
