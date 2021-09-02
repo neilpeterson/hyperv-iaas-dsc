@@ -1,9 +1,6 @@
 param (
-    [string]]
-    $resourceGroup,
-
-    [string]]
-    $automationAccount
+    [string]$resourceGroup,
+    [string]$automationAccount
 )
 
 $moduleName = "xHyper-V"
