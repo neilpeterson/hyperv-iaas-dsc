@@ -9,3 +9,14 @@
         }
     )
 }
+
+$ConfigData = @{
+    @{
+        AllNodes = @(
+            @{
+                NodeName = 'localhost'
+                PSDSCAllowPlainTextPassword = $true
+            }
+        )
+    }
+}
