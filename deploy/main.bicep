@@ -418,6 +418,7 @@ resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachin
   location: location
   dependsOn: [
     vmNameWindowsResource
+    hypervmodule
   ]
   properties: {
     publisher: 'Microsoft.Powershell'
