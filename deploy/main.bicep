@@ -39,6 +39,7 @@ var vmNameWindows = 'vm-windows'
 var windowsOSVersion = '2022-datacenter'
 var logAnalyticsWorkspaceName = uniqueString(subscription().subscriptionId, resourceGroup().id)
 var automationAccountName_var = uniqueString(resourceGroup().id)
+var contributorRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
 
 resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: logAnalyticsWorkspaceName
@@ -60,15 +61,52 @@ resource automationAccountName 'Microsoft.Automation/automationAccounts@2020-01-
   }
 }
 
-resource hypervmodule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  name: 'hyper-v-module'
-  parent: automationAccountName
-  location: location
+
+// This is failing to work, have added deployment script to temp remediate
+// resource hypervmodule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+//   name: 'hyper-v-module'
+//   parent: automationAccountName
+//   location: location
+//   properties: {
+//     contentLink: {
+//       uri: 'https://devopsgallerystorage.blob.core.windows.net:443/packages/xhyper-v.3.17.0.nupkg'
+//     }
+//   }
+// }
+
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: 'midentity'
+  location: 'eastus'
+}
+
+resource role 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = {
+  name: guid('${resourceGroup().id}contributor')
   properties: {
-    contentLink: {
-      uri: 'https://www.powershellgallery.com/api/v2/package/xhyper-v/3.18.0-preview0001'
+    roleDefinitionId: contributorRoleDefinitionId
+    principalId: reference(identity.id, '2018-11-30').principalId
+    scope: resourceGroup().id
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource hypervmodule 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'hypervmodule'
+  kind: 'AzurePowerShell'
+  location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${identity.id}': {}
     }
   }
+  properties: {
+    azPowerShellVersion: '5.0'
+    scriptContent: 'New-AzAutomationModule -AutomationAccountName ${automationAccountName} -ResourceGroupName ${resourceGroup().name} -Name "xHyper-V" -ContentLinkUri "https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0"'
+    retentionInterval: 'P1D'
+  }
+  dependsOn: [
+    role
+  ]
 }
 
 resource config 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
@@ -83,6 +121,9 @@ resource config 'Microsoft.Automation/automationAccounts/configurations@2019-06-
       value: windowsConfiguration.script
     }
   }
+  dependsOn: [
+    hypervmodule
+  ]
 }
 
 resource compilationjob 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
@@ -99,7 +140,6 @@ resource compilationjob 'Microsoft.Automation/automationAccounts/compilationjobs
   }
   dependsOn: [
     config
-    hypervmodule
   ]
 }
 
