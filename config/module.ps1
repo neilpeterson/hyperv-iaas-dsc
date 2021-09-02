@@ -1,5 +1,11 @@
-$resourceGroup = "full-test-006"
-$automationAccount = "xkjgmslgulujk"
+param (
+    [string]]
+    $resourceGroup,
+
+    [string]]
+    $automationAccount
+)
+
 $moduleName = "xHyper-V"
 $url = "https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0"
 

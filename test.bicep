@@ -46,7 +46,9 @@ resource hypervmodule 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   }
   properties: {
     azPowerShellVersion: '5.0'
-    scriptContent: 'New-AzAutomationModule -AutomationAccountName ${automationAccountName} -ResourceGroupName ${resourceGroup().name} -Name "xHyper-V" -ContentLinkUri "https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0"'
+    // scriptContent: 'New-AzAutomationModule -AutomationAccountName ${automationAccountName} -ResourceGroupName ${resourceGroup().name} -Name "xHyper-V" -ContentLinkUri "https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0"'
+    primaryScriptUri: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/module.ps1'
+    arguments: '-resourceGroup ${resourceGroup().name} -automationAccount ${automationAccountName}'
     retentionInterval: 'P1D'
   }
   dependsOn: [
