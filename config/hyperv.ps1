@@ -5,6 +5,12 @@ configuration windowsfeatures {
 
     node localhost {
 
+        LocalConfigurationManager {
+            ActionAfterReboot = 'ContinueConfiguration'            
+            ConfigurationMode = 'ApplyOnly'
+            RebootNodeIfNeeded = $true
+        }
+
         WindowsFeature Hyper-V {
             Ensure = "Present"
             Name = "Hyper-V"

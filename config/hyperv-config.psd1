@@ -1,8 +1,0 @@
-@{
-    AllNodes =
-    @(
-        @{
-            NodeName    = '*'
-        }
-    )
-}

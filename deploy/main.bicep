@@ -38,7 +38,7 @@ var nicNameWindows = 'nic-windows'
 var vmNameWindows = 'vm-windows'
 var windowsOSVersion = '2022-datacenter'
 var logAnalyticsWorkspaceName = uniqueString(subscription().subscriptionId, resourceGroup().id)
-var automationAccountName_var = uniqueString(resourceGroup().id)
+var automationAccountName = uniqueString(resourceGroup().id)
 var contributorRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
 
 resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
@@ -51,8 +51,8 @@ resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08
   }
 }
 
-resource automationAccountName 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
-  name: automationAccountName_var
+resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+  name: automationAccountName
   location: location
   properties: {
     sku: {
@@ -62,7 +62,7 @@ resource automationAccountName 'Microsoft.Automation/automationAccounts@2020-01-
 }
 
 
-// This is failing to work, have added deployment script to temp remediate
+// // This is failing to work, have added deployment script to temp remediate
 // resource hypervmodule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
 //   name: 'hyper-v-module'
 //   parent: automationAccountName
@@ -101,7 +101,8 @@ resource hypervmodule 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   }
   properties: {
     azPowerShellVersion: '5.0'
-    scriptContent: 'New-AzAutomationModule -AutomationAccountName ${automationAccountName} -ResourceGroupName ${resourceGroup().name} -Name "xHyper-V" -ContentLinkUri "https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0"'
+    primaryScriptUri: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/module.ps1'
+    arguments: '-resourceGroup ${resourceGroup().name} -automationAccount ${automationAccountName}'
     retentionInterval: 'P1D'
   }
   dependsOn: [
@@ -110,7 +111,7 @@ resource hypervmodule 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 }
 
 resource config 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
-  parent: automationAccountName
+  parent: automationAccount
   name: '${windowsConfiguration.name}'
   location: location
   properties: {
@@ -127,7 +128,7 @@ resource config 'Microsoft.Automation/automationAccounts/configurations@2019-06-
 }
 
 resource compilationjob 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-  parent: automationAccountName
+  parent: automationAccount
   name: '${windowsConfiguration.name}'
   location: location
   properties: {
@@ -412,72 +413,72 @@ resource vmNameWindowsResource 'Microsoft.Compute/virtualMachines@2019-07-01' = 
   }
 }
 
-// resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-//   name: '${vmNameWindows}/Microsoft.Powershell.DSC'
-//   location: location
-//   dependsOn: [
-//     vmNameWindowsResource
-//   ]
-//   properties: {
-//     publisher: 'Microsoft.Powershell'
-//     type: 'DSC'
-//     typeHandlerVersion: '2.76'
-//     protectedSettings: {
-//       Items: {
-//         registrationKeyPrivate: listKeys(automationAccountName.id, '2019-06-01').Keys[0].value
-//       }
-//     }
-//     settings: {
-//       Properties: [
-//         {
-//           Name: 'RegistrationKey'
-//           Value: {
-//             UserName: 'PLACEHOLDER_DONOTUSE'
-//             Password: 'PrivateSettingsRef:registrationKeyPrivate'
-//           }
-//           TypeName: 'System.Management.Automation.PSCredential'
-//         }
-//         {
-//           Name: 'RegistrationUrl'
-//           Value: automationAccountName.properties.registrationUrl
-//           TypeName: 'System.String'
-//         }
-//         {
-//           Name: 'NodeConfigurationName'
-//           Value: '${windowsConfiguration.name}.localhost'
-//           TypeName: 'System.String'
-//         }
-//         {
-//           Name: 'ConfigurationMode'
-//           Value: 'ApplyAndMonitor'
-//           TypeName: 'System.String'
-//         }
-//         {
-//           Name: 'ConfigurationModeFrequencyMins'
-//           Value: 15
-//           TypeName: 'System.Int32'
-//         }
-//         {
-//           Name: 'RefreshFrequencyMins'
-//           Value: 30
-//           TypeName: 'System.Int32'
-//         }
-//         {
-//           Name: 'RebootNodeIfNeeded'
-//           Value: true
-//           TypeName: 'System.Boolean'
-//         }
-//         {
-//           Name: 'ActionAfterReboot'
-//           Value: 'ContinueConfiguration'
-//           TypeName: 'System.String'
-//         }
-//         {
-//           Name: 'AllowModuleOverwrite'
-//           Value: false
-//           TypeName: 'System.Boolean'
-//         }
-//       ]
-//     }
-//   }
-// }
+resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+  name: '${vmNameWindows}/Microsoft.Powershell.DSC'
+  location: location
+  dependsOn: [
+    vmNameWindowsResource
+  ]
+  properties: {
+    publisher: 'Microsoft.Powershell'
+    type: 'DSC'
+    typeHandlerVersion: '2.76'
+    protectedSettings: {
+      Items: {
+        registrationKeyPrivate: listKeys(automationAccount.id, '2019-06-01').Keys[0].value
+      }
+    }
+    settings: {
+      Properties: [
+        {
+          Name: 'RegistrationKey'
+          Value: {
+            UserName: 'PLACEHOLDER_DONOTUSE'
+            Password: 'PrivateSettingsRef:registrationKeyPrivate'
+          }
+          TypeName: 'System.Management.Automation.PSCredential'
+        }
+        {
+          Name: 'RegistrationUrl'
+          Value: automationAccount.properties.registrationUrl
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'NodeConfigurationName'
+          Value: '${windowsConfiguration.name}.localhost'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'ConfigurationMode'
+          Value: 'ApplyAndMonitor'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'ConfigurationModeFrequencyMins'
+          Value: 15
+          TypeName: 'System.Int32'
+        }
+        {
+          Name: 'RefreshFrequencyMins'
+          Value: 30
+          TypeName: 'System.Int32'
+        }
+        {
+          Name: 'RebootNodeIfNeeded'
+          Value: true
+          TypeName: 'System.Boolean'
+        }
+        {
+          Name: 'ActionAfterReboot'
+          Value: 'ContinueConfiguration'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'AllowModuleOverwrite'
+          Value: false
+          TypeName: 'System.Boolean'
+        }
+      ]
+    }
+  }
+}
