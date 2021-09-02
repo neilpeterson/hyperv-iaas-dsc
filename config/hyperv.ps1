@@ -30,13 +30,14 @@ configuration windowsfeatures {
             IncludeAllSubFeature = $true
         }
 
-        PendingReboot reboot {
-            DependsOn = '[WindowsFeature]Hyper-V'
-            name = 'reboot'
-        }
+        # PendingReboot reboot {
+        #     DependsOn = '[WindowsFeature]Hyper-V'
+        #     name = 'reboot'
+        # }
 
         xVMSwitch LabSwitch {
-            DependsOn = '[PendingReboot]reboot'
+            # DependsOn = '[PendingReboot]reboot'
+            DependsOn = '[WindowsFeature]Hyper-V'
             Name = 'LabSwitch'
             Ensure = 'Present'
             Type = 'Internal'
