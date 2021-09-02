@@ -17,11 +17,11 @@ configuration windowsfeatures {
             IncludeAllSubFeature = $true
         }
 
-        xVMSwitch LabSwitch {
-            DependsOn = '[WindowsFeature]Hyper-V'
-            Name = 'LabSwitch'
-            Ensure = 'Present'
-            Type = 'Internal'
-        }
+        # xVMSwitch LabSwitch {
+        #     DependsOn = '[WindowsFeature]Hyper-V'
+        #     Name = 'LabSwitch'
+        #     Ensure = 'Present'
+        #     Type = 'Internal'
+        # }
     }
 }
