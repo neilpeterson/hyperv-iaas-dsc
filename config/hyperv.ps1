@@ -1,7 +1,7 @@
 configuration windowsfeatures {
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
-    # Import-DscResource -module xHyper-V
+    Import-DscResource -module xHyper-V
 
     node localhost {
 
@@ -17,11 +17,11 @@ configuration windowsfeatures {
             IncludeAllSubFeature = $true
         }
 
-        # xVMSwitch LabSwitch {
-        #     DependsOn = '[WindowsFeature]Hyper-V'
-        #     Name = 'LabSwitch'
-        #     Ensure = 'Present'
-        #     Type = 'Internal'
-        # }
+        xVMSwitch LabSwitch {
+            DependsOn = '[WindowsFeature]Hyper-V'
+            Name = 'LabSwitch'
+            Ensure = 'Present'
+            Type = 'Internal'
+        }
     }
 }
