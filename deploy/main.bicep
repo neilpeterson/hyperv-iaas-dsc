@@ -66,6 +66,67 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-p
   }
 }
 
+resource adModule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  name: 'StorageDsc'
+  parent: automationAccount
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/StorageDsc/5.0.1'
+      version: '5.0.1'
+    }
+  }
+}
+
+resource xActiveDirectory 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  name: 'xActiveDirectory'
+  parent: automationAccount
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xActiveDirectory/3.0.0.0'
+      version: '3.0.0.0'
+    }
+  }
+}
+
+resource xNetworking 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  name: 'xNetworking'
+  parent: automationAccount
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xNetworking/5.7.0.0'
+      version: '5.7.0.0'
+    }
+  }
+}
+
+resource xPendingReboot 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  name: 'xPendingReboot'
+  parent: automationAccount
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xPendingReboot/0.4.0.0'
+      version: '0.4.0.0'
+    }
+  }
+}
+
+resource hypervModule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  name: 'xHyper-V'
+  parent: automationAccount
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0'
+      version: '3.17.0.0'
+    }
+  }
+}
+
+
 resource automationCredentials 'Microsoft.Automation/automationAccounts/credentials@2020-01-13-preview' = {
   name: 'Admincreds'
   parent: automationAccount
@@ -76,41 +137,41 @@ resource automationCredentials 'Microsoft.Automation/automationAccounts/credenti
   }
 }
 
-resource scriptIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-  name: 'midentity'
-  location: 'eastus'
-}
+// resource scriptIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+//   name: 'midentity'
+//   location: 'eastus'
+// }
 
-resource scriptRoleAssignment 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = {
-  name: guid('${resourceGroup().id}contributor')
-  properties: {
-    roleDefinitionId: contributorRoleDefinitionId
-    principalId: reference(scriptIdentity.id, '2018-11-30').principalId
-    scope: resourceGroup().id
-    principalType: 'ServicePrincipal'
-  }
-}
+// resource scriptRoleAssignment 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = {
+//   name: guid('${resourceGroup().id}contributor')
+//   properties: {
+//     roleDefinitionId: contributorRoleDefinitionId
+//     principalId: reference(scriptIdentity.id, '2018-11-30').principalId
+//     scope: resourceGroup().id
+//     principalType: 'ServicePrincipal'
+//   }
+// }
 
-resource hypervModule 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: 'hypervmodule'
-  kind: 'AzurePowerShell'
-  location: location
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${scriptIdentity.id}': {}
-    }
-  }
-  properties: {
-    azPowerShellVersion: '5.0'
-    primaryScriptUri: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/module.ps1'
-    arguments: '-resourceGroup ${resourceGroup().name} -automationAccount ${automationAccountName}'
-    retentionInterval: 'P1D'
-  }
-  dependsOn: [
-    scriptRoleAssignment
-  ]
-}
+// resource hypervModule 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//   name: 'hypervmodule'
+//   kind: 'AzurePowerShell'
+//   location: location
+//   identity: {
+//     type: 'UserAssigned'
+//     userAssignedIdentities: {
+//       '${scriptIdentity.id}': {}
+//     }
+//   }
+//   properties: {
+//     azPowerShellVersion: '5.0'
+//     primaryScriptUri: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/module.ps1'
+//     arguments: '-resourceGroup ${resourceGroup().name} -automationAccount ${automationAccountName}'
+//     retentionInterval: 'P1D'
+//   }
+//   dependsOn: [
+//     scriptRoleAssignment
+//   ]
+// }
 
 resource hypervConfig 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccount
