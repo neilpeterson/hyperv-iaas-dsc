@@ -8,4 +8,4 @@ $ConfigData = @{
 }
 
 $Params = @{"DomainName"="contoso.com"}
-Start-AzAutomationDscCompilationJob -ResourceGroupName full-006 -AutomationAccountName tze5ndjzjpaju -ConfigurationName CreateForest -ConfigurationData $ConfigData -Parameters $Params
+Start-AzAutomationDscCompilationJob -ResourceGroupName fri-001 -AutomationAccountName pw64ngfvyrjqi -ConfigurationName CreateForest -ConfigurationData $ConfigData -Parameters $Params

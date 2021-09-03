@@ -18,9 +18,10 @@ configuration CreateForest
     Import-DscResource -ModuleName xPendingReboot
     Import-DSCResource -ModuleName StorageDsc
 
-    $Admincreds = Get-AutomationPSCredential 'Admincreds'
+    # $Admincreds = Get-AutomationPSCredential 'Admincreds'
     
-    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
+    # [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
+    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\azureadmin", "TestPassword76")
     $Interface=Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
 
     Node localhost
