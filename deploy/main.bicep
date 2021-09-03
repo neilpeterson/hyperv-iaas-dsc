@@ -131,6 +131,18 @@ resource moduleXHyperv 'Microsoft.Automation/automationAccounts/modules@2020-01-
   }
 }
 
+resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  name: 'xActiveDirectory'
+  parent: automationAccount
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xComputerManagement/4.1.0'
+      version: '3.0.0.0'
+    }
+  }
+}
+
 resource automationCredentials 'Microsoft.Automation/automationAccounts/credentials@2020-01-13-preview' = {
   name: 'Admincreds'
   parent: automationAccount
@@ -154,7 +166,10 @@ resource dscConfigHyperv 'Microsoft.Automation/automationAccounts/configurations
     }
   }
   dependsOn: [
+    moduleXActiveDirectory
+    moduleXComputerManagement
     moduleXHyperv
+    moduleXPendingReboot
   ]
 }
 
