@@ -2,11 +2,11 @@ configuration CreateForest
 { 
    param 
    ( 
-        # [Parameter(Mandatory)]
-        # [String]$DomainName,
-
         [Parameter(Mandatory)]
-        [System.Management.Automation.PSCredential]$Admincreds,
+        [String]$DomainName,
+
+        # [Parameter(Mandatory)]
+        # [System.Management.Automation.PSCredential]$Admincreds,
 
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
