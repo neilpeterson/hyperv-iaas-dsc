@@ -1,7 +1,18 @@
-configuration windowsfeatures {
+configuration hyperv {
+
+    param
+    (
+        [Parameter(Mandatory)]
+        [string]$DomainName,
+
+        [Int]$RetryCount=30,
+        [Int]$RetryIntervalSec=60
+    )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     Import-DscResource -ModuleName xHyper-V
+
+    $DomainCreds = Get-AutomationPSCredential 'Admincreds'
 
     node localhost {
 
@@ -34,6 +45,28 @@ configuration windowsfeatures {
             Name = 'LabSwitch'
             Ensure = 'Present'
             Type = 'Internal'
+        }
+
+        xWaitForADDomain DscForestWait 
+        { 
+            DomainName = $DomainName 
+            DomainUserCredential= $DomainCreds
+            RetryCount = $RetryCount 
+            RetryIntervalSec = $RetryIntervalSec
+        }
+         
+        xComputer JoinDomain
+        {
+            Name          = $env:COMPUTERNAME
+            DomainName    = $DomainName
+            Credential    = $DomainCreds  # Credential to join to domain
+            DependsOn = "[xWaitForADDomain]DscForestWait"
+        }
+
+        xPendingReboot Reboot2
+        { 
+            Name = "RebootServer"
+            DependsOn = "[xComputer]JoinDomain"
         }
     }
 } 

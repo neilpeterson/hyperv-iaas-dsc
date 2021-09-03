@@ -1,4 +1,4 @@
-configuration CreateForest 
+configuration ADDC 
 { 
    param 
    ( 

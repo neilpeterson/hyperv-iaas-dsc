@@ -1,8 +1,12 @@
 param adminUserName string
-param vmSize string = 'Standard_D8s_v3'
 
 @secure()
 param adminPassword string
+
+param vmSize string = 'Standard_D8s_v3'
+param location string = resourceGroup().location
+param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
+param automationAccountName string = uniqueString(resourceGroup().id)
 
 param hubNetwork object = {
   name: 'vnet-hub'
@@ -24,27 +28,28 @@ param bastionHost object = {
 }
 
 param hypervConfiguration object = {
-  name: 'windowsfeatures'
+  name: 'hyperv'
   description: 'A configuration for installing Hyper-V.'
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/hyperv.ps1'
 }
 
 param addcConfiguration object = {
-  name: 'CreateForest'
+  name: 'ADDC'
   description: 'A configuration for installing AADC.'
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/create-forest.ps1'
 }
 
-param location string = resourceGroup().location
+param addcVirtualMachine object = {
+  name: 'vm-addc'
+  nicName: 'nic-addc'
+  windowsOSVersion: '2022-datacenter'
+}
 
-var nicNameWindows = 'nic-windows'
-var vmNameWindows = 'vm-windows'
-var nicNameWindows2 = 'nic-windows2'
-var vmNameWindows2 = 'vm-windows2'
-var windowsOSVersion = '2022-datacenter'
-var logAnalyticsWorkspaceName = uniqueString(subscription().subscriptionId, resourceGroup().id)
-var automationAccountName = uniqueString(resourceGroup().id)
-var contributorRoleDefinitionId = '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+param hypervVirtualMachine object = {
+  name: 'vm-hyperv'
+  nicName: 'nic-hyperv'
+  windowsOSVersion: '2022-datacenter'
+}
 
 resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: logAnalyticsWorkspaceName
@@ -66,7 +71,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-p
   }
 }
 
-resource adModule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+resource moduleStorageDsc 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
   name: 'StorageDsc'
   parent: automationAccount
   location: location
@@ -78,7 +83,7 @@ resource adModule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-pr
   }
 }
 
-resource xActiveDirectory 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+resource moduleXActiveDirectory 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
   name: 'xActiveDirectory'
   parent: automationAccount
   location: location
@@ -90,7 +95,7 @@ resource xActiveDirectory 'Microsoft.Automation/automationAccounts/modules@2020-
   }
 }
 
-resource xNetworking 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+resource moduleXNetworking 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
   name: 'xNetworking'
   parent: automationAccount
   location: location
@@ -102,7 +107,7 @@ resource xNetworking 'Microsoft.Automation/automationAccounts/modules@2020-01-13
   }
 }
 
-resource xPendingReboot 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+resource moduleXPendingReboot 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
   name: 'xPendingReboot'
   parent: automationAccount
   location: location
@@ -114,7 +119,7 @@ resource xPendingReboot 'Microsoft.Automation/automationAccounts/modules@2020-01
   }
 }
 
-resource hypervModule 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+resource moduleXHyperv 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
   name: 'xHyper-V'
   parent: automationAccount
   location: location
@@ -126,7 +131,6 @@ resource hypervModule 'Microsoft.Automation/automationAccounts/modules@2020-01-1
   }
 }
 
-
 resource automationCredentials 'Microsoft.Automation/automationAccounts/credentials@2020-01-13-preview' = {
   name: 'Admincreds'
   parent: automationAccount
@@ -137,43 +141,7 @@ resource automationCredentials 'Microsoft.Automation/automationAccounts/credenti
   }
 }
 
-// resource scriptIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-//   name: 'midentity'
-//   location: 'eastus'
-// }
-
-// resource scriptRoleAssignment 'Microsoft.Authorization/roleAssignments@2021-04-01-preview' = {
-//   name: guid('${resourceGroup().id}contributor')
-//   properties: {
-//     roleDefinitionId: contributorRoleDefinitionId
-//     principalId: reference(scriptIdentity.id, '2018-11-30').principalId
-//     scope: resourceGroup().id
-//     principalType: 'ServicePrincipal'
-//   }
-// }
-
-// resource hypervModule 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//   name: 'hypervmodule'
-//   kind: 'AzurePowerShell'
-//   location: location
-//   identity: {
-//     type: 'UserAssigned'
-//     userAssignedIdentities: {
-//       '${scriptIdentity.id}': {}
-//     }
-//   }
-//   properties: {
-//     azPowerShellVersion: '5.0'
-//     primaryScriptUri: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/module.ps1'
-//     arguments: '-resourceGroup ${resourceGroup().name} -automationAccount ${automationAccountName}'
-//     retentionInterval: 'P1D'
-//   }
-//   dependsOn: [
-//     scriptRoleAssignment
-//   ]
-// }
-
-resource hypervConfig 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+resource dscConfigHyperv 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccount
   name: '${hypervConfiguration.name}'
   location: location
@@ -186,11 +154,11 @@ resource hypervConfig 'Microsoft.Automation/automationAccounts/configurations@20
     }
   }
   dependsOn: [
-    hypervModule
+    moduleXHyperv
   ]
 }
 
-resource hypervCompilation 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
   parent: automationAccount
   name: '${hypervConfiguration.name}'
   location: location
@@ -198,14 +166,17 @@ resource hypervCompilation 'Microsoft.Automation/automationAccounts/compilationj
     configuration: {
       name: hypervConfiguration.name
     }
-    parameters: {}
+    parameters: { 
+      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+      DomainName: 'contoso.com'
+    }
   }
   dependsOn: [
-    hypervConfig
+    dscConfigHyperv
   ]
 }
 
-resource addcConfig 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+resource dscConfigADDC 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccount
   name: '${addcConfiguration.name}'
   location: location
@@ -218,11 +189,14 @@ resource addcConfig 'Microsoft.Automation/automationAccounts/configurations@2019
     }
   }
   dependsOn: [
-    hypervModule
+    moduleStorageDsc
+    moduleXActiveDirectory
+    moduleXNetworking
+    moduleXPendingReboot
   ]
 }
 
-resource aadcCompilation 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
   parent: automationAccount
   name: '${addcConfiguration.name}'
   location: location
@@ -232,8 +206,12 @@ resource aadcCompilation 'Microsoft.Automation/automationAccounts/compilationjob
     }
     parameters: { 
       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+      DomainName: 'contoso.com'
     }
   }
+  dependsOn: [
+    dscConfigADDC
+  ]
 }
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
@@ -276,7 +254,7 @@ resource vnetHubDiagnostics 'microsoft.insights/diagnosticSettings@2017-05-01-pr
   }
 }
 
-resource bastionPip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
+resource pipBastion 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: 'bastionpip'
   location: location
   sku: {
@@ -396,7 +374,7 @@ resource nsgBastion 'Microsoft.Network/networkSecurityGroups@2020-06-01' = {
   }
 }
 
-resource bastionHostResource 'Microsoft.Network/bastionHosts@2020-06-01' = {
+resource bastion 'Microsoft.Network/bastionHosts@2020-06-01' = {
   name: 'bastionhost'
   location: location
   properties: {
@@ -408,7 +386,7 @@ resource bastionHostResource 'Microsoft.Network/bastionHosts@2020-06-01' = {
             id: '${vnetHub.id}/subnets/${bastionHost.subnetName}'
           }
           publicIPAddress: {
-            id: bastionPip.id
+            id: pipBastion.id
           }
         }
       }
@@ -416,7 +394,7 @@ resource bastionHostResource 'Microsoft.Network/bastionHosts@2020-06-01' = {
   }
 }
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
+resource nsgVirtualMachines 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
   name: 'nsg'
   location: location
   properties: {
@@ -451,8 +429,8 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
   }
 }
 
-resource nicNameWindowsResource 'Microsoft.Network/networkInterfaces@2020-05-01' = {
-  name: nicNameWindows
+resource nicHyperv 'Microsoft.Network/networkInterfaces@2020-05-01' = {
+  name: hypervVirtualMachine.nicName
   location: location
   properties: {
     ipConfigurations: [
@@ -469,18 +447,18 @@ resource nicNameWindowsResource 'Microsoft.Network/networkInterfaces@2020-05-01'
   }
 }
 
-resource vmNameWindowsResource 'Microsoft.Compute/virtualMachines@2019-07-01' = {
-  name: vmNameWindows
+resource vmHyperv 'Microsoft.Compute/virtualMachines@2019-07-01' = {
+  name: hypervVirtualMachine.name
   location: location
   dependsOn:[
-    nicNameWindowsResource
+    nicHyperv
   ]
   properties: {
     hardwareProfile: {
       vmSize: vmSize
     }
     osProfile: {
-      computerName: vmNameWindows
+      computerName: hypervVirtualMachine.name
       adminUsername: adminUserName
       adminPassword: adminPassword
     }
@@ -488,7 +466,7 @@ resource vmNameWindowsResource 'Microsoft.Compute/virtualMachines@2019-07-01' = 
       imageReference: {
         publisher: 'MicrosoftWindowsServer'
         offer: 'WindowsServer'
-        sku: windowsOSVersion
+        sku: hypervVirtualMachine.windowsOSVersion
         version: 'latest'
       }
       osDisk: {
@@ -498,19 +476,20 @@ resource vmNameWindowsResource 'Microsoft.Compute/virtualMachines@2019-07-01' = 
     networkProfile: {
       networkInterfaces: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', nicNameWindows)
+          id: resourceId('Microsoft.Network/networkInterfaces', hypervVirtualMachine.nicName)
         }
       ]
     }
   }
 }
 
-resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: '${vmNameWindows}/Microsoft.Powershell.DSC'
+resource dscHyperv 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+  name: 'Microsoft.Powershell.DSC'
+  parent: vmHyperv
   location: location
   dependsOn: [
-    vmNameWindowsResource
-    hypervModule
+    vmHyperv
+    moduleXHyperv
   ]
   properties: {
     publisher: 'Microsoft.Powershell'
@@ -576,8 +555,8 @@ resource windowsVMName_Microsoft_Powershell_DSC 'Microsoft.Compute/virtualMachin
   }
 }
 
-resource nicNameWindowsResource2 'Microsoft.Network/networkInterfaces@2020-05-01' = {
-  name: nicNameWindows2
+resource nicADDC 'Microsoft.Network/networkInterfaces@2020-05-01' = {
+  name: addcVirtualMachine.nicName
   location: location
   properties: {
     ipConfigurations: [
@@ -594,18 +573,18 @@ resource nicNameWindowsResource2 'Microsoft.Network/networkInterfaces@2020-05-01
   }
 }
 
-resource vmNameWindowsResource2 'Microsoft.Compute/virtualMachines@2019-07-01' = {
-  name: vmNameWindows2
+resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = {
+  name: addcVirtualMachine.name
   location: location
   dependsOn:[
-    nicNameWindowsResource2
+    nicADDC
   ]
   properties: {
     hardwareProfile: {
       vmSize: vmSize
     }
     osProfile: {
-      computerName: vmNameWindows2
+      computerName: addcVirtualMachine.name
       adminUsername: adminUserName
       adminPassword: adminPassword
     }
@@ -613,7 +592,7 @@ resource vmNameWindowsResource2 'Microsoft.Compute/virtualMachines@2019-07-01' =
       imageReference: {
         publisher: 'MicrosoftWindowsServer'
         offer: 'WindowsServer'
-        sku: windowsOSVersion
+        sku: addcVirtualMachine.windowsOSVersion
         version: 'latest'
       }
       osDisk: {
@@ -623,7 +602,78 @@ resource vmNameWindowsResource2 'Microsoft.Compute/virtualMachines@2019-07-01' =
     networkProfile: {
       networkInterfaces: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', nicNameWindows2)
+          id: resourceId('Microsoft.Network/networkInterfaces', addcVirtualMachine.nicName)
+        }
+      ]
+    }
+  }
+}
+
+resource dscADDC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+  name: 'Microsoft.Powershell.DSC'
+  parent: vmADDC
+  location: location
+  dependsOn: [
+    dscCompilationADDC
+  ]
+  properties: {
+    publisher: 'Microsoft.Powershell'
+    type: 'DSC'
+    typeHandlerVersion: '2.76'
+    protectedSettings: {
+      Items: {
+        registrationKeyPrivate: listKeys(automationAccount.id, '2019-06-01').Keys[0].value
+      }
+    }
+    settings: {
+      Properties: [
+        {
+          Name: 'RegistrationKey'
+          Value: {
+            UserName: 'PLACEHOLDER_DONOTUSE'
+            Password: 'PrivateSettingsRef:registrationKeyPrivate'
+          }
+          TypeName: 'System.Management.Automation.PSCredential'
+        }
+        {
+          Name: 'RegistrationUrl'
+          Value: automationAccount.properties.registrationUrl
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'NodeConfigurationName'
+          Value: '${addcConfiguration.name}.localhost'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'ConfigurationMode'
+          Value: 'ApplyAndMonitor'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'ConfigurationModeFrequencyMins'
+          Value: 15
+          TypeName: 'System.Int32'
+        }
+        {
+          Name: 'RefreshFrequencyMins'
+          Value: 30
+          TypeName: 'System.Int32'
+        }
+        {
+          Name: 'RebootNodeIfNeeded'
+          Value: true
+          TypeName: 'System.Boolean'
+        }
+        {
+          Name: 'ActionAfterReboot'
+          Value: 'ContinueConfiguration'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'AllowModuleOverwrite'
+          Value: false
+          TypeName: 'System.Boolean'
         }
       ]
     }
