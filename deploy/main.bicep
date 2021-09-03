@@ -198,9 +198,7 @@ resource hypervCompilation 'Microsoft.Automation/automationAccounts/compilationj
     configuration: {
       name: hypervConfiguration.name
     }
-    parameters: { 
-      // Compilation parameters
-    }
+    parameters: {}
   }
   dependsOn: [
     hypervConfig
@@ -224,19 +222,19 @@ resource addcConfig 'Microsoft.Automation/automationAccounts/configurations@2019
   ]
 }
 
-// resource aadcCompilation 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-//   parent: automationAccount
-//   name: '${addcConfiguration.name}'
-//   location: location
-//   properties: {
-//     configuration: {
-//       name: addcConfiguration.name
-//     }
-//     parameters: { 
-//       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
-//     }
-//   }
-// }
+resource aadcCompilation 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+  parent: automationAccount
+  name: '${addcConfiguration.name}'
+  location: location
+  properties: {
+    configuration: {
+      name: addcConfiguration.name
+    }
+    parameters: { 
+      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+    }
+  }
+}
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   name: hubNetwork.name

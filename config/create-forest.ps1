@@ -21,6 +21,8 @@ configuration CreateForest
     $Admincreds = Get-AutomationPSCredential 'Admincreds'
     
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
+    
+    # Configuration is compiled in Azure Automation, this will not work.
     # $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
 
     Node localhost
