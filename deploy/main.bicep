@@ -490,6 +490,9 @@ resource dscHyperv 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   dependsOn: [
     vmHyperv
     moduleXHyperv
+    moduleXActiveDirectory
+    moduleXPendingReboot
+    dscADDC
   ]
   properties: {
     publisher: 'Microsoft.Powershell'
