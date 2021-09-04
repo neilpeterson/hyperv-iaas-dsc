@@ -12,7 +12,7 @@ configuration hyperv {
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     # Import-DscResource -ModuleName xActiveDirectory
     # Import-DscResource -ModuleName xComputerManagement
-    # Import-DscResource -ModuleName xHyper-V
+    Import-DscResource -ModuleName xHyper-V
     # Import-DscResource -ModuleName xPendingReboot
 
 
