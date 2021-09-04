@@ -11,9 +11,9 @@ configuration hyperv {
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     # Import-DscResource -ModuleName xActiveDirectory
-    Import-DscResource -ModuleName xComputerManagement
-    Import-DscResource -ModuleName xHyper-V
-    Import-DscResource -ModuleName xPendingReboot
+    # Import-DscResource -ModuleName xComputerManagement
+    # Import-DscResource -ModuleName xHyper-V
+    # Import-DscResource -ModuleName xPendingReboot
 
 
     $DomainCreds = Get-AutomationPSCredential 'Admincreds'
@@ -60,27 +60,27 @@ configuration hyperv {
         # }
 
         # TODO can I plumb through IP from ARM?
-        xDnsServerAddress DnsServerAddress 
-        { 
-            Address        = '10.0.2.5' 
-            # InterfaceAlias = $Interface.Name
-            InterfaceAlias = "Ethernet 2"
-            AddressFamily  = 'IPv4'
-	        DependsOn = "[WindowsFeature]DNS"
-        }
+        # xDnsServerAddress DnsServerAddress 
+        # { 
+        #     Address        = '10.0.2.5' 
+        #     # InterfaceAlias = $Interface.Name
+        #     InterfaceAlias = "Ethernet 2"
+        #     AddressFamily  = 'IPv4'
+	    #     DependsOn = "[WindowsFeature]DNS"
+        # }
          
-        xComputer JoinDomain
-        {
-            Name          = $env:COMPUTERNAME
-            DomainName    = $DomainName
-            Credential    = $DomainCreds  # Credential to join to domain
-            DependsOn = "[xWaitForADDomain]DscForestWait"
-        }
+        # xComputer JoinDomain
+        # {
+        #     Name          = $env:COMPUTERNAME
+        #     DomainName    = $DomainName
+        #     Credential    = $DomainCreds  # Credential to join to domain
+        #     DependsOn = "[xWaitForADDomain]DscForestWait"
+        # }
 
-        xPendingReboot Reboot2
-        { 
-            Name = "RebootServer"
-            DependsOn = "[xComputer]JoinDomain"
-        }
+        # xPendingReboot Reboot2
+        # { 
+        #     Name = "RebootServer"
+        #     DependsOn = "[xComputer]JoinDomain"
+        # }
     }
 } 

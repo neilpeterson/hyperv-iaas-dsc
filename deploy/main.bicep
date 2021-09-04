@@ -188,6 +188,7 @@ resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilati
   }
   dependsOn: [
     dscConfigHyperv
+    automationCredentials
   ]
 }
 
@@ -226,6 +227,7 @@ resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilation
   }
   dependsOn: [
     dscConfigADDC
+    automationCredentials
   ]
 }
 
