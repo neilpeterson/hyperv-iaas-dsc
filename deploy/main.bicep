@@ -186,6 +186,7 @@ resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilati
     parameters: { 
       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
       DomainName: 'contoso.com'
+      DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
     }
   }
   dependsOn: [
@@ -216,6 +217,7 @@ resource dscConfigADDC 'Microsoft.Automation/automationAccounts/configurations@2
 
 resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
   // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
+  // https://stackoverflow.com/questions/54508062/how-to-i-prevent-microsoft-automation-automationaccounts-compilationjobs-to-alwa
   parent: automationAccount
   name: '${addcConfiguration.name}'
   location: location
@@ -703,4 +705,4 @@ resource dscADDC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   }
 }
 
-output ip string = nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
+// output ip string = nicADDC.properties.ipConfigurations[0].properties.privateIPAddress

@@ -13,12 +13,11 @@ configuration hyperv {
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
-    # Import-DscResource -ModuleName xActiveDirectory
+    Import-DscResource -ModuleName xActiveDirectory
     Import-DscResource -ModuleName xComputerManagement
     Import-DscResource -ModuleName xHyper-V
     Import-DscResource -ModuleName xNetworking
-    # Import-DscResource -ModuleName xPendingReboot
-
+    Import-DscResource -ModuleName xPendingReboot
 
     $DomainCreds = Get-AutomationPSCredential 'Admincreds'
 
@@ -55,14 +54,6 @@ configuration hyperv {
             Type = 'Internal'
         }
 
-        # xWaitForADDomain DscForestWait 
-        # { 
-        #     DomainName = $DomainName 
-        #     DomainUserCredential= $DomainCreds
-        #     RetryCount = $RetryCount 
-        #     RetryIntervalSec = $RetryIntervalSec
-        # }
-
         # TODO can I plumb through IP from ARM?
         xDnsServerAddress DnsServerAddress { 
             Address        = $DNSAddress
@@ -70,19 +61,28 @@ configuration hyperv {
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
         }
-         
-        # xComputer JoinDomain
-        # {
-        #     Name          = $env:COMPUTERNAME
-        #     DomainName    = $DomainName
-        #     Credential    = $DomainCreds  # Credential to join to domain
-        #     DependsOn = "[xWaitForADDomain]DscForestWait"
-        # }
 
-        # xPendingReboot Reboot2
-        # { 
-        #     Name = "RebootServer"
-        #     DependsOn = "[xComputer]JoinDomain"
-        # }
+        xWaitForADDomain DscForestWait 
+        { 
+            DomainName = $DomainName 
+            DomainUserCredential= $DomainCreds
+            RetryCount = $RetryCount 
+            RetryIntervalSec = $RetryIntervalSec
+            DependsOn = "[xDnsServerAddress]DnsServerAddress"
+        }
+         
+        xComputer JoinDomain
+        {
+            Name          = $env:COMPUTERNAME
+            DomainName    = $DomainName
+            Credential    = $DomainCreds  # Credential to join to domain
+            DependsOn = "[xWaitForADDomain]DscForestWait"
+        }
+
+        xPendingReboot Reboot2
+        { 
+            Name = "RebootServer"
+            DependsOn = "[xComputer]JoinDomain"
+        }
     }
 } 
