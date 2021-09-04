@@ -5,9 +5,6 @@ configuration ADDC
         [Parameter(Mandatory)]
         [String]$DomainName,
 
-        # [Parameter(Mandatory)]
-        # [System.Management.Automation.PSCredential]$Admincreds,
-
         [Int]$RetryCount=20,
         [Int]$RetryIntervalSec=30
     ) 
@@ -18,11 +15,14 @@ configuration ADDC
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
 
+    # Pulls admin credentials from Azure Automation object.
+    # These are used on the VM and domain authentication.
     $Admincreds = Get-AutomationPSCredential 'Admincreds'
     
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
     
     # Configuration is compiled in Azure Automation, this will not work.
+    # TODO this needs to be fixed.
     # $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
 
     Node localhost

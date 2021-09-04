@@ -58,6 +58,16 @@ configuration hyperv {
         #     RetryCount = $RetryCount 
         #     RetryIntervalSec = $RetryIntervalSec
         # }
+
+        # TODO can I plumb through IP from ARM?
+        xDnsServerAddress DnsServerAddress 
+        { 
+            Address        = '10.0.2.5' 
+            # InterfaceAlias = $Interface.Name
+            InterfaceAlias = "Ethernet 2"
+            AddressFamily  = 'IPv4'
+	        DependsOn = "[WindowsFeature]DNS"
+        }
          
         xComputer JoinDomain
         {
