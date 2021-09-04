@@ -5,6 +5,9 @@ configuration hyperv {
         [Parameter(Mandatory)]
         [string]$DomainName,
 
+        [Parameter(Mandatory)]
+        [string]$DNSAddress,
+
         [Int]$RetryCount=30,
         [Int]$RetryIntervalSec=60
     )
@@ -62,7 +65,7 @@ configuration hyperv {
 
         # TODO can I plumb through IP from ARM?
         xDnsServerAddress DnsServerAddress { 
-            Address        = '10.0.2.4' 
+            Address        = $DNSAddress
             # InterfaceAlias = $Interface.Name
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'

@@ -703,4 +703,4 @@ resource dscADDC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   }
 }
 
-output ip object = nicADDC.properties
+output ip string = nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
