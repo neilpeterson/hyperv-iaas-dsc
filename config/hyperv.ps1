@@ -19,7 +19,8 @@ configuration hyperv {
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
 
-    $DomainCreds = Get-AutomationPSCredential 'Admincreds'
+    $Admincreds = Get-AutomationPSCredential 'Admincreds'
+    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
     node localhost {
 
@@ -75,7 +76,7 @@ configuration hyperv {
         {
             Name          = $env:COMPUTERNAME
             DomainName    = $DomainName
-            Credential    = $DomainCreds  # Credential to join to domain
+            Credential    = $DomainCreds
             DependsOn = "[xWaitForADDomain]DscForestWait"
         }
 
