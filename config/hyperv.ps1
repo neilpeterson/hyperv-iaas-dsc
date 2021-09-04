@@ -10,7 +10,7 @@ configuration hyperv {
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
-    Import-DscResource -ModuleName xActiveDirectory
+    # Import-DscResource -ModuleName xActiveDirectory
     Import-DscResource -ModuleName xComputerManagement
     Import-DscResource -ModuleName xHyper-V
     Import-DscResource -ModuleName xPendingReboot
@@ -51,13 +51,13 @@ configuration hyperv {
             Type = 'Internal'
         }
 
-        xWaitForADDomain DscForestWait 
-        { 
-            DomainName = $DomainName 
-            DomainUserCredential= $DomainCreds
-            RetryCount = $RetryCount 
-            RetryIntervalSec = $RetryIntervalSec
-        }
+        # xWaitForADDomain DscForestWait 
+        # { 
+        #     DomainName = $DomainName 
+        #     DomainUserCredential= $DomainCreds
+        #     RetryCount = $RetryCount 
+        #     RetryIntervalSec = $RetryIntervalSec
+        # }
          
         xComputer JoinDomain
         {

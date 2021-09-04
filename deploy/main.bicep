@@ -132,7 +132,7 @@ resource moduleXHyperv 'Microsoft.Automation/automationAccounts/modules@2020-01-
 }
 
 resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  name: 'xActiveDirectory'
+  name: 'xComputerManagement'
   parent: automationAccount
   location: location
   properties: {
