@@ -66,7 +66,6 @@ configuration hyperv {
             # InterfaceAlias = $Interface.Name
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
-	        DependsOn = "[WindowsFeature]DNS"
         }
          
         # xComputer JoinDomain
