@@ -11,7 +11,7 @@ configuration hyperv {
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     # Import-DscResource -ModuleName xActiveDirectory
-    # Import-DscResource -ModuleName xComputerManagement
+    Import-DscResource -ModuleName xComputerManagement
     Import-DscResource -ModuleName xHyper-V
     # Import-DscResource -ModuleName xPendingReboot
 
@@ -59,15 +59,15 @@ configuration hyperv {
         #     RetryIntervalSec = $RetryIntervalSec
         # }
 
-        # TODO can I plumb through IP from ARM?
-        # xDnsServerAddress DnsServerAddress 
-        # { 
-        #     Address        = '10.0.2.5' 
-        #     # InterfaceAlias = $Interface.Name
-        #     InterfaceAlias = "Ethernet 2"
-        #     AddressFamily  = 'IPv4'
-	    #     DependsOn = "[WindowsFeature]DNS"
-        # }
+        TODO can I plumb through IP from ARM?
+        xDnsServerAddress DnsServerAddress 
+        { 
+            Address        = '10.0.2.4' 
+            # InterfaceAlias = $Interface.Name
+            InterfaceAlias = "Ethernet 2"
+            AddressFamily  = 'IPv4'
+	        DependsOn = "[WindowsFeature]DNS"
+        }
          
         # xComputer JoinDomain
         # {

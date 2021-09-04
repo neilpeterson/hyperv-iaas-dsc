@@ -174,10 +174,12 @@ resource dscConfigHyperv 'Microsoft.Automation/automationAccounts/configurations
 }
 
 resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+  // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
   parent: automationAccount
   name: '${hypervConfiguration.name}'
   location: location
   properties: {
+    incrementNodeConfigurationBuild: false
     configuration: {
       name: hypervConfiguration.name
     }
@@ -213,6 +215,7 @@ resource dscConfigADDC 'Microsoft.Automation/automationAccounts/configurations@2
 }
 
 resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+  // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
   parent: automationAccount
   name: '${addcConfiguration.name}'
   location: location
