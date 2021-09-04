@@ -13,6 +13,7 @@ configuration hyperv {
     # Import-DscResource -ModuleName xActiveDirectory
     Import-DscResource -ModuleName xComputerManagement
     Import-DscResource -ModuleName xHyper-V
+    Import-DscResource -ModuleName xNetworking
     # Import-DscResource -ModuleName xPendingReboot
 
 
@@ -60,8 +61,7 @@ configuration hyperv {
         # }
 
         TODO can I plumb through IP from ARM?
-        xDnsServerAddress DnsServerAddress 
-        { 
+        xDnsServerAddress DnsServerAddress { 
             Address        = '10.0.2.4' 
             # InterfaceAlias = $Interface.Name
             InterfaceAlias = "Ethernet 2"

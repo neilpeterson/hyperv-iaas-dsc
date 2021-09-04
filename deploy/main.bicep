@@ -702,3 +702,5 @@ resource dscADDC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
     }
   }
 }
+
+output ip object = nicADDC.properties
