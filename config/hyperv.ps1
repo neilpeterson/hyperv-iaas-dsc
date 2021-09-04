@@ -60,7 +60,7 @@ configuration hyperv {
         #     RetryIntervalSec = $RetryIntervalSec
         # }
 
-        TODO can I plumb through IP from ARM?
+        # TODO can I plumb through IP from ARM?
         xDnsServerAddress DnsServerAddress { 
             Address        = '10.0.2.4' 
             # InterfaceAlias = $Interface.Name
