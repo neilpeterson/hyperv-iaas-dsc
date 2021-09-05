@@ -3,6 +3,9 @@ configuration hyperv {
     param
     (
         [Parameter(Mandatory)]
+        [string]$ComputerName,
+
+        [Parameter(Mandatory)]
         [string]$DomainName,
 
         [Parameter(Mandatory)]
@@ -74,7 +77,7 @@ configuration hyperv {
          
         xComputer JoinDomain
         {
-            # Name          = $env:COMPUTERNAME
+            Name          = $ComputerName
             DomainName    = $DomainName
             Credential    = $DomainCreds
             DependsOn = "[xWaitForADDomain]DscForestWait"

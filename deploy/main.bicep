@@ -187,6 +187,7 @@ resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilati
       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
       DomainName: 'contoso.com'
       DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
+      ComputerName: hypervVirtualMachine.name
     }
   }
   dependsOn: [
