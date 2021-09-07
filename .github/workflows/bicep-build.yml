@@ -1,0 +1,19 @@
+- name: Install Bicep build
+  run: |
+    curl -Lo bicepinstall
+    https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+    chmod +x ./bicepinstall
+    sudo mv ./bicepinstall /usr/local/bin/bicep
+    bicep --help
+
+- name: Run Bicep build
+  run: |
+    bicep build deploy/main.bicep
+    ls -l deploy/*.json
+    
+- uses: EndBug/add-and-commit@v7.0.0
+  with:
+    author_name: github-actions
+    author_email: '41898282+github-actions[bot]@users.noreply.github.com'
+    message: Update Bicep-ARM template
+    add: deploy/main.json

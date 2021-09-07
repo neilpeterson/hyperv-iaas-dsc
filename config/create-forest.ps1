@@ -15,10 +15,8 @@ configuration ADDC
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
 
-    # Pulls admin credentials from Azure Automation object.
-    # These are used on the VM and domain authentication.
+    # Pulls admin credentials from Azure Automation object, used on the VM and domain authentication.
     $Admincreds = Get-AutomationPSCredential 'Admincreds'
-    
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
     
     # Configuration is compiled in Azure Automation, this will not work.
@@ -34,6 +32,7 @@ configuration ADDC
             RebootNodeIfNeeded = $true
         }
 
+        # TODO add disk to Azure deployment
         # WaitForDisk Disk2
         # {
         #     DiskId = 2
@@ -67,6 +66,7 @@ configuration ADDC
         { 
             Address        = '127.0.0.1' 
             # InterfaceAlias = $Interface.Name
+            # InterfaceAlias = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
 	        DependsOn = "[WindowsFeature]DNS"

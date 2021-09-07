@@ -49,6 +49,7 @@ param hypervVirtualMachine object = {
   name: 'vm-hyperv'
   nicName: 'nic-hyperv'
   windowsOSVersion: '2022-datacenter'
+  diskName: 'data'
 }
 
 resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
@@ -71,9 +72,19 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-p
   }
 }
 
-resource moduleStorageDsc 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  name: 'StorageDsc'
+resource automationCredentials 'Microsoft.Automation/automationAccounts/credentials@2020-01-13-preview' = {
   parent: automationAccount
+  name: 'Admincreds'
+  properties: {
+    description: 'Admin credentials.'
+    password: adminPassword
+    userName: adminUserName
+  }
+}
+
+resource moduleStorageDsc 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'StorageDsc'
   location: location
   properties: {
     contentLink: {
@@ -84,8 +95,8 @@ resource moduleStorageDsc 'Microsoft.Automation/automationAccounts/modules@2020-
 }
 
 resource moduleXActiveDirectory 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  name: 'xActiveDirectory'
   parent: automationAccount
+  name: 'xActiveDirectory'
   location: location
   properties: {
     contentLink: {
@@ -96,8 +107,8 @@ resource moduleXActiveDirectory 'Microsoft.Automation/automationAccounts/modules
 }
 
 resource moduleXNetworking 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  name: 'xNetworking'
   parent: automationAccount
+  name: 'xNetworking'
   location: location
   properties: {
     contentLink: {
@@ -108,8 +119,8 @@ resource moduleXNetworking 'Microsoft.Automation/automationAccounts/modules@2020
 }
 
 resource moduleXPendingReboot 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  name: 'xPendingReboot'
   parent: automationAccount
+  name: 'xPendingReboot'
   location: location
   properties: {
     contentLink: {
@@ -120,8 +131,8 @@ resource moduleXPendingReboot 'Microsoft.Automation/automationAccounts/modules@2
 }
 
 resource moduleXHyperv 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  name: 'xHyper-V'
   parent: automationAccount
+  name: 'xHyper-V'
   location: location
   properties: {
     contentLink: {
@@ -132,8 +143,8 @@ resource moduleXHyperv 'Microsoft.Automation/automationAccounts/modules@2020-01-
 }
 
 resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  name: 'xComputerManagement'
   parent: automationAccount
+  name: 'xComputerManagement'
   location: location
   properties: {
     contentLink: {
@@ -143,19 +154,50 @@ resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modu
   }
 }
 
-resource automationCredentials 'Microsoft.Automation/automationAccounts/credentials@2020-01-13-preview' = {
-  name: 'Admincreds'
+resource dscConfigADDC 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+  name: addcConfiguration.name
   parent: automationAccount
+  location: location
   properties: {
-    description: 'Admin credentials.'
-    password: adminPassword
-    userName: adminUserName
+    logVerbose: false
+    description: addcConfiguration.description
+    source: {
+      type: 'uri'
+      value: addcConfiguration.script
+    }
   }
+  dependsOn: [
+    moduleStorageDsc
+    moduleXActiveDirectory
+    moduleXNetworking
+    moduleXPendingReboot
+  ]
+}
+
+resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+  // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
+  // https://stackoverflow.com/questions/54508062/how-to-i-prevent-microsoft-automation-automationaccounts-compilationjobs-to-alwa
+  parent: automationAccount
+  name: addcConfiguration.name
+  location: location
+  properties: {
+    configuration: {
+      name: addcConfiguration.name
+    }
+    parameters: { 
+      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+      DomainName: 'contoso.com'
+    }
+  }
+  dependsOn: [
+    dscConfigADDC
+    automationCredentials
+  ]
 }
 
 resource dscConfigHyperv 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccount
-  name: '${hypervConfiguration.name}'
+  name: hypervConfiguration.name
   location: location
   properties: {
     logVerbose: false
@@ -196,47 +238,6 @@ resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilati
   ]
 }
 
-resource dscConfigADDC 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
-  parent: automationAccount
-  name: '${addcConfiguration.name}'
-  location: location
-  properties: {
-    logVerbose: false
-    description: addcConfiguration.description
-    source: {
-      type: 'uri'
-      value: addcConfiguration.script
-    }
-  }
-  dependsOn: [
-    moduleStorageDsc
-    moduleXActiveDirectory
-    moduleXNetworking
-    moduleXPendingReboot
-  ]
-}
-
-resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-  // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
-  // https://stackoverflow.com/questions/54508062/how-to-i-prevent-microsoft-automation-automationaccounts-compilationjobs-to-alwa
-  parent: automationAccount
-  name: '${addcConfiguration.name}'
-  location: location
-  properties: {
-    configuration: {
-      name: addcConfiguration.name
-    }
-    parameters: { 
-      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
-      DomainName: 'contoso.com'
-    }
-  }
-  dependsOn: [
-    dscConfigADDC
-    automationCredentials
-  ]
-}
-
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   name: hubNetwork.name
   location: location
@@ -251,12 +252,18 @@ resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         name: bastionHost.subnetName
         properties: {
           addressPrefix: bastionHost.subnetPrefix
+          networkSecurityGroup: {
+            id: nsgBastion.id
+          }
         }
       }
       {
         name: resourceSubnet.subnetName
         properties: {
           addressPrefix: resourceSubnet.subnetPrefix
+          networkSecurityGroup: {
+            id: nsgVirtualMachines.id
+          }
         }
       }
     ]
@@ -418,166 +425,40 @@ resource bastion 'Microsoft.Network/bastionHosts@2020-06-01' = {
 }
 
 resource nsgVirtualMachines 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
-  name: 'nsg'
+  name: 'nsgVirtualMachines'
   location: location
   properties: {
     securityRules: [
       {
-        name: 'DenyAllInBound'
+        name: 'bastion-in-vnet'
         properties: {
           protocol: 'Tcp'
           sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '*'
-          destinationAddressPrefix: '*'
-          access: 'Deny'
-          priority: 1000
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'HTTP'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '80'
+          sourceAddressPrefix:  bastionHost.subnetPrefix
+          destinationPortRanges: [
+            '22'
+            '3389'
+          ]
           destinationAddressPrefix: '*'
           access: 'Allow'
           priority: 100
           direction: 'Inbound'
         }
       }
-    ]
-  }
-}
-
-resource nicHyperv 'Microsoft.Network/networkInterfaces@2020-05-01' = {
-  name: hypervVirtualMachine.nicName
-  location: location
-  properties: {
-    ipConfigurations: [
       {
-        name: 'ipconfig'
+        name: 'DenyAllInBound'
         properties: {
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: '${vnetHub.id}/subnets/${resourceSubnet.subnetName}'
-          }
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          sourceAddressPrefix: '*'
+          destinationPortRange: '443'
+          destinationAddressPrefix: '*'
+          access: 'Deny'
+          priority: 1000
+          direction: 'Inbound'
         }
       }
     ]
-  }
-}
-
-resource vmHyperv 'Microsoft.Compute/virtualMachines@2019-07-01' = {
-  name: hypervVirtualMachine.name
-  location: location
-  dependsOn:[
-    nicHyperv
-  ]
-  properties: {
-    hardwareProfile: {
-      vmSize: vmSize
-    }
-    osProfile: {
-      computerName: hypervVirtualMachine.name
-      adminUsername: adminUserName
-      adminPassword: adminPassword
-    }
-    storageProfile: {
-      imageReference: {
-        publisher: 'MicrosoftWindowsServer'
-        offer: 'WindowsServer'
-        sku: hypervVirtualMachine.windowsOSVersion
-        version: 'latest'
-      }
-      osDisk: {
-        createOption: 'FromImage'
-      }
-    }
-    networkProfile: {
-      networkInterfaces: [
-        {
-          id: resourceId('Microsoft.Network/networkInterfaces', hypervVirtualMachine.nicName)
-        }
-      ]
-    }
-  }
-}
-
-resource dscHyperv 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: 'Microsoft.Powershell.DSC'
-  parent: vmHyperv
-  location: location
-  dependsOn: [
-    vmHyperv
-    moduleXHyperv
-    moduleXActiveDirectory
-    moduleXPendingReboot
-    dscADDC
-  ]
-  properties: {
-    publisher: 'Microsoft.Powershell'
-    type: 'DSC'
-    typeHandlerVersion: '2.76'
-    protectedSettings: {
-      Items: {
-        registrationKeyPrivate: listKeys(automationAccount.id, '2019-06-01').Keys[0].value
-      }
-    }
-    settings: {
-      Properties: [
-        {
-          Name: 'RegistrationKey'
-          Value: {
-            UserName: 'PLACEHOLDER_DONOTUSE'
-            Password: 'PrivateSettingsRef:registrationKeyPrivate'
-          }
-          TypeName: 'System.Management.Automation.PSCredential'
-        }
-        {
-          Name: 'RegistrationUrl'
-          Value: automationAccount.properties.registrationUrl
-          TypeName: 'System.String'
-        }
-        {
-          Name: 'NodeConfigurationName'
-          Value: '${hypervConfiguration.name}.localhost'
-          TypeName: 'System.String'
-        }
-        {
-          Name: 'ConfigurationMode'
-          Value: 'ApplyAndMonitor'
-          TypeName: 'System.String'
-        }
-        {
-          Name: 'ConfigurationModeFrequencyMins'
-          Value: 15
-          TypeName: 'System.Int32'
-        }
-        {
-          Name: 'RefreshFrequencyMins'
-          Value: 30
-          TypeName: 'System.Int32'
-        }
-        {
-          Name: 'RebootNodeIfNeeded'
-          Value: true
-          TypeName: 'System.Boolean'
-        }
-        {
-          Name: 'ActionAfterReboot'
-          Value: 'ContinueConfiguration'
-          TypeName: 'System.String'
-        }
-        {
-          Name: 'AllowModuleOverwrite'
-          Value: false
-          TypeName: 'System.Boolean'
-        }
-      ]
-    }
   }
 }
 
@@ -602,9 +483,6 @@ resource nicADDC 'Microsoft.Network/networkInterfaces@2020-05-01' = {
 resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = {
   name: addcVirtualMachine.name
   location: location
-  dependsOn:[
-    nicADDC
-  ]
   properties: {
     hardwareProfile: {
       vmSize: vmSize
@@ -633,15 +511,15 @@ resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = {
       ]
     }
   }
+  dependsOn:[
+    nicADDC
+  ]
 }
 
 resource dscADDC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
-  name: 'Microsoft.Powershell.DSC'
   parent: vmADDC
+  name: 'Microsoft.Powershell.DSC'
   location: location
-  dependsOn: [
-    dscCompilationADDC
-  ]
   properties: {
     publisher: 'Microsoft.Powershell'
     type: 'DSC'
@@ -704,6 +582,167 @@ resource dscADDC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
       ]
     }
   }
+  dependsOn: [
+    dscCompilationADDC
+  ]
 }
 
-// output ip string = nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
+resource nicHyperv 'Microsoft.Network/networkInterfaces@2020-05-01' = {
+  name: hypervVirtualMachine.nicName
+  location: location
+  properties: {
+    ipConfigurations: [
+      {
+        name: 'ipconfig'
+        properties: {
+          privateIPAllocationMethod: 'Dynamic'
+          subnet: {
+            id: '${vnetHub.id}/subnets/${resourceSubnet.subnetName}'
+          }
+        }
+      }
+    ]
+  }
+}
+
+resource diskHyperv 'Microsoft.Compute/disks@2020-09-30' = {
+  name: hypervVirtualMachine.diskName
+  location: location
+  sku: {
+    name: 'Premium_LRS'
+  }
+  properties: {
+    creationData: {
+      createOption: 'Empty'
+      // logicalSectorSize: 4096
+    }
+    diskSizeGB: 256
+    diskIOPSReadWrite: 7500
+    diskMBpsReadWrite: 250
+  }
+}
+
+resource vmHyperv 'Microsoft.Compute/virtualMachines@2019-07-01' = {
+  name: hypervVirtualMachine.name
+  location: location
+  properties: {
+    hardwareProfile: {
+      vmSize: vmSize
+    }
+    osProfile: {
+      computerName: hypervVirtualMachine.name
+      adminUsername: adminUserName
+      adminPassword: adminPassword
+    }
+    storageProfile: {
+      imageReference: {
+        publisher: 'MicrosoftWindowsServer'
+        offer: 'WindowsServer'
+        sku: hypervVirtualMachine.windowsOSVersion
+        version: 'latest'
+      }
+      osDisk: {
+        createOption: 'FromImage'
+      }
+      // disk for virtual machines
+      dataDisks:[
+        {
+          createOption: 'Attach'
+          lun: 1
+          managedDisk: {
+            id: diskHyperv.id
+          }
+        }
+      ]
+    }
+    // StorageAccountType UltraSSD_LRS can be used only when additionalCapabilities.ultraSSDEnabled is set.
+    // Do I need this, cost / perf benefit.
+    // additionalCapabilities: {
+    //   ultraSSDEnabled: true
+    // }
+    networkProfile: {
+      networkInterfaces: [
+        {
+          id: resourceId('Microsoft.Network/networkInterfaces', hypervVirtualMachine.nicName)
+        }
+      ]
+    }
+  }
+  dependsOn:[
+    nicHyperv
+  ]
+}
+
+resource dscHyperv 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
+  parent: vmHyperv
+  name: 'Microsoft.Powershell.DSC'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Powershell'
+    type: 'DSC'
+    typeHandlerVersion: '2.76'
+    protectedSettings: {
+      Items: {
+        registrationKeyPrivate: listKeys(automationAccount.id, '2019-06-01').Keys[0].value
+      }
+    }
+    settings: {
+      Properties: [
+        {
+          Name: 'RegistrationKey'
+          Value: {
+            UserName: 'PLACEHOLDER_DONOTUSE'
+            Password: 'PrivateSettingsRef:registrationKeyPrivate'
+          }
+          TypeName: 'System.Management.Automation.PSCredential'
+        }
+        {
+          Name: 'RegistrationUrl'
+          Value: automationAccount.properties.registrationUrl
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'NodeConfigurationName'
+          Value: '${hypervConfiguration.name}.localhost'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'ConfigurationMode'
+          Value: 'ApplyAndMonitor'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'ConfigurationModeFrequencyMins'
+          Value: 15
+          TypeName: 'System.Int32'
+        }
+        {
+          Name: 'RefreshFrequencyMins'
+          Value: 30
+          TypeName: 'System.Int32'
+        }
+        {
+          Name: 'RebootNodeIfNeeded'
+          Value: true
+          TypeName: 'System.Boolean'
+        }
+        {
+          Name: 'ActionAfterReboot'
+          Value: 'ContinueConfiguration'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'AllowModuleOverwrite'
+          Value: false
+          TypeName: 'System.Boolean'
+        }
+      ]
+    }
+  }
+  dependsOn: [
+    moduleXHyperv
+    moduleXActiveDirectory
+    moduleXPendingReboot
+    dscADDC
+  ]
+}

@@ -21,11 +21,28 @@ configuration hyperv {
     Import-DscResource -ModuleName xHyper-V
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
+    Import-DSCResource -ModuleName StorageDsc
 
     $Admincreds = Get-AutomationPSCredential 'Admincreds'
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
     node localhost {
+
+        WaitForDisk Disk2
+        {
+            DiskId = 2
+            RetryIntervalSec = 60
+            RetryCount = 20
+        }
+        
+        Disk FVolume
+        {
+            DiskId = 2
+            DriveLetter = 'F'
+            FSLabel = 'Data'
+            FSFormat = 'NTFS'
+            DependsOn = '[WaitForDisk]Disk2'
+        }   
 
         LocalConfigurationManager {
             ActionAfterReboot = 'ContinueConfiguration'            
@@ -58,7 +75,6 @@ configuration hyperv {
             Type = 'Internal'
         }
 
-        # TODO can I plumb through IP from ARM?
         xDnsServerAddress DnsServerAddress { 
             Address        = $DNSAddress
             # InterfaceAlias = $Interface.Name
