@@ -31,11 +31,11 @@ jobs:
             # ls
             # echo "-------"
             bicep build master/deploy/main.bicep
-            ls -l deploy/*.json
+            ls -l master/deploy/*.json
           
-      # - uses: EndBug/add-and-commit@v7.0.0
-      #   with:
-      #     author_name: github-actions
-      #     author_email: '41898282+github-actions[bot]@users.noreply.github.com'
-      #     message: Update Bicep-ARM template
-      #     add: deploy/main.json
+      - uses: EndBug/add-and-commit@v7.0.0
+        with:
+          author_name: github-actions
+          author_email: '41898282+github-actions[bot]@users.noreply.github.com'
+          message: Update Bicep-ARM template
+          add: master/deploy/main.json
