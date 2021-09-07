@@ -25,17 +25,20 @@ jobs:
 
       - name: Run Bicep build
         run: |
-            # echo "-------"
-            # ls
-            # cd master
-            # ls
-            # echo "-------"
             bicep build master/deploy/main.bicep
             ls -l master/deploy/*.json
+
+      - name: Commit files
+        run: |
+          git config --local user.email "$(git log --format='%ae' HEAD^!)"
+          git config --local user.name "$(git log --format='%an' HEAD^!)"
+          git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+          git pull github ${GITHUB_REF} --ff-only
+          git add .
+          if [ -z "$(git status --porcelain)" ]; then
+            exit 0
+          fi
+          git commit -m "Fix a[href] in Webflow exported html"
+          git push github HEAD:${GITHUB_REF}
+
           
-      - uses: EndBug/add-and-commit@v7.0.0
-        with:
-          author_name: github-actions
-          author_email: '41898282+github-actions[bot]@users.noreply.github.com'
-          message: Update Bicep-ARM template
-          add: master/deploy/main.json
