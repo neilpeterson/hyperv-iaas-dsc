@@ -27,6 +27,8 @@ jobs:
         run: |
             echo "-------"
             ls
+            cd master
+            ls
             echo "-------"
           # bicep build deploy/main.bicep
           # ls -l deploy/*.json
