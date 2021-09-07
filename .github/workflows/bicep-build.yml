@@ -22,9 +22,14 @@ jobs:
         run: |
             echo "-------"
             pwd
+            echo "-------"
+            ls
+            echo "-------"
             cd ../
+            echo "-------"
             pwd
-            ls ./hyperv-iaas-dsc
+            echo "-------"
+            ls
             echo "-------"
           # bicep build deploy/main.bicep
           # ls -l deploy/*.json
