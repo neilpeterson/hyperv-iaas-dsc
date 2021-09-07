@@ -22,6 +22,8 @@ jobs:
         run: |
             echo "-------"
             pwd
+            cd ../
+            pwd
             ls
             echo "-------"
           # bicep build deploy/main.bicep
