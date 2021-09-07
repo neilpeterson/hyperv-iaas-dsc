@@ -25,13 +25,13 @@ jobs:
 
       - name: Run Bicep build
         run: |
-            echo "-------"
-            ls
-            cd master
-            ls
-            echo "-------"
-          # bicep build deploy/main.bicep
-          # ls -l deploy/*.json
+            # echo "-------"
+            # ls
+            # cd master
+            # ls
+            # echo "-------"
+            bicep build deploy/main.bicep
+            ls -l deploy/*.json
           
       # - uses: EndBug/add-and-commit@v7.0.0
       #   with:
