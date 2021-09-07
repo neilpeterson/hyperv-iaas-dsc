@@ -8,7 +8,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
+    
     steps:
 
       - name: Checkout
@@ -39,7 +39,7 @@ jobs:
           if [ -z "$(git status --porcelain)" ]; then
             exit 0
           fi
-          git commit -m "Fix a[href] in Webflow exported html"
+          git commit -m "Automated ARM template build."
           git push github HEAD:${GITHUB_REF}
 
           
