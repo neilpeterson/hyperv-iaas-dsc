@@ -11,6 +11,11 @@ jobs:
 
     steps:
 
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: master
+
       - name: Install Bicep build
         run: |
           curl -Lo bicepinstall https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
@@ -20,14 +25,6 @@ jobs:
 
       - name: Run Bicep build
         run: |
-            echo "-------"
-            pwd
-            echo "-------"
-            ls
-            echo "-------"
-            cd ../
-            echo "-------"
-            pwd
             echo "-------"
             ls
             echo "-------"
