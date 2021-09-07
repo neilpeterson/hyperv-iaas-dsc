@@ -22,7 +22,7 @@ jobs:
         run: |
             echo "-------"
             pwd
-            ls ./deploy/
+            ls
             echo "-------"
           # bicep build deploy/main.bicep
           # ls -l deploy/*.json
