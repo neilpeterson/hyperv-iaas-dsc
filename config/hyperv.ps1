@@ -42,12 +42,12 @@ configuration hyperv {
             DependsOn = '[WaitForDisk]Disk2'
         }
 
-        xRemoteFile vmVHD {
-            Uri = ""
-            DestinationPath = "f:\"
-            MatchSource = $true
-            DependsOn = "[Disk]FVolume"
-        }
+        # xRemoteFile vmVHD {
+        #     Uri = ""
+        #     DestinationPath = "f:\"
+        #     MatchSource = $true
+        #     DependsOn = "[Disk]FVolume"
+        # }
 
         LocalConfigurationManager {
             ActionAfterReboot = 'ContinueConfiguration'            
