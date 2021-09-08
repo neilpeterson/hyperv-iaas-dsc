@@ -1,0 +1,228 @@
+param adminUserName string
+
+@secure()
+param adminPassword string
+
+param location string = resourceGroup().location
+param automationAccountName string = uniqueString(resourceGroup().id)
+
+param hypervConfiguration object = {
+  name: 'hyperv'
+  description: 'A configuration for installing Hyper-V.'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/hyperv.ps1'
+}
+
+param addcConfiguration object = {
+  name: 'ADDC'
+  description: 'A configuration for installing AADC.'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/create-forest.ps1'
+}
+
+param iisConfiguration object = {
+  name: 'IIS'
+  description: 'A configuration for installing IIS.'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/iis.ps1'
+}
+
+resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+  name: automationAccountName
+  location: location
+  properties: {
+    sku: {
+      name: 'Basic'
+    }
+  }
+}
+
+resource automationCredentials 'Microsoft.Automation/automationAccounts/credentials@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'Admincreds'
+  properties: {
+    description: 'Admin credentials.'
+    password: adminPassword
+    userName: adminUserName
+  }
+}
+
+resource moduleStorageDsc 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'StorageDsc'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/StorageDsc/5.0.1'
+      version: '5.0.1'
+    }
+  }
+}
+
+resource moduleXActiveDirectory 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'xActiveDirectory'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xActiveDirectory/3.0.0.0'
+      version: '3.0.0.0'
+    }
+  }
+}
+
+resource moduleXNetworking 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'xNetworking'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xNetworking/5.7.0.0'
+      version: '5.7.0.0'
+    }
+  }
+}
+
+resource moduleXPendingReboot 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'xPendingReboot'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xPendingReboot/0.4.0.0'
+      version: '0.4.0.0'
+    }
+  }
+}
+
+resource moduleXHyperv 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'xHyper-V'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0'
+      version: '3.17.0.0'
+    }
+  }
+}
+
+resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'xComputerManagement'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xComputerManagement/4.1.0'
+      version: '3.0.0.0'
+    }
+  }
+}
+
+resource dscConfigADDC 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+  name: addcConfiguration.name
+  parent: automationAccount
+  location: location
+  properties: {
+    logVerbose: false
+    description: addcConfiguration.description
+    source: {
+      type: 'uri'
+      value: addcConfiguration.script
+    }
+  }
+  dependsOn: [
+    moduleStorageDsc
+    moduleXActiveDirectory
+    moduleXNetworking
+    moduleXPendingReboot
+  ]
+}
+
+// resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+//   // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
+//   // https://stackoverflow.com/questions/54508062/how-to-i-prevent-microsoft-automation-automationaccounts-compilationjobs-to-alwa
+//   parent: automationAccount
+//   name: addcConfiguration.name
+//   location: location
+//   properties: {
+//     configuration: {
+//       name: addcConfiguration.name
+//     }
+//     parameters: { 
+//       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+//       DomainName: 'contoso.com'
+//     }
+//   }
+//   dependsOn: [
+//     dscConfigADDC
+//     automationCredentials
+//   ]
+// }
+
+resource dscConfigHyperv 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+  parent: automationAccount
+  name: hypervConfiguration.name
+  location: location
+  properties: {
+    logVerbose: false
+    description: hypervConfiguration.description
+    source: {
+      type: 'uri'
+      value: hypervConfiguration.script
+    }
+  }
+  dependsOn: [
+    moduleXActiveDirectory
+    moduleXComputerManagement
+    moduleXHyperv
+    moduleXPendingReboot
+  ]
+}
+
+// resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+//   // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
+//   parent: automationAccount
+//   name: '${hypervConfiguration.name}'
+//   location: location
+//   properties: {
+//     incrementNodeConfigurationBuild: false
+//     configuration: {
+//       name: hypervConfiguration.name
+//     }
+//     parameters: { 
+//       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+//       DomainName: 'contoso.com'
+//       DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
+//       ComputerName: hypervVirtualMachine.name
+//     }
+//   }
+//   dependsOn: [
+//     dscConfigHyperv
+//     automationCredentials
+//   ]
+// }
+
+resource dscConfigIIS 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+  parent: automationAccount
+  name: iisConfiguration.name
+  location: location
+  properties: {
+    logVerbose: false
+    description: iisConfiguration.description
+    source: {
+      type: 'uri'
+      value: iisConfiguration.script
+    }
+  }
+}
+
+// resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+//   // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
+//   parent: automationAccount
+//   name: '${iisConfiguration.name}'
+//   location: location
+//   properties: {
+//     incrementNodeConfigurationBuild: false
+//     configuration: {
+//       name: iisConfiguration.name
+//     }
+//   }
+// }

@@ -269,10 +269,6 @@ resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationj
       name: iisConfiguration.name
     }
   }
-  dependsOn: [
-    dscConfigHyperv
-    automationCredentials
-  ]
 }
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {

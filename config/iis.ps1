@@ -1,4 +1,4 @@
-Configuration iisinstall
+Configuration iis
 {
     Import-DscResource -ModuleName 'PSDesiredStateConfiguration'
 
