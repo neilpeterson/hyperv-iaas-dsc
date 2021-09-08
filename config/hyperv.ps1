@@ -28,21 +28,26 @@ configuration hyperv {
 
     node localhost {
 
-        WaitForDisk Disk2
-        {
+        WaitForDisk Disk2 {
             DiskId = 2
             RetryIntervalSec = 60
             RetryCount = 20
         }
         
-        Disk FVolume
-        {
+        Disk FVolume {
             DiskId = 2
             DriveLetter = 'F'
             FSLabel = 'Data'
             FSFormat = 'NTFS'
             DependsOn = '[WaitForDisk]Disk2'
-        }   
+        }
+
+        xRemoteFile vmVHD {
+            Uri = ""
+            DestinationPath = "f:\"
+            MatchSource = $true
+            DependsOn = "[Disk]FVolume"
+        }
 
         LocalConfigurationManager {
             ActionAfterReboot = 'ContinueConfiguration'            
