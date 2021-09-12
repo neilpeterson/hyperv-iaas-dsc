@@ -36,7 +36,7 @@ param hypervConfiguration object = {
 param addcConfiguration object = {
   name: 'ADDC'
   description: 'A configuration for installing AADC.'
-  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/create-forest.ps1'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/addc.ps1'
 }
 
 param iisConfiguration object = {
