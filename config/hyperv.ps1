@@ -42,16 +42,9 @@ configuration hyperv {
             DependsOn = '[WaitForDisk]Disk2'
         }
 
-        # xRemoteFile vmVHD {
-        #     Uri = ""
-        #     DestinationPath = "f:\"
-        #     MatchSource = $true
-        #     DependsOn = "[Disk]FVolume"
-        # }
-
         LocalConfigurationManager {
             ActionAfterReboot = 'ContinueConfiguration'            
-            ConfigurationMode = 'ApplyOnly'
+            ConfigurationMode = 'ApplyAndAutoCorrect'
             RebootNodeIfNeeded = $true
         }
 
@@ -81,14 +74,13 @@ configuration hyperv {
         }
 
         xDnsServerAddress DnsServerAddress { 
-            Address        = $DNSAddress
+            Address = $DNSAddress
             # InterfaceAlias = $Interface.Name
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
         }
 
-        xWaitForADDomain DscForestWait 
-        { 
+        xWaitForADDomain DscForestWait { 
             DomainName = $DomainName 
             DomainUserCredential= $DomainCreds
             RetryCount = $RetryCount 
@@ -96,16 +88,14 @@ configuration hyperv {
             DependsOn = "[xDnsServerAddress]DnsServerAddress"
         }
          
-        xComputer JoinDomain
-        {
-            Name          = $ComputerName
-            DomainName    = $DomainName
-            Credential    = $DomainCreds
+        xComputer JoinDomain {
+            Name = $ComputerName
+            DomainName = $DomainName
+            Credential = $DomainCreds
             DependsOn = "[xWaitForADDomain]DscForestWait"
         }
 
-        xPendingReboot Reboot2
-        { 
+        xPendingReboot Reboot2 { 
             Name = "RebootServer"
             DependsOn = "[xComputer]JoinDomain"
         }

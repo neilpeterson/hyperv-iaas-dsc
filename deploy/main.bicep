@@ -261,7 +261,7 @@ resource dscConfigIIS 'Microsoft.Automation/automationAccounts/configurations@20
 resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
   // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
   parent: automationAccount
-  name: '${iisConfiguration.name}'
+  name: iisConfiguration.name
   location: location
   properties: {
     incrementNodeConfigurationBuild: false
@@ -269,6 +269,9 @@ resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationj
       name: iisConfiguration.name
     }
   }
+  dependsOn: [
+    dscConfigIIS  
+  ]
 }
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
@@ -584,7 +587,7 @@ resource dscADDC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
         }
         {
           Name: 'ConfigurationMode'
-          Value: 'ApplyAndMonitor'
+          Value: 'ApplyAndAutoCorrect'
           TypeName: 'System.String'
         }
         {
@@ -741,7 +744,7 @@ resource dscHyperv 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
         }
         {
           Name: 'ConfigurationMode'
-          Value: 'ApplyAndMonitor'
+          Value: 'ApplyAndAutoCorrect'
           TypeName: 'System.String'
         }
         {

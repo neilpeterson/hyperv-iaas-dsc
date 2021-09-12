@@ -28,20 +28,18 @@ configuration ADDC
         LocalConfigurationManager 
         {
             ActionAfterReboot = 'ContinueConfiguration'            
-            ConfigurationMode = 'ApplyOnly'
+            ConfigurationMode = 'ApplyAndAutoCorrect'
             RebootNodeIfNeeded = $true
         }
 
         # TODO add disk to Azure deployment
-        # WaitForDisk Disk2
-        # {
+        # WaitForDisk Disk2 {
         #     DiskId = 2
         #     RetryIntervalSec = 60
         #     RetryCount = 20
         # }
         
-        # Disk FVolume
-        # {
+        # Disk FVolume {
         #     DiskId = 2
         #     DriveLetter = 'F'
         #     FSLabel = 'Data'
@@ -49,52 +47,45 @@ configuration ADDC
         #     DependsOn = '[WaitForDisk]Disk2'
         # }   
 
-	    WindowsFeature DNS 
-        { 
+	    WindowsFeature DNS { 
             Ensure = "Present" 
             Name = "DNS"		
         }
 
-	    WindowsFeature DnsTools
-	    {
+	    WindowsFeature DnsTools {
 	        Ensure = "Present"
             Name = "RSAT-DNS-Server"
             DependsOn = "[WindowsFeature]DNS"
 	    }
 
-        xDnsServerAddress DnsServerAddress 
-        { 
-            Address        = '127.0.0.1' 
-            # InterfaceAlias = $Interface.Name
-            # InterfaceAlias = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
-            InterfaceAlias = "Ethernet 2"
-            AddressFamily  = 'IPv4'
-	        DependsOn = "[WindowsFeature]DNS"
-        }
+        # xDnsServerAddress DnsServerAddress { 
+        #     Address        = '127.0.0.1' 
+        #     # InterfaceAlias = $Interface.Name
+        #     # InterfaceAlias = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
+        #     InterfaceAlias = "Ethernet 2"
+        #     AddressFamily  = 'IPv4'
+	    #     DependsOn = "[WindowsFeature]DNS"
+        # }
 
-        WindowsFeature ADDSInstall 
-        { 
+        WindowsFeature ADDSInstall { 
             Ensure = "Present" 
             Name = "AD-Domain-Services"
 	        DependsOn="[WindowsFeature]DNS" 
         } 
 
-        WindowsFeature ADDSTools
-        {
+        WindowsFeature ADDSTools {
             Ensure = "Present"
             Name = "RSAT-ADDS-Tools"
             DependsOn = "[WindowsFeature]ADDSInstall"
         }
 
-        WindowsFeature ADAdminCenter
-        {
+        WindowsFeature ADAdminCenter {
             Ensure = "Present"
             Name = "RSAT-AD-AdminCenter"
             DependsOn = "[WindowsFeature]ADDSInstall"
         }
          
-        xADDomain FirstDS 
-        {
+        xADDomain FirstDS {
             DomainName = $DomainName
             DomainAdministratorCredential = $DomainCreds
             SafemodeAdministratorPassword = $DomainCreds
