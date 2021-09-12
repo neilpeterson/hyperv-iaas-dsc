@@ -1,12 +1,10 @@
-configuration ADDC 
-{ 
+configuration ADDC {
+    
    param 
    ( 
         [Parameter(Mandatory)]
-        [String]$DomainName,
+        [String]$DomainName
 
-        [Int]$RetryCount=20,
-        [Int]$RetryIntervalSec=30
     ) 
     
     Import-DscResource -ModuleName PSDesiredStateConfiguration
