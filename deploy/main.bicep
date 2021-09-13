@@ -49,13 +49,14 @@ param addcVirtualMachine object = {
   name: 'vm-addc'
   nicName: 'nic-addc'
   windowsOSVersion: '2022-datacenter'
+  diskName: 'data'
 }
 
 param hypervVirtualMachine object = {
   name: 'vm-hyperv'
   nicName: 'nic-hyperv'
   windowsOSVersion: '2022-datacenter'
-  diskName: 'data'
+  diskName: 'addc-data'
 }
 
 resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
@@ -516,6 +517,23 @@ resource nicADDC 'Microsoft.Network/networkInterfaces@2020-05-01' = {
   }
 }
 
+resource diskADDC 'Microsoft.Compute/disks@2020-09-30' = {
+  name: addcVirtualMachine.diskName
+  location: location
+  sku: {
+    name: 'Premium_LRS'
+  }
+  properties: {
+    creationData: {
+      createOption: 'Empty'
+      // logicalSectorSize: 4096
+    }
+    diskSizeGB: 256
+    diskIOPSReadWrite: 7500
+    diskMBpsReadWrite: 250
+  }
+}
+
 resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = {
   name: addcVirtualMachine.name
   location: location
@@ -538,6 +556,15 @@ resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = {
       osDisk: {
         createOption: 'FromImage'
       }
+      dataDisks:[
+        {
+          createOption: 'Attach'
+          lun: 1
+          managedDisk: {
+            id: diskADDC.id
+          }
+        }
+      ]
     }
     networkProfile: {
       networkInterfaces: [
@@ -687,6 +714,13 @@ resource vmHyperv 'Microsoft.Compute/virtualMachines@2019-07-01' = {
           lun: 1
           managedDisk: {
             id: diskHyperv.id
+          }
+        }
+        {
+          createOption: 'Attach'
+          lun: 2
+          managedDisk: {
+            id: '/subscriptions/3762d87c-ddb8-425f-b2fc-29e5e859edaf/resourceGroups/AUTOMATION-CENTRAL-001/providers/Microsoft.Compute/disks/vhd-dsc-bootstrap'
           }
         }
       ]

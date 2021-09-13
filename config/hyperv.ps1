@@ -36,8 +36,8 @@ configuration hyperv {
         
         Disk FVolume {
             DiskId = 2
-            DriveLetter = 'F'
-            FSLabel = 'Data'
+            DriveLetter = 'Z'
+            FSLabel = 'Virtual Machines'
             FSFormat = 'NTFS'
             DependsOn = '[WaitForDisk]Disk2'
         }
