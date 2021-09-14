@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "6674377174885506369"
+      "templateHash": "8585183260880690100"
     }
   },
   "parameters": {
@@ -72,12 +72,21 @@
         "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/addc.ps1"
       }
     },
+    "iisConfiguration": {
+      "type": "object",
+      "defaultValue": {
+        "name": "IIS",
+        "description": "A configuration for installing IIS.",
+        "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/iis.ps1"
+      }
+    },
     "addcVirtualMachine": {
       "type": "object",
       "defaultValue": {
         "name": "vm-addc",
         "nicName": "nic-addc",
-        "windowsOSVersion": "2022-datacenter"
+        "windowsOSVersion": "2022-datacenter",
+        "diskName": "data"
       }
     },
     "hypervVirtualMachine": {
@@ -86,7 +95,7 @@
         "name": "vm-hyperv",
         "nicName": "nic-hyperv",
         "windowsOSVersion": "2022-datacenter",
-        "diskName": "data"
+        "diskName": "addc-data"
       }
     }
   },
@@ -301,6 +310,39 @@
         "[resourceId('Microsoft.Automation/automationAccounts/credentials', parameters('automationAccountName'), 'Admincreds')]",
         "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('hypervConfiguration').name)]",
         "[resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/configurations",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('iisConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "logVerbose": false,
+        "description": "[parameters('iisConfiguration').description]",
+        "source": {
+          "type": "uri",
+          "value": "[parameters('iisConfiguration').script]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/compilationjobs",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('iisConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "incrementNodeConfigurationBuild": false,
+        "configuration": {
+          "name": "[parameters('iisConfiguration').name]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('iisConfiguration').name)]"
       ]
     },
     {
@@ -568,6 +610,23 @@
       ]
     },
     {
+      "type": "Microsoft.Compute/disks",
+      "apiVersion": "2020-09-30",
+      "name": "[parameters('addcVirtualMachine').diskName]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Premium_LRS"
+      },
+      "properties": {
+        "creationData": {
+          "createOption": "Empty"
+        },
+        "diskSizeGB": 256,
+        "diskIOPSReadWrite": 7500,
+        "diskMBpsReadWrite": 250
+      }
+    },
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "apiVersion": "2019-07-01",
       "name": "[parameters('addcVirtualMachine').name]",
@@ -590,7 +649,16 @@
           },
           "osDisk": {
             "createOption": "FromImage"
-          }
+          },
+          "dataDisks": [
+            {
+              "createOption": "Attach",
+              "lun": 1,
+              "managedDisk": {
+                "id": "[resourceId('Microsoft.Compute/disks', parameters('addcVirtualMachine').diskName)]"
+              }
+            }
+          ]
         },
         "networkProfile": {
           "networkInterfaces": [
@@ -601,6 +669,7 @@
         }
       },
       "dependsOn": [
+        "[resourceId('Microsoft.Compute/disks', parameters('addcVirtualMachine').diskName)]",
         "[resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)]"
       ]
     },
@@ -640,7 +709,7 @@
             },
             {
               "Name": "ConfigurationMode",
-              "Value": "ApplyAndMonitor",
+              "Value": "ApplyAndAutoCorrect",
               "TypeName": "System.String"
             },
             {
@@ -747,6 +816,13 @@
               "managedDisk": {
                 "id": "[resourceId('Microsoft.Compute/disks', parameters('hypervVirtualMachine').diskName)]"
               }
+            },
+            {
+              "createOption": "Attach",
+              "lun": 2,
+              "managedDisk": {
+                "id": "/subscriptions/3762d87c-ddb8-425f-b2fc-29e5e859edaf/resourceGroups/AUTOMATION-CENTRAL-001/providers/Microsoft.Compute/disks/vhd-dsc-bootstrap"
+              }
             }
           ]
         },
@@ -799,7 +875,7 @@
             },
             {
               "Name": "ConfigurationMode",
-              "Value": "ApplyAndMonitor",
+              "Value": "ApplyAndAutoCorrect",
               "TypeName": "System.String"
             },
             {
