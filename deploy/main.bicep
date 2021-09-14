@@ -9,6 +9,7 @@ param vmSize string = 'Standard_D8s_v3'
 param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
 param automationAccountName string = uniqueString(resourceGroup().id)
+param sharedManagedDisk string = '/subscriptions/3762d87c-ddb8-425f-b2fc-29e5e859edaf/resourceGroups/AUTOMATION-CENTRAL-001/providers/Microsoft.Compute/disks/vhd-dsc-bootstrap'
 
 param hubNetwork object = {
   name: 'vnet-hub'
@@ -709,7 +710,6 @@ resource vmHyperv 'Microsoft.Compute/virtualMachines@2019-07-01' = {
       osDisk: {
         createOption: 'FromImage'
       }
-      // disk for virtual machines
       dataDisks:[
         {
           createOption: 'Attach'
@@ -722,16 +722,11 @@ resource vmHyperv 'Microsoft.Compute/virtualMachines@2019-07-01' = {
           createOption: 'Attach'
           lun: 2
           managedDisk: {
-            id: '/subscriptions/3762d87c-ddb8-425f-b2fc-29e5e859edaf/resourceGroups/AUTOMATION-CENTRAL-001/providers/Microsoft.Compute/disks/vhd-dsc-bootstrap'
+            id: sharedManagedDisk
           }
         }
       ]
     }
-    // StorageAccountType UltraSSD_LRS can be used only when additionalCapabilities.ultraSSDEnabled is set.
-    // Do I need this, cost / perf benefit.
-    // additionalCapabilities: {
-    //   ultraSSDEnabled: true
-    // }
     networkProfile: {
       networkInterfaces: [
         {

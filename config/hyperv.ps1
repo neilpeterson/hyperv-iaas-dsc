@@ -34,7 +34,7 @@ configuration hyperv {
             RetryCount = 20
         }
         
-        Disk FVolume {
+        Disk ZVolume {
             DiskId = 2
             DriveLetter = 'Z'
             FSLabel = 'Virtual Machines'
@@ -98,6 +98,20 @@ configuration hyperv {
         xPendingReboot Reboot2 { 
             Name = "RebootServer"
             DependsOn = "[xComputer]JoinDomain"
+        }
+
+        # File vm1 {
+        #     Ensure = 'Present'
+        #     Type = 'Directory'
+        #     DestinationPath = 'F:\vm1'
+        # }
+
+        File Test{
+            DestinationPath = "z:\vm1"
+            SourcePath = "f:\vhd-dsc-ddc.vhdx"
+            Ensure = "Present"
+            Type = "File"
+            DependsOn = "[Disk]ZVolume"
         }
     }
 } 
