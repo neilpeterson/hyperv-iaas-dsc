@@ -19,6 +19,4 @@ Once completed, note that the two virtual machines have been onboarded into Azur
 
 ## Other things
 
-The deploy to Azure button works for native ARM templates, however not Azure Bicep templates. A GitHub Action builds an ARM template from the Bicep template each time a commit occurs to work around this limitation. 
-
-The GitHub Action can be seen here - [link](./.github/bicep-build.yml).
+The deploy to Azure button works for native ARM templates, however not Azure Bicep templates. A GitHub Action builds an ARM template from the Bicep template each time a commit occurs to work around this limitation.
