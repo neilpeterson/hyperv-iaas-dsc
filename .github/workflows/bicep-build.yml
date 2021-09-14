@@ -3,8 +3,8 @@ name: Build ARM Tempalte
 on:
   push:
     branches: [ master ]
-    # paths:
-    #   - "deploy"
+    paths:
+      - "deploy/*"
 
 jobs:
   build:
