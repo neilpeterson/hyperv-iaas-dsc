@@ -108,7 +108,7 @@ configuration hyperv {
 
         File Test{
             DestinationPath = "z:\vm1"
-            SourcePath = "f:\vhd-dsc-ddc.vhdx"
+            SourcePath = "f:\vhd-dsc-addc.vhdx"
             Ensure = "Present"
             Type = "File"
             DependsOn = "[Disk]ZVolume"
