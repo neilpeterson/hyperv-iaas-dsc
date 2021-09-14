@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "8585183260880690100"
+      "templateHash": "12495854863964943284"
     }
   },
   "parameters": {
@@ -30,6 +30,10 @@
     "automationAccountName": {
       "type": "string",
       "defaultValue": "[uniqueString(resourceGroup().id)]"
+    },
+    "sharedManagedDisk": {
+      "type": "string",
+      "defaultValue": "/subscriptions/3762d87c-ddb8-425f-b2fc-29e5e859edaf/resourceGroups/AUTOMATION-CENTRAL-001/providers/Microsoft.Compute/disks/vhd-dsc-bootstrap"
     },
     "hubNetwork": {
       "type": "object",
@@ -821,7 +825,7 @@
               "createOption": "Attach",
               "lun": 2,
               "managedDisk": {
-                "id": "/subscriptions/3762d87c-ddb8-425f-b2fc-29e5e859edaf/resourceGroups/AUTOMATION-CENTRAL-001/providers/Microsoft.Compute/disks/vhd-dsc-bootstrap"
+                "id": "[parameters('sharedManagedDisk')]"
               }
             }
           ]
