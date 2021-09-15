@@ -7,6 +7,9 @@ configuration hyperv {
 
         [Parameter(Mandatory)]
         [string]$DomainName
+
+        # [Parameter(Mandatory)]
+        # [string]$DNSAddress
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
@@ -67,20 +70,28 @@ configuration hyperv {
             Type = 'Internal'
         }
 
-        xWaitForADDomain DscForestWait { 
-            DomainName = $DomainName 
-            DomainUserCredential= $DomainCreds
-            RetryCount = 30
-            RetryIntervalSec = 60
-            # DependsOn = "[xDnsServerAddress]DnsServerAddress"
-        }
+        # Disabling for Azure based Hyper-V sandbox
+        # xDnsServerAddress DnsServerAddress { 
+        #     Address = $DNSAddress
+        #     # InterfaceAlias = $Interface.Name
+        #     InterfaceAlias = "Ethernet 2"
+        #     AddressFamily  = 'IPv4'
+        # }
+
+        # xWaitForADDomain DscForestWait { 
+        #     DomainName = $DomainName 
+        #     DomainUserCredential= $DomainCreds
+        #     RetryCount = 30
+        #     RetryIntervalSec = 60
+        #     # DependsOn = "[xDnsServerAddress]DnsServerAddress"
+        # }
          
-        xComputer JoinDomain {
-            Name = $ComputerName
-            DomainName = $DomainName
-            Credential = $DomainCreds
-            DependsOn = "[xWaitForADDomain]DscForestWait"
-        }
+        # xComputer JoinDomain {
+        #     Name = $ComputerName
+        #     DomainName = $DomainName
+        #     Credential = $DomainCreds
+        #     DependsOn = "[xWaitForADDomain]DscForestWait"
+        # }
 
         xPendingReboot Reboot { 
             Name = "RebootServer"
