@@ -6,10 +6,7 @@ configuration hyperv {
         [string]$ComputerName,
 
         [Parameter(Mandatory)]
-        [string]$DomainName,
-
-        [Parameter(Mandatory)]
-        [string]$DNSAddress
+        [string]$DomainName
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
@@ -69,14 +66,6 @@ configuration hyperv {
             Ensure = 'Present'
             Type = 'Internal'
         }
-
-        # Disabling for Azure based Hyper-V sandbox
-        # xDnsServerAddress DnsServerAddress { 
-        #     Address = $DNSAddress
-        #     # InterfaceAlias = $Interface.Name
-        #     InterfaceAlias = "Ethernet 2"
-        #     AddressFamily  = 'IPv4'
-        # }
 
         xWaitForADDomain DscForestWait { 
             DomainName = $DomainName 
