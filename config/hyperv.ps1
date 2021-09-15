@@ -93,10 +93,10 @@ configuration hyperv {
         #     DependsOn = "[xWaitForADDomain]DscForestWait"
         # }
 
-        xPendingReboot Reboot { 
-            Name = "RebootServer"
-            DependsOn = "[xComputer]JoinDomain"
-        }
+        # xPendingReboot Reboot { 
+        #     Name = "RebootServer"
+        #     DependsOn = "[xComputer]JoinDomain"
+        # }
 
         File vmADDC {
             DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
