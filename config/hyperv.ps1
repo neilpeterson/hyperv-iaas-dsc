@@ -98,8 +98,8 @@ configuration hyperv {
             DependsOn = "[xComputer]JoinDomain"
         }
 
-        $disk = Get-Disk
-        write-verbose $disk
+        # $disk = Get-Disk
+        # write-verbose $disk
 
         File vmADDC {
             DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
