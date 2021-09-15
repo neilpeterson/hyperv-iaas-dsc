@@ -25,6 +25,15 @@ configuration hyperv {
 
     node localhost {
 
+        Script ExecutionPolicy {
+            SetScript = {
+                $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
+                $path = "{0}:\vm1\vhd-dsc-addc.vhdx" -f $a
+            }
+            TestScript = { $false }
+            GetScript  = { @{} }
+        }
+
         WaitForDisk Disk2 {
             DiskId = 2
             RetryIntervalSec = 60
@@ -98,11 +107,12 @@ configuration hyperv {
         #     DependsOn = "[xComputer]JoinDomain"
         # }
 
-        $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
+        # $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
+        # $path = "{0}:\vm1\vhd-dsc-addc.vhdx" -f $a
 
         File vmADDC {
             DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
-            SourcePath = "$a:\vhd-dsc-addc.vhdx"
+            SourcePath = $path
             Ensure = "Present"
             Type = "File"
         }
