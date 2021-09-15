@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "12495854863964943284"
+      "templateHash": "11168340737904638460"
     }
   },
   "parameters": {
@@ -305,15 +305,13 @@
         "parameters": {
           "ConfigurationData": "{\"AllNodes\":[{\"NodeName\":\"localhost\",\"PSDSCAllowPlainTextPassword\":true}]}",
           "DomainName": "contoso.com",
-          "DNSAddress": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)).ipConfigurations[0].properties.privateIPAddress]",
           "ComputerName": "[parameters('hypervVirtualMachine').name]"
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
         "[resourceId('Microsoft.Automation/automationAccounts/credentials', parameters('automationAccountName'), 'Admincreds')]",
-        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('hypervConfiguration').name)]",
-        "[resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)]"
+        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('hypervConfiguration').name)]"
       ]
     },
     {
