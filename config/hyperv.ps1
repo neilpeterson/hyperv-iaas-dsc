@@ -8,8 +8,8 @@ configuration hyperv {
         [Parameter(Mandatory)]
         [string]$DomainName
 
-        # [Parameter(Mandatory)]
-        # [string]$DNSAddress
+        [Parameter(Mandatory)]
+        [string]$DNSAddress
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
