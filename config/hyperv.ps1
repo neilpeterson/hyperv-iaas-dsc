@@ -87,8 +87,6 @@ configuration hyperv {
             DependsOn = "[xComputer]JoinDomain"
         }
 
-        $disk = Get-Process
-
         File vmADDC {
             DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
             SourcePath = "f:\vhd-dsc-addc.vhdx"
