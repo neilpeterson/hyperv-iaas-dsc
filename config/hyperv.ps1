@@ -101,27 +101,27 @@ configuration hyperv {
         # $disk = Get-Disk
         # write-verbose $disk
 
-        File vmADDC {
-            DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
-            SourcePath = "f:\vhd-dsc-addc.vhdx"
-            Ensure = "Present"
-            Type = "File"
-        }
+        # File vmADDC {
+        #     DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
+        #     SourcePath = "f:\vhd-dsc-addc.vhdx"
+        #     Ensure = "Present"
+        #     Type = "File"
+        # }
 
-        xVMHyperV NewVM {
-            Ensure          = 'Present'
-            Name            = "testvm2"
-            VhdPath         = "z:\vm1\vhd-dsc-addc.vhdx"
-            SwitchName      = "LabSwitch"
-            State           = "Off"
-            Path            = "z:\vm1"
-            Generation      = 1
-            StartupMemory   = 4294967296
-            MinimumMemory   = 4294967296
-            MaximumMemory   = 4294967296
-            ProcessorCount  = 1
-            RestartIfNeeded = $true
-            DependsOn = "[File]vmADDC"
-        }
+        # xVMHyperV NewVM {
+        #     Ensure          = 'Present'
+        #     Name            = "testvm2"
+        #     VhdPath         = "z:\vm1\vhd-dsc-addc.vhdx"
+        #     SwitchName      = "LabSwitch"
+        #     State           = "Off"
+        #     Path            = "z:\vm1"
+        #     Generation      = 1
+        #     StartupMemory   = 4294967296
+        #     MinimumMemory   = 4294967296
+        #     MaximumMemory   = 4294967296
+        #     ProcessorCount  = 1
+        #     RestartIfNeeded = $true
+        #     DependsOn = "[File]vmADDC"
+        # }
     }
 } 
