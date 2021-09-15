@@ -4,7 +4,6 @@ configuration ADDC {
    ( 
         [Parameter(Mandatory)]
         [String]$DomainName
-
     ) 
     
     Import-DscResource -ModuleName PSDesiredStateConfiguration
@@ -13,7 +12,6 @@ configuration ADDC {
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
 
-    # Pulls admin credentials from Azure Automation object, used on the VM and domain authentication.
     $Admincreds = Get-AutomationPSCredential 'Admincreds'
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
     

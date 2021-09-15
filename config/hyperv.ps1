@@ -9,10 +9,7 @@ configuration hyperv {
         [string]$DomainName,
 
         [Parameter(Mandatory)]
-        [string]$DNSAddress,
-
-        [Int]$RetryCount=30,
-        [Int]$RetryIntervalSec=60
+        [string]$DNSAddress
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
@@ -31,7 +28,7 @@ configuration hyperv {
         WaitForDisk Disk2 {
             DiskId = 2
             RetryIntervalSec = 60
-            RetryCount = 20
+            RetryCount = 60
         }
         
         Disk ZVolume {
@@ -73,18 +70,19 @@ configuration hyperv {
             Type = 'Internal'
         }
 
-        xDnsServerAddress DnsServerAddress { 
-            Address = $DNSAddress
-            # InterfaceAlias = $Interface.Name
-            InterfaceAlias = "Ethernet 2"
-            AddressFamily  = 'IPv4'
-        }
+        # Disabling for Azure based Hyper-V sandbox
+        # xDnsServerAddress DnsServerAddress { 
+        #     Address = $DNSAddress
+        #     # InterfaceAlias = $Interface.Name
+        #     InterfaceAlias = "Ethernet 2"
+        #     AddressFamily  = 'IPv4'
+        # }
 
         xWaitForADDomain DscForestWait { 
             DomainName = $DomainName 
             DomainUserCredential= $DomainCreds
-            RetryCount = $RetryCount 
-            RetryIntervalSec = $RetryIntervalSec
+            RetryCount = 30
+            RetryIntervalSec = 60
             DependsOn = "[xDnsServerAddress]DnsServerAddress"
         }
          
@@ -95,14 +93,17 @@ configuration hyperv {
             DependsOn = "[xWaitForADDomain]DscForestWait"
         }
 
-        xPendingReboot Reboot2 { 
+        xPendingReboot Reboot { 
             Name = "RebootServer"
             DependsOn = "[xComputer]JoinDomain"
         }
 
+        $disk = Get-Disk
+        write-verbose $disk
+
         File vmADDC {
             DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
-            SourcePath = "e:\vhd-dsc-addc.vhdx"
+            SourcePath = "f:\vhd-dsc-addc.vhdx"
             Ensure = "Present"
             Type = "File"
         }
@@ -120,6 +121,7 @@ configuration hyperv {
             MaximumMemory   = 4294967296
             ProcessorCount  = 1
             RestartIfNeeded = $true
+            DependsOn = "[File]vmADDC"
         }
     }
 } 
