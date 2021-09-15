@@ -6,10 +6,10 @@ configuration hyperv {
         [string]$ComputerName,
 
         [Parameter(Mandatory)]
-        [string]$DomainName,
+        [string]$DomainName
 
-        [Parameter(Mandatory)]
-        [string]$DNSAddress
+        # [Parameter(Mandatory)]
+        # [string]$DNSAddress
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
@@ -83,7 +83,7 @@ configuration hyperv {
             DomainUserCredential= $DomainCreds
             RetryCount = 30
             RetryIntervalSec = 60
-            DependsOn = "[xDnsServerAddress]DnsServerAddress"
+            # DependsOn = "[xDnsServerAddress]DnsServerAddress"
         }
          
         xComputer JoinDomain {
@@ -98,30 +98,30 @@ configuration hyperv {
             DependsOn = "[xComputer]JoinDomain"
         }
 
-        # $disk = Get-Disk
-        # write-verbose $disk
+        $disk = Get-Process
+        write-output $disk
 
-        # File vmADDC {
-        #     DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
-        #     SourcePath = "f:\vhd-dsc-addc.vhdx"
-        #     Ensure = "Present"
-        #     Type = "File"
-        # }
+        File vmADDC {
+            DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
+            SourcePath = "f:\vhd-dsc-addc.vhdx"
+            Ensure = "Present"
+            Type = "File"
+        }
 
-        # xVMHyperV NewVM {
-        #     Ensure          = 'Present'
-        #     Name            = "testvm2"
-        #     VhdPath         = "z:\vm1\vhd-dsc-addc.vhdx"
-        #     SwitchName      = "LabSwitch"
-        #     State           = "Off"
-        #     Path            = "z:\vm1"
-        #     Generation      = 1
-        #     StartupMemory   = 4294967296
-        #     MinimumMemory   = 4294967296
-        #     MaximumMemory   = 4294967296
-        #     ProcessorCount  = 1
-        #     RestartIfNeeded = $true
-        #     DependsOn = "[File]vmADDC"
-        # }
+        xVMHyperV NewVM {
+            Ensure          = 'Present'
+            Name            = "testvm2"
+            VhdPath         = "z:\vm1\vhd-dsc-addc.vhdx"
+            SwitchName      = "LabSwitch"
+            State           = "Off"
+            Path            = "z:\vm1"
+            Generation      = 1
+            StartupMemory   = 4294967296
+            MinimumMemory   = 4294967296
+            MaximumMemory   = 4294967296
+            ProcessorCount  = 1
+            RestartIfNeeded = $true
+            DependsOn = "[File]vmADDC"
+        }
     }
 } 
