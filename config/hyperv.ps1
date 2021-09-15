@@ -98,16 +98,7 @@ configuration hyperv {
         #     DependsOn = "[xComputer]JoinDomain"
         # }
 
-        # $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
-        # $path = "{0}:\vm1\vhd-dsc-addc.vhdx" -f $a
-
-        # File vmADDC {
-        #     DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
-        #     SourcePath = $path
-        #     Ensure = "Present"
-        #     Type = "File"
-        # }
-
+        # Need to use script resource for dynamically determining source path
         Script stageVHD {
             SetScript = {
                 $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
@@ -115,7 +106,7 @@ configuration hyperv {
                 New-Item -Path "z:\" -Name "vm1" -ItemType "directory"
                 Copy-Item -Path $path -Destination z:\vm1\vhd-dsc-addc.vhdx
             }
-            TestScript = { $false }
+            TestScript = { Test-path Z:\vm1\vhd-dsc-addc.vhdx }
             GetScript  = { @{} }
         }
 
