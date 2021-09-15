@@ -88,7 +88,6 @@ configuration hyperv {
         }
 
         $disk = Get-Process
-        write-output $disk
 
         File vmADDC {
             DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
