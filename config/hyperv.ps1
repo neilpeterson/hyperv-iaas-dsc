@@ -25,15 +25,6 @@ configuration hyperv {
 
     node localhost {
 
-        Script ExecutionPolicy {
-            SetScript = {
-                $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
-                $path = "{0}:\vm1\vhd-dsc-addc.vhdx" -f $a
-            }
-            TestScript = { $false }
-            GetScript  = { @{} }
-        }
-
         WaitForDisk Disk2 {
             DiskId = 2
             RetryIntervalSec = 60
@@ -110,11 +101,22 @@ configuration hyperv {
         # $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
         # $path = "{0}:\vm1\vhd-dsc-addc.vhdx" -f $a
 
-        File vmADDC {
-            DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
-            SourcePath = $path
-            Ensure = "Present"
-            Type = "File"
+        # File vmADDC {
+        #     DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
+        #     SourcePath = $path
+        #     Ensure = "Present"
+        #     Type = "File"
+        # }
+
+        Script stageVHD {
+            SetScript = {
+                $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
+                $path = "{0}:\vhd-dsc-addc.vhdx" -f $a
+                New-Item -Path "z:\" -Name "vm1" -ItemType "directory"
+                Copy-Item -Path $path -Destination z:\vm1\vhd-dsc-addc.vhdx
+            }
+            TestScript = { $false }
+            GetScript  = { @{} }
         }
 
         xVMHyperV NewVM {
@@ -130,7 +132,7 @@ configuration hyperv {
             MaximumMemory   = 4294967296
             ProcessorCount  = 1
             RestartIfNeeded = $true
-            DependsOn = "[File]vmADDC"
+            DependsOn = "[Script]stageVHD"
         }
     }
 } 
