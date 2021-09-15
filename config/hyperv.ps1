@@ -98,9 +98,11 @@ configuration hyperv {
         #     DependsOn = "[xComputer]JoinDomain"
         # }
 
+        $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
+
         File vmADDC {
             DestinationPath = "z:\vm1\vhd-dsc-addc.vhdx"
-            SourcePath = "f:\vhd-dsc-addc.vhdx"
+            SourcePath = "$a:\vhd-dsc-addc.vhdx"
             Ensure = "Present"
             Type = "File"
         }
