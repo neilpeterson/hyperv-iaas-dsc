@@ -6,7 +6,7 @@ configuration hyperv {
         [string]$ComputerName,
 
         [Parameter(Mandatory)]
-        [string]$DomainName
+        [string]$DomainName,
 
         [Parameter(Mandatory)]
         [string]$DNSAddress
