@@ -71,7 +71,7 @@ configuration hyperv {
         }
 
         xDnsServerAddress DnsServerAddress { 
-            Address = '8.8.8.8', $DNSAddress
+            Address = $DNSAddress,'8.8.8.8'
             # InterfaceAlias = $Interface.Name
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
@@ -98,6 +98,24 @@ configuration hyperv {
         # }
 
         # Need to use script resource for dynamically determining source path
+        Script natConfig {
+            SetScript = {
+                New-VMSwitch -Name "InternalSwitchNAT" -SwitchType Internal
+                $interface = Get-NetAdapter | where-object {$_.Name -like "*InternalSwitchNAT*"}
+                New-NetIPAddress -IPAddress 192.168.0.1 -PrefixLength 24 -InterfaceIndex $interface.ifIndex
+                New-NetNat -Name "InternalNATnet" -InternalIPInterfaceAddressPrefix 192.168.0.0/24
+            }
+            TestScript = { 
+                if (Get-VMSwitch -Name "NATSwitch" -ErrorAction SilentlyContinue) {
+                    return $true
+                } else {
+                   return $false
+                } 
+            }
+            GetScript  = { @{} }
+        }
+
+        # Need to use script resource for dynamically determining source path
         Script stageVHD {
             SetScript = {
                 $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
@@ -110,17 +128,17 @@ configuration hyperv {
         }
 
         xVMHyperV NewVM {
-            Ensure          = 'Present'
-            Name            = "testvm2"
-            VhdPath         = "z:\vm1\vhd-dsc-addc.vhdx"
-            SwitchName      = "LabSwitch"
-            State           = "Off"
-            Path            = "z:\vm1"
-            Generation      = 1
-            StartupMemory   = 4294967296
-            MinimumMemory   = 4294967296
-            MaximumMemory   = 4294967296
-            ProcessorCount  = 1
+            Ensure = 'Present'
+            Name = "testvm2"
+            VhdPath = "z:\vm1\vhd-dsc-addc.vhdx"
+            SwitchName = "LabSwitch"
+            State = "Off"
+            Path = "z:\vm1"
+            Generation = 1
+            StartupMemory = 4294967296
+            MinimumMemory = 4294967296
+            MaximumMemory = 4294967296
+            ProcessorCount = 1
             RestartIfNeeded = $true
             DependsOn = "[Script]stageVHD"
         }
