@@ -63,13 +63,6 @@ configuration hyperv {
             IncludeAllSubFeature = $true
         }
 
-        # xVMSwitch LabSwitch {
-        #     DependsOn = '[WindowsFeature]Hyper-V'
-        #     Name = 'LabSwitch'
-        #     Ensure = 'Present'
-        #     Type = 'Internal'
-        # }
-
         xDnsServerAddress DnsServerAddress { 
             Address = $DNSAddress,'8.8.8.8'
             # InterfaceAlias = $Interface.Name
