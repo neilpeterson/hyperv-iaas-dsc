@@ -63,12 +63,12 @@ configuration hyperv {
             IncludeAllSubFeature = $true
         }
 
-        xVMSwitch LabSwitch {
-            DependsOn = '[WindowsFeature]Hyper-V'
-            Name = 'LabSwitch'
-            Ensure = 'Present'
-            Type = 'Internal'
-        }
+        # xVMSwitch LabSwitch {
+        #     DependsOn = '[WindowsFeature]Hyper-V'
+        #     Name = 'LabSwitch'
+        #     Ensure = 'Present'
+        #     Type = 'Internal'
+        # }
 
         xDnsServerAddress DnsServerAddress { 
             Address = $DNSAddress,'8.8.8.8'
@@ -77,31 +77,31 @@ configuration hyperv {
             AddressFamily  = 'IPv4'
         }
 
-        # xWaitForADDomain DscForestWait { 
-        #     DomainName = $DomainName 
-        #     DomainUserCredential= $DomainCreds
-        #     RetryCount = 30
-        #     RetryIntervalSec = 60
-        #     # DependsOn = "[xDnsServerAddress]DnsServerAddress"
-        # }
+        xWaitForADDomain DscForestWait { 
+            DomainName = $DomainName 
+            DomainUserCredential= $DomainCreds
+            RetryCount = 30
+            RetryIntervalSec = 60
+            # DependsOn = "[xDnsServerAddress]DnsServerAddress"
+        }
          
-        # xComputer JoinDomain {
-        #     Name = $ComputerName
-        #     DomainName = $DomainName
-        #     Credential = $DomainCreds
-        #     DependsOn = "[xWaitForADDomain]DscForestWait"
-        # }
+        xComputer JoinDomain {
+            Name = $ComputerName
+            DomainName = $DomainName
+            Credential = $DomainCreds
+            DependsOn = "[xWaitForADDomain]DscForestWait"
+        }
 
-        # xPendingReboot Reboot { 
-        #     Name = "RebootServer"
-        #     DependsOn = "[xComputer]JoinDomain"
-        # }
+        xPendingReboot Reboot { 
+            Name = "RebootServer"
+            DependsOn = "[xComputer]JoinDomain"
+        }
 
         # Need to use script resource for dynamically determining source path
         Script natConfig {
             SetScript = {
-                New-VMSwitch -Name "InternalSwitchNAT" -SwitchType Internal
-                $interface = Get-NetAdapter | where-object {$_.Name -like "*InternalSwitchNAT*"}
+                New-VMSwitch -Name "NATSwitch" -SwitchType Internal
+                $interface = Get-NetAdapter | where-object {$_.Name -like "*NATSwitch*"}
                 New-NetIPAddress -IPAddress 192.168.0.1 -PrefixLength 24 -InterfaceIndex $interface.ifIndex
                 New-NetNat -Name "InternalNATnet" -InternalIPInterfaceAddressPrefix 192.168.0.0/24
             }
@@ -131,7 +131,7 @@ configuration hyperv {
             Ensure = 'Present'
             Name = "testvm2"
             VhdPath = "z:\vm1\vhd-dsc-addc.vhdx"
-            SwitchName = "LabSwitch"
+            SwitchName = "NATSwitch"
             State = "Off"
             Path = "z:\vm1"
             Generation = 1
