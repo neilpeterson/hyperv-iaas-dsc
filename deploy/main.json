@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "12495854863964943284"
+      "templateHash": "2882341686949850899"
     }
   },
   "parameters": {
@@ -84,6 +84,14 @@
         "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/iis.ps1"
       }
     },
+    "rodcConfiguration": {
+      "type": "object",
+      "defaultValue": {
+        "name": "RODC",
+        "description": "A configuration for installing a read only domain controller.",
+        "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/rodc.ps1"
+      }
+    },
     "addcVirtualMachine": {
       "type": "object",
       "defaultValue": {
@@ -149,6 +157,21 @@
         "contentLink": {
           "uri": "https://www.powershellgallery.com/api/v2/package/StorageDsc/5.0.1",
           "version": "5.0.1"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), 'ActiveDirectoryDsc')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "contentLink": {
+          "uri": "https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.2.0-preview0001",
+          "version": "6.2.0-preview0001"
         }
       },
       "dependsOn": [
@@ -269,6 +292,49 @@
         "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
         "[resourceId('Microsoft.Automation/automationAccounts/credentials', parameters('automationAccountName'), 'Admincreds')]",
         "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('addcConfiguration').name)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/configurations",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('rodcConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "logVerbose": false,
+        "description": "[parameters('rodcConfiguration').description]",
+        "source": {
+          "type": "uri",
+          "value": "[parameters('addcConfiguration').script]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'ActiveDirectoryDsc')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'StorageDsc')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xNetworking')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xPendingReboot')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/compilationjobs",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('rodcConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "configuration": {
+          "name": "[parameters('rodcConfiguration').name]"
+        },
+        "parameters": {
+          "ConfigurationData": "{\"AllNodes\":[{\"NodeName\":\"localhost\",\"PSDSCAllowPlainTextPassword\":true}]}",
+          "DomainName": "contoso.com",
+          "DNSAddress": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)).ipConfigurations[0].properties.privateIPAddress]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/credentials', parameters('automationAccountName'), 'Admincreds')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('rodcConfiguration').name)]",
+        "[resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)]"
       ]
     },
     {
