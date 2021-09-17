@@ -48,6 +48,12 @@ param iisConfiguration object = {
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/iis.ps1'
 }
 
+param rodcConfiguration object = {
+  name: 'RODC'
+  description: 'A configuration for installing a read only domain controller.'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/rodc.ps1'
+}
+
 param addcVirtualMachine object = {
   name: 'vm-addc'
   nicName: 'nic-addc'
@@ -100,6 +106,18 @@ resource moduleStorageDsc 'Microsoft.Automation/automationAccounts/modules@2020-
     contentLink: {
       uri: 'https://www.powershellgallery.com/api/v2/package/StorageDsc/5.0.1'
       version: '5.0.1'
+    }
+  }
+}
+
+resource moduleActiveDirectoryDsc 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'ActiveDirectoryDsc'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.2.0-preview0001'
+      version: '6.2.0-preview0001'
     }
   }
 }
@@ -201,6 +219,48 @@ resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilation
   }
   dependsOn: [
     dscConfigADDC
+    automationCredentials
+  ]
+}
+
+resource dscConfigRODC 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+  name: rodcConfiguration.name
+  parent: automationAccount
+  location: location
+  properties: {
+    logVerbose: false
+    description: rodcConfiguration.description
+    source: {
+      type: 'uri'
+      value: addcConfiguration.script
+    }
+  }
+  dependsOn: [
+    moduleStorageDsc
+    moduleActiveDirectoryDsc
+    moduleXNetworking
+    moduleXPendingReboot
+  ]
+}
+
+resource dscCompilationRODC 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+  // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
+  // https://stackoverflow.com/questions/54508062/how-to-i-prevent-microsoft-automation-automationaccounts-compilationjobs-to-alwa
+  parent: automationAccount
+  name: rodcConfiguration.name
+  location: location
+  properties: {
+    configuration: {
+      name: rodcConfiguration.name
+    }
+    parameters: { 
+      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+      DomainName: 'contoso.com'
+      DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
+    }
+  }
+  dependsOn: [
+    dscConfigRODC
     automationCredentials
   ]
 }

@@ -1,14 +1,17 @@
-configuration addc {
+configuration rodc {
     
    param 
    ( 
         [Parameter(Mandatory)]
-        [String]$DomainName
+        [String]$DomainName,
+
+        [Parameter(Mandatory)]
+        [string]$DNSAddress
     ) 
     
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DSCResource -ModuleName StorageDsc
-    Import-DscResource -ModuleName xActiveDirectory
+    Import-DscResource -ModuleName ActiveDirectoryDsc
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
 
@@ -19,8 +22,8 @@ configuration addc {
     # TODO this needs to be fixed.
     # $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
 
-    Node localhost {
-        
+    Node localhost
+    {
         LocalConfigurationManager {
             ActionAfterReboot = 'ContinueConfiguration'            
             ConfigurationMode = 'ApplyAndAutoCorrect'
@@ -41,16 +44,16 @@ configuration addc {
             DependsOn = '[WaitForDisk]Disk2'
         }   
 
-	    WindowsFeature DNS { 
+        WindowsFeature DNS { 
             Ensure = "Present" 
             Name = "DNS"		
         }
 
-	    WindowsFeature DnsTools {
-	        Ensure = "Present"
+        WindowsFeature DnsTools {
+            Ensure = "Present"
             Name = "RSAT-DNS-Server"
             DependsOn = "[WindowsFeature]DNS"
-	    }
+        }
 
         # xDnsServerAddress DnsServerAddress { 
         #     Address        = '127.0.0.1' 
@@ -58,13 +61,36 @@ configuration addc {
         #     # InterfaceAlias = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
         #     InterfaceAlias = "Ethernet 2"
         #     AddressFamily  = 'IPv4'
-	    #     DependsOn = "[WindowsFeature]DNS"
+        #     DependsOn = "[WindowsFeature]DNS"
         # }
+
+        # WindowsFeature ADAdminCenter {
+        #     Ensure = "Present"
+        #     Name = "RSAT-AD-AdminCenter"
+        #     DependsOn = "[WindowsFeature]ADDSInstall"
+        # }
+            
+        # xADDomain FirstDS {
+        #     DomainName = $DomainName
+        #     DomainAdministratorCredential = $DomainCreds
+        #     SafemodeAdministratorPassword = $DomainCreds
+        #     DatabasePath = "F:\NTDS"
+        #     LogPath = "F:\NTDS"
+        #     SysvolPath = "F:\SYSVOL"
+        #     DependsOn = @("[WindowsFeature]ADDSInstall")
+        # } 
+
+        xDnsServerAddress DnsServerAddress { 
+            Address = $DNSAddress,'8.8.8.8'
+            # InterfaceAlias = $Interface.Name
+            InterfaceAlias = "Ethernet 2"
+            AddressFamily  = 'IPv4'
+        }
 
         WindowsFeature ADDSInstall { 
             Ensure = "Present" 
             Name = "AD-Domain-Services"
-	        DependsOn="[WindowsFeature]DNS" 
+            DependsOn="[WindowsFeature]DNS" 
         } 
 
         WindowsFeature ADDSTools {
@@ -73,25 +99,21 @@ configuration addc {
             DependsOn = "[WindowsFeature]ADDSInstall"
         }
 
-        WindowsFeature ADAdminCenter {
-            Ensure = "Present"
-            Name = "RSAT-AD-AdminCenter"
-            DependsOn = "[WindowsFeature]ADDSInstall"
-        }
-         
-        xADDomain FirstDS {
+        ADDomainController RODC {
             DomainName = $DomainName
-            DomainAdministratorCredential = $DomainCreds
+            Credential = $DomainCreds
             SafemodeAdministratorPassword = $DomainCreds
             DatabasePath = "F:\NTDS"
             LogPath = "F:\NTDS"
             SysvolPath = "F:\SYSVOL"
-	        DependsOn = @("[WindowsFeature]ADDSInstall")
+            SiteName = "Default"
+            ReadOnlyReplica = $true
+            DependsOn = @("[WindowsFeature]ADDSInstall")
         } 
 
         xPendingReboot Reboot { 
             Name = "RebootServer"
-            DependsOn = "[xADDomain]FirstDS"
+            DependsOn = "[ADDomainController]RODC"
         }
    }
 } 

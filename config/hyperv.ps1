@@ -120,13 +120,29 @@ configuration hyperv {
             GetScript  = { @{} }
         }
 
-        xVMHyperV NewVM {
+        xVMHyperV RODC {
             Ensure = 'Present'
-            Name = "testvm2"
-            VhdPath = "z:\vm1\vhd-dsc-addc.vhdx"
+            Name = "RODC"
+            VhdPath = "z:\RODC\vhd-dsc-addc.vhdx"
             SwitchName = "NATSwitch"
             State = "Off"
-            Path = "z:\vm1"
+            Path = "z:\RODC"
+            Generation = 1
+            StartupMemory = 4294967296
+            MinimumMemory = 4294967296
+            MaximumMemory = 4294967296
+            ProcessorCount = 1
+            RestartIfNeeded = $true
+            DependsOn = "[Script]stageVHD"
+        }
+
+        xVMHyperV IIS {
+            Ensure = 'Present'
+            Name = "IIS"
+            VhdPath = "z:\IIS\vhd-dsc-addc.vhdx"
+            SwitchName = "NATSwitch"
+            State = "Off"
+            Path = "z:\IIS"
             Generation = 1
             StartupMemory = 4294967296
             MinimumMemory = 4294967296
