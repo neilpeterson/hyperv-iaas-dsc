@@ -109,14 +109,14 @@ configuration hyperv {
         }
 
         # Need to use script resource for dynamically determining source path
-        Script stageVHD {
+        Script stageVHDRODC {
             SetScript = {
                 $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
                 $path = "{0}:\vhd-dsc-addc.vhdx" -f $a
-                New-Item -Path "z:\" -Name "vm1" -ItemType "directory"
-                Copy-Item -Path $path -Destination z:\vm1\vhd-dsc-addc.vhdx
+                New-Item -Path "z:\" -Name "RODC" -ItemType "directory"
+                Copy-Item -Path $path -Destination z:\RODC\vhd-dsc-addc.vhdx
             }
-            TestScript = { Test-path Z:\vm1\vhd-dsc-addc.vhdx }
+            TestScript = { Test-path Z:\RODC\vhd-dsc-addc.vhdx }
             GetScript  = { @{} }
         }
 
@@ -133,7 +133,18 @@ configuration hyperv {
             MaximumMemory = 4294967296
             ProcessorCount = 1
             RestartIfNeeded = $true
-            DependsOn = "[Script]stageVHD"
+            DependsOn = "[Script]stageVHDRODC"
+        }
+
+        Script stageVHDIIS {
+            SetScript = {
+                $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
+                $path = "{0}:\vhd-dsc-addc.vhdx" -f $a
+                New-Item -Path "z:\" -Name "vm1" -ItemType "directory"
+                Copy-Item -Path $path -Destination z:\vm1\vhd-dsc-addc.vhdx
+            }
+            TestScript = { Test-path Z:\vm1\vhd-dsc-addc.vhdx }
+            GetScript  = { @{} }
         }
 
         xVMHyperV IIS {
