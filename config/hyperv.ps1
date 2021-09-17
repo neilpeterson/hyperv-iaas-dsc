@@ -112,18 +112,18 @@ configuration hyperv {
         Script stageVHDRODC {
             SetScript = {
                 $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
-                $path = "{0}:\vhd-dsc-addc.vhdx" -f $a
+                $path = "{0}:\vhd-dsc-rodc.vhdx" -f $a
                 New-Item -Path "z:\" -Name "RODC" -ItemType "directory"
-                Copy-Item -Path $path -Destination z:\RODC\vhd-dsc-addc.vhdx
+                Copy-Item -Path $path -Destination z:\RODC\vhd-dsc-rodc.vhdx
             }
-            TestScript = { Test-path Z:\RODC\vhd-dsc-addc.vhdx }
+            TestScript = { Test-path Z:\RODC\vhd-dsc-rodc.vhdx }
             GetScript  = { @{} }
         }
 
         xVMHyperV RODC {
             Ensure = 'Present'
             Name = "RODC"
-            VhdPath = "z:\RODC\vhd-dsc-addc.vhdx"
+            VhdPath = "z:\RODC\vhd-dsc-rodc.vhdx"
             SwitchName = "NATSwitch"
             State = "Off"
             Path = "z:\RODC"
@@ -139,21 +139,21 @@ configuration hyperv {
         Script stageVHDIIS {
             SetScript = {
                 $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
-                $path = "{0}:\vhd-dsc-addc.vhdx" -f $a
-                New-Item -Path "z:\" -Name "vm1" -ItemType "directory"
-                Copy-Item -Path $path -Destination z:\vm1\vhd-dsc-addc.vhdx
+                $path = "{0}:\vhd-dsc-iis.vhdx" -f $a
+                New-Item -Path "z:\" -Name "iis" -ItemType "directory"
+                Copy-Item -Path $path -Destination z:\iis\vhd-dsc-iis.vhdx
             }
-            TestScript = { Test-path Z:\vm1\vhd-dsc-addc.vhdx }
+            TestScript = { Test-path Z:\iis\vhd-dsc-iis.vhdx }
             GetScript  = { @{} }
         }
 
         xVMHyperV IIS {
             Ensure = 'Present'
             Name = "IIS"
-            VhdPath = "z:\IIS\vhd-dsc-addc.vhdx"
+            VhdPath = "z:\iis\vhd-dsc-iis.vhdx"
             SwitchName = "NATSwitch"
             State = "Off"
-            Path = "z:\IIS"
+            Path = "z:\iis"
             Generation = 1
             StartupMemory = 4294967296
             MinimumMemory = 4294967296

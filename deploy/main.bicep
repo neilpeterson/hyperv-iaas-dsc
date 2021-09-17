@@ -37,19 +37,19 @@ param hypervConfiguration object = {
 }
 
 param addcConfiguration object = {
-  name: 'ADDC'
+  name: 'addc'
   description: 'A configuration for installing AADC.'
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/addc.ps1'
 }
 
 param iisConfiguration object = {
-  name: 'IIS'
+  name: 'iis'
   description: 'A configuration for installing IIS.'
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/iis.ps1'
 }
 
 param rodcConfiguration object = {
-  name: 'RODC'
+  name: 'rodc'
   description: 'A configuration for installing a read only domain controller.'
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/rodc.ps1'
 }
@@ -232,7 +232,7 @@ resource dscConfigRODC 'Microsoft.Automation/automationAccounts/configurations@2
     description: rodcConfiguration.description
     source: {
       type: 'uri'
-      value: addcConfiguration.script
+      value: rodcConfiguration.script
     }
   }
   dependsOn: [
