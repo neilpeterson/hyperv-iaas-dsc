@@ -160,7 +160,7 @@ configuration hyperv {
             MaximumMemory = 4294967296
             ProcessorCount = 1
             RestartIfNeeded = $true
-            DependsOn = "[Script]stageVHD"
+            DependsOn = "[Script]stageVHDIIS"
         }
     }
 } 
