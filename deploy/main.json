@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "6206344866694191357"
+      "templateHash": "1589176724510559833"
     }
   },
   "parameters": {
@@ -71,7 +71,7 @@
     "addcConfiguration": {
       "type": "object",
       "defaultValue": {
-        "name": "ADDC",
+        "name": "addc",
         "description": "A configuration for installing AADC.",
         "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/addc.ps1"
       }
@@ -79,7 +79,7 @@
     "iisConfiguration": {
       "type": "object",
       "defaultValue": {
-        "name": "IIS",
+        "name": "iis",
         "description": "A configuration for installing IIS.",
         "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/iis.ps1"
       }
@@ -87,7 +87,7 @@
     "rodcConfiguration": {
       "type": "object",
       "defaultValue": {
-        "name": "RODC",
+        "name": "rodc",
         "description": "A configuration for installing a read only domain controller.",
         "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/rodc.ps1"
       }
@@ -304,7 +304,7 @@
         "description": "[parameters('rodcConfiguration').description]",
         "source": {
           "type": "uri",
-          "value": "[parameters('addcConfiguration').script]"
+          "value": "[parameters('rodcConfiguration').script]"
         }
       },
       "dependsOn": [
