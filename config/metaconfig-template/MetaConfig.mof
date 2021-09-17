@@ -1,0 +1,68 @@
+/*
+@TargetNode='localhost'
+@GeneratedBy=azureadmin
+@GenerationDate=09/08/2021 21:09:09
+@GenerationHost=vm-hyperv
+*/
+
+instance of MSFT_WebDownloadManager as $MSFT_WebDownloadManager1ref
+{
+SourceInfo = "C:\\Users\\azureadmin\\Desktop\\metaconfig.ps1::66::10::ConfigurationRepositoryWeb";
+ ServerURL = "<replace>";
+ ResourceID = "[ConfigurationRepositoryWeb]AzureAutomationStateConfiguration";
+ RegistrationKey = "<replace>";
+ ConfigurationNames = {
+    "ADDC.localhost"
+};
+
+};
+
+instance of MSFT_WebResourceManager as $MSFT_WebResourceManager1ref
+{
+SourceInfo = "C:\\Users\\azureadmin\\Desktop\\metaconfig.ps1::73::14::ResourceRepositoryWeb";
+ ServerURL = "<replace>";
+ ResourceID = "[ResourceRepositoryWeb]AzureAutomationStateConfiguration";
+ RegistrationKey = "<replace>";
+
+};
+
+instance of MSFT_WebReportManager as $MSFT_WebReportManager1ref
+{
+SourceInfo = "C:\\Users\\azureadmin\\Desktop\\metaconfig.ps1::80::10::ReportServerWeb";
+ ServerURL = "<replace>";
+ ResourceID = "[ReportServerWeb]AzureAutomationStateConfiguration";
+ RegistrationKey = "<replace>";
+
+};
+
+instance of MSFT_DSCMetaConfiguration as $MSFT_DSCMetaConfiguration1ref
+{
+RefreshMode = "Pull";
+ AllowModuleOverwrite = False;
+ ActionAfterReboot = "ContinueConfiguration";
+ RefreshFrequencyMins = 30;
+ RebootNodeIfNeeded = False;
+ ConfigurationModeFrequencyMins = 15;
+ ConfigurationMode = "ApplyAndMonitor";
+
+  ResourceModuleManagers = {
+  $MSFT_WebResourceManager1ref  
+ };
+  ReportManagers = {
+  $MSFT_WebReportManager1ref  
+ };
+  ConfigurationDownloadManagers = {
+  $MSFT_WebDownloadManager1ref  
+ };
+};
+
+instance of OMI_ConfigurationDocument
+{
+ Version="2.0.0";
+ MinimumCompatibleVersion = "2.0.0";
+ CompatibleVersionAdditionalProperties= { "MSFT_DSCMetaConfiguration:StatusRetentionTimeInDays" };
+ Author="azureadmin";
+ GenerationDate="09/08/2021 21:09:09";
+ GenerationHost="vm-hyperv";
+ Name="DscMetaConfigs";
+};
