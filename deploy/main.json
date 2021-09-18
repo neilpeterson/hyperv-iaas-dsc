@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "1589176724510559833"
+      "templateHash": "7715862860654532362"
     }
   },
   "parameters": {
@@ -90,6 +90,14 @@
         "name": "rodc",
         "description": "A configuration for installing a read only domain controller.",
         "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/rodc.ps1"
+      }
+    },
+    "dhcpConfiguration": {
+      "type": "object",
+      "defaultValue": {
+        "name": "dhcp",
+        "description": "A configuration for installing a DHCP server.",
+        "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/dhcp.ps1"
       }
     },
     "addcVirtualMachine": {
@@ -247,6 +255,21 @@
         "contentLink": {
           "uri": "https://www.powershellgallery.com/api/v2/package/xComputerManagement/4.1.0",
           "version": "3.0.0.0"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xDhcpServer')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "contentLink": {
+          "uri": "https://www.powershellgallery.com/api/v2/package/xDhcpServer/3.0.0",
+          "version": "3.0.0"
         }
       },
       "dependsOn": [
@@ -413,6 +436,49 @@
       "dependsOn": [
         "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
         "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('iisConfiguration').name)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/configurations",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('dhcpConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "logVerbose": false,
+        "description": "[parameters('dhcpConfiguration').description]",
+        "source": {
+          "type": "uri",
+          "value": "[parameters('dhcpConfiguration').script]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/compilationjobs",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('dhcpConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "incrementNodeConfigurationBuild": false,
+        "configuration": {
+          "name": "[parameters('dhcpConfiguration').name]"
+        },
+        "parameters": {
+          "ConfigurationData": "{\"AllNodes\":[{\"NodeName\":\"localhost\",\"PSDSCAllowPlainTextPassword\":true}]}",
+          "DomainName": "contoso.com",
+          "DNSAddress": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)).ipConfigurations[0].properties.privateIPAddress]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('dhcpConfiguration').name)]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'ActiveDirectoryDsc')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xComputerManagement')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xDhcpServer')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xPendingReboot')]",
+        "[resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)]"
       ]
     },
     {
