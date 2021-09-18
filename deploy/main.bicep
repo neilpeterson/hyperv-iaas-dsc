@@ -54,6 +54,12 @@ param rodcConfiguration object = {
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/rodc.ps1'
 }
 
+param dhcpConfiguration object = {
+  name: 'dhcp'
+  description: 'A configuration for installing a DHCP server.'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/dhcp.ps1'
+}
+
 param addcVirtualMachine object = {
   name: 'vm-addc'
   nicName: 'nic-addc'
@@ -182,6 +188,18 @@ resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modu
   }
 }
 
+resource moduleXDhcpServer 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'xDhcpServer'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xDhcpServer/3.0.0'
+      version: '3.0.0'
+    }
+  }
+}
+
 resource dscConfigADDC 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   name: addcConfiguration.name
   parent: automationAccount
@@ -212,7 +230,7 @@ resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilation
     configuration: {
       name: addcConfiguration.name
     }
-    parameters: { 
+    parameters: {
       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
       DomainName: 'contoso.com'
     }
@@ -253,7 +271,7 @@ resource dscCompilationRODC 'Microsoft.Automation/automationAccounts/compilation
     configuration: {
       name: rodcConfiguration.name
     }
-    parameters: { 
+    parameters: {
       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
       DomainName: 'contoso.com'
       DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
@@ -295,7 +313,7 @@ resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilati
     configuration: {
       name: hypervConfiguration.name
     }
-    parameters: { 
+    parameters: {
       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
       DomainName: 'contoso.com'
       DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
@@ -334,7 +352,46 @@ resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationj
     }
   }
   dependsOn: [
-    dscConfigIIS  
+    dscConfigIIS
+  ]
+}
+
+resource dscConfigDHCP 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+  parent: automationAccount
+  name: dhcpConfiguration.name
+  location: location
+  properties: {
+    logVerbose: false
+    description: dhcpConfiguration.description
+    source: {
+      type: 'uri'
+      value: dhcpConfiguration.script
+    }
+  }
+}
+
+resource dscCompilationDHCP 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+  // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
+  parent: automationAccount
+  name: dhcpConfiguration.name
+  location: location
+  properties: {
+    incrementNodeConfigurationBuild: false
+    configuration: {
+      name: dhcpConfiguration.name
+    }
+    parameters: {
+      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+      DomainName: 'contoso.com'
+      DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
+    }
+  }
+  dependsOn: [
+    dscConfigDHCP
+    moduleXDhcpServer
+    moduleXPendingReboot
+    moduleXComputerManagement
+    moduleActiveDirectoryDsc
   ]
 }
 
@@ -534,7 +591,7 @@ resource nsgVirtualMachines 'Microsoft.Network/networkSecurityGroups@2020-08-01'
         properties: {
           protocol: 'Tcp'
           sourcePortRange: '*'
-          sourceAddressPrefix:  bastionHost.subnetPrefix
+          sourceAddressPrefix: bastionHost.subnetPrefix
           destinationPortRanges: [
             '22'
             '3389'
@@ -619,7 +676,7 @@ resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = {
       osDisk: {
         createOption: 'FromImage'
       }
-      dataDisks:[
+      dataDisks: [
         {
           createOption: 'Attach'
           lun: 1
@@ -637,7 +694,7 @@ resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = {
       ]
     }
   }
-  dependsOn:[
+  dependsOn: [
     nicADDC
   ]
 }
@@ -770,7 +827,7 @@ resource vmHyperv 'Microsoft.Compute/virtualMachines@2019-07-01' = {
       osDisk: {
         createOption: 'FromImage'
       }
-      dataDisks:[
+      dataDisks: [
         {
           createOption: 'Attach'
           lun: 1
@@ -795,7 +852,7 @@ resource vmHyperv 'Microsoft.Compute/virtualMachines@2019-07-01' = {
       ]
     }
   }
-  dependsOn:[
+  dependsOn: [
     nicHyperv
   ]
 }

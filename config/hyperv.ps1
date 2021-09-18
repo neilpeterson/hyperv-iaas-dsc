@@ -113,20 +113,20 @@ configuration hyperv {
             SetScript = {
                 $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
                 $path = "{0}:\vhd-dsc-rodc.vhdx" -f $a
-                New-Item -Path "z:\" -Name "RODC" -ItemType "directory"
-                Copy-Item -Path $path -Destination z:\RODC\vhd-dsc-rodc.vhdx
+                New-Item -Path "z:\" -Name "rodc" -ItemType "directory"
+                Copy-Item -Path $path -Destination z:\rodc\vhd-dsc-rodc.vhdx
             }
-            TestScript = { Test-path Z:\RODC\vhd-dsc-rodc.vhdx }
+            TestScript = { Test-path Z:\rodc\vhd-dsc-rodc.vhdx }
             GetScript  = { @{} }
         }
 
         xVMHyperV RODC {
             Ensure = 'Present'
-            Name = "RODC"
-            VhdPath = "z:\RODC\vhd-dsc-rodc.vhdx"
+            Name = "rodc"
+            VhdPath = "z:\rodc\vhd-dsc-rodc.vhdx"
             SwitchName = "NATSwitch"
             State = "Off"
-            Path = "z:\RODC"
+            Path = "z:\rodc"
             Generation = 1
             StartupMemory = 4294967296
             MinimumMemory = 4294967296
@@ -149,7 +149,7 @@ configuration hyperv {
 
         xVMHyperV IIS {
             Ensure = 'Present'
-            Name = "IIS"
+            Name = "iis"
             VhdPath = "z:\iis\vhd-dsc-iis.vhdx"
             SwitchName = "NATSwitch"
             State = "Off"
@@ -161,6 +161,33 @@ configuration hyperv {
             ProcessorCount = 1
             RestartIfNeeded = $true
             DependsOn = "[Script]stageVHDIIS"
+        }
+
+        Script stageVHDDHCP {
+            SetScript = {
+                $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
+                $path = "{0}:\vhd-dsc-dhcp.vhdx" -f $a
+                New-Item -Path "z:\" -Name "dhcp" -ItemType "directory"
+                Copy-Item -Path $path -Destination z:\dhcp\vhd-dsc-dhcp.vhdx
+            }
+            TestScript = { Test-path Z:\dhcp\vhd-dsc-dhcp.vhdx }
+            GetScript  = { @{} }
+        }
+
+        xVMHyperV IIS {
+            Ensure = 'Present'
+            Name = "dhcp"
+            VhdPath = "z:\dhcp\vhd-dsc-dhcp.vhdx"
+            SwitchName = "NATSwitch"
+            State = "Off"
+            Path = "z:\dhcp"
+            Generation = 1
+            StartupMemory = 4294967296
+            MinimumMemory = 4294967296
+            MaximumMemory = 4294967296
+            ProcessorCount = 1
+            RestartIfNeeded = $true
+            DependsOn = "[Script]stageVHDDHCP"
         }
     }
 } 
