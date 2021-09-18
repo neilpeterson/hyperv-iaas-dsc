@@ -174,7 +174,7 @@ configuration hyperv {
             GetScript  = { @{} }
         }
 
-        xVMHyperV IIS {
+        xVMHyperV DHCP {
             Ensure = 'Present'
             Name = "dhcp"
             VhdPath = "z:\dhcp\vhd-dsc-dhcp.vhdx"
