@@ -125,7 +125,7 @@ configuration hyperv {
             Name = "rodc"
             VhdPath = "z:\rodc\vhd-dsc-rodc.vhdx"
             SwitchName = "NATSwitch"
-            State = "Off"
+            State = "Running"
             Path = "z:\rodc"
             Generation = 1
             StartupMemory = 4294967296
@@ -152,7 +152,7 @@ configuration hyperv {
             Name = "iis"
             VhdPath = "z:\iis\vhd-dsc-iis.vhdx"
             SwitchName = "NATSwitch"
-            State = "Off"
+            State = "Running"
             Path = "z:\iis"
             Generation = 1
             StartupMemory = 4294967296
@@ -179,7 +179,7 @@ configuration hyperv {
             Name = "member"
             VhdPath = "z:\member\vhd-dsc-member.vhdx"
             SwitchName = "NATSwitch"
-            State = "Off"
+            State = "Running"
             Path = "z:\member"
             Generation = 1
             StartupMemory = 4294967296
