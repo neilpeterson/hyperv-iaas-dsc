@@ -163,31 +163,31 @@ configuration hyperv {
             DependsOn = "[Script]stageVHDIIS"
         }
 
-        Script stageVHDDHCP {
+        Script stageVHDMember {
             SetScript = {
                 $a = (Get-Volume -FileSystemLabel dsc-vhd).DriveLetter
-                $path = "{0}:\vhd-dsc-dhcp.vhdx" -f $a
-                New-Item -Path "z:\" -Name "dhcp" -ItemType "directory"
-                Copy-Item -Path $path -Destination z:\dhcp\vhd-dsc-dhcp.vhdx
+                $path = "{0}:\vhd-dsc-member.vhdx" -f $a
+                New-Item -Path "z:\" -Name "member" -ItemType "directory"
+                Copy-Item -Path $path -Destination z:\member\vhd-dsc-member.vhdx
             }
-            TestScript = { Test-path Z:\dhcp\vhd-dsc-dhcp.vhdx }
+            TestScript = { Test-path Z:\member\vhd-dsc-member.vhdx }
             GetScript  = { @{} }
         }
 
-        xVMHyperV DHCP {
+        xVMHyperV Member {
             Ensure = 'Present'
-            Name = "dhcp"
-            VhdPath = "z:\dhcp\vhd-dsc-dhcp.vhdx"
+            Name = "member"
+            VhdPath = "z:\member\vhd-dsc-member.vhdx"
             SwitchName = "NATSwitch"
             State = "Off"
-            Path = "z:\dhcp"
+            Path = "z:\member"
             Generation = 1
             StartupMemory = 4294967296
             MinimumMemory = 4294967296
             MaximumMemory = 4294967296
             ProcessorCount = 1
             RestartIfNeeded = $true
-            DependsOn = "[Script]stageVHDDHCP"
+            DependsOn = "[Script]stageVHDMember"
         }
     }
 } 

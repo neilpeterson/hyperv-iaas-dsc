@@ -54,10 +54,10 @@ param rodcConfiguration object = {
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/rodc.ps1'
 }
 
-param dhcpConfiguration object = {
-  name: 'dhcp'
-  description: 'A configuration for installing a DHCP server.'
-  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/dhcp.ps1'
+param memberConfiguration object = {
+  name: 'member'
+  description: 'A configuration for installing a member server.'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/member.ps1'
 }
 
 param addcVirtualMachine object = {
@@ -184,18 +184,6 @@ resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modu
     contentLink: {
       uri: 'https://www.powershellgallery.com/api/v2/package/xComputerManagement/4.1.0'
       version: '3.0.0.0'
-    }
-  }
-}
-
-resource moduleXDhcpServer 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  parent: automationAccount
-  name: 'xDhcpServer'
-  location: location
-  properties: {
-    contentLink: {
-      uri: 'https://www.powershellgallery.com/api/v2/package/xDhcpServer/3.0.0'
-      version: '3.0.0'
     }
   }
 }
@@ -356,39 +344,36 @@ resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationj
   ]
 }
 
-resource dscConfigDHCP 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+resource dscConfigMember 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccount
-  name: dhcpConfiguration.name
+  name: memberConfiguration.name
   location: location
   properties: {
     logVerbose: false
-    description: dhcpConfiguration.description
+    description: memberConfiguration.description
     source: {
       type: 'uri'
-      value: dhcpConfiguration.script
+      value: memberConfiguration.script
     }
   }
 }
 
-resource dscCompilationDHCP 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+resource dscCompilationMember 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
   // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
   parent: automationAccount
-  name: dhcpConfiguration.name
+  name: memberConfiguration.name
   location: location
   properties: {
     incrementNodeConfigurationBuild: false
     configuration: {
-      name: dhcpConfiguration.name
+      name: memberConfiguration.name
     }
     parameters: {
       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
-      DomainName: 'contoso.com'
-      DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
     }
   }
   dependsOn: [
-    dscConfigDHCP
-    moduleXDhcpServer
+    dscConfigMember
     moduleXPendingReboot
     moduleXComputerManagement
     moduleActiveDirectoryDsc
