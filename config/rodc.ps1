@@ -12,6 +12,7 @@ configuration rodc {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DSCResource -ModuleName StorageDsc
     Import-DscResource -ModuleName ActiveDirectoryDsc
+    Import-DscResource -ModuleName xActiveDirectory
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
 
@@ -84,7 +85,7 @@ configuration rodc {
             SafemodeAdministratorPassword = $DomainCreds
             ReadOnlyReplica = $true
             SiteName = "Default-First-Site-Name"
-            DependsOn = @("[WindowsFeature]ADDSInstall")
+            DependsOn = @("[xWaitForADDomain]DscForestWait")
         } 
 
         xPendingReboot Reboot { 
