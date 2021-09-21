@@ -77,7 +77,7 @@ configuration rodc {
             DatabasePath = "C:\NTDS"
             LogPath = "C:\NTDS"
             SysvolPath = "C:\SYSVOL"
-            SiteName = "Default"
+            SiteName = "Default-First-Site-Name"
             ReadOnlyReplica = $true
             DependsOn = @("[WindowsFeature]ADDSInstall")
         } 
