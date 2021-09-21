@@ -62,7 +62,6 @@ configuration rodc {
         WindowsFeature ADDSInstall { 
             Ensure = "Present" 
             Name = "AD-Domain-Services"
-            DependsOn="[WindowsFeature]DNS" 
         } 
 
         WindowsFeature ADDSTools {
