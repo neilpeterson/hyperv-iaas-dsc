@@ -18,10 +18,6 @@ configuration rodc {
     $Admincreds = Get-AutomationPSCredential 'Admincreds'
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
     
-    # Configuration is compiled in Azure Automation, this will not work.
-    # TODO this needs to be fixed.
-    # $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
-
     Node localhost
     {
         LocalConfigurationManager {
@@ -55,34 +51,9 @@ configuration rodc {
             DependsOn = "[WindowsFeature]DNS"
         }
 
-        # xDnsServerAddress DnsServerAddress { 
-        #     Address        = '127.0.0.1' 
-        #     # InterfaceAlias = $Interface.Name
-        #     # InterfaceAlias = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
-        #     InterfaceAlias = "Ethernet 2"
-        #     AddressFamily  = 'IPv4'
-        #     DependsOn = "[WindowsFeature]DNS"
-        # }
-
-        # WindowsFeature ADAdminCenter {
-        #     Ensure = "Present"
-        #     Name = "RSAT-AD-AdminCenter"
-        #     DependsOn = "[WindowsFeature]ADDSInstall"
-        # }
-            
-        # xADDomain FirstDS {
-        #     DomainName = $DomainName
-        #     DomainAdministratorCredential = $DomainCreds
-        #     SafemodeAdministratorPassword = $DomainCreds
-        #     DatabasePath = "F:\NTDS"
-        #     LogPath = "F:\NTDS"
-        #     SysvolPath = "F:\SYSVOL"
-        #     DependsOn = @("[WindowsFeature]ADDSInstall")
-        # } 
-
+        # TODO dynamically detect interface
         xDnsServerAddress DnsServerAddress { 
             Address = $DNSAddress,'8.8.8.8'
-            # InterfaceAlias = $Interface.Name
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
         }

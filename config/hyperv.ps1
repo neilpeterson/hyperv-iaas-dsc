@@ -63,9 +63,9 @@ configuration hyperv {
             IncludeAllSubFeature = $true
         }
 
+        # TODO dynamically detect interface
         xDnsServerAddress DnsServerAddress { 
             Address = $DNSAddress,'8.8.8.8'
-            # InterfaceAlias = $Interface.Name
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
         }
@@ -75,7 +75,7 @@ configuration hyperv {
             DomainUserCredential= $DomainCreds
             RetryCount = 30
             RetryIntervalSec = 60
-            # DependsOn = "[xDnsServerAddress]DnsServerAddress"
+            DependsOn = "[xDnsServerAddress]DnsServerAddress"
         }
          
         xComputer JoinDomain {
@@ -125,7 +125,7 @@ configuration hyperv {
             Name = "rodc"
             VhdPath = "z:\rodc\vhd-dsc-rodc.vhdx"
             SwitchName = "NATSwitch"
-            State = "Running"
+            # State = "Running"
             Path = "z:\rodc"
             Generation = 1
             StartupMemory = 4294967296
@@ -152,7 +152,7 @@ configuration hyperv {
             Name = "iis"
             VhdPath = "z:\iis\vhd-dsc-iis.vhdx"
             SwitchName = "NATSwitch"
-            State = "Running"
+            # State = "Running"
             Path = "z:\iis"
             Generation = 1
             StartupMemory = 4294967296
@@ -179,7 +179,7 @@ configuration hyperv {
             Name = "member"
             VhdPath = "z:\member\vhd-dsc-member.vhdx"
             SwitchName = "NATSwitch"
-            State = "Running"
+            # State = "Running"
             Path = "z:\member"
             Generation = 1
             StartupMemory = 4294967296

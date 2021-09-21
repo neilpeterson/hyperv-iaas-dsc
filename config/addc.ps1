@@ -15,10 +15,6 @@ configuration addc {
     $Admincreds = Get-AutomationPSCredential 'Admincreds'
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
     
-    # Configuration is compiled in Azure Automation, this will not work.
-    # TODO this needs to be fixed.
-    # $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
-
     Node localhost {
         
         LocalConfigurationManager {
@@ -51,15 +47,6 @@ configuration addc {
             Name = "RSAT-DNS-Server"
             DependsOn = "[WindowsFeature]DNS"
 	    }
-
-        # xDnsServerAddress DnsServerAddress { 
-        #     Address        = '127.0.0.1' 
-        #     # InterfaceAlias = $Interface.Name
-        #     # InterfaceAlias = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
-        #     InterfaceAlias = "Ethernet 2"
-        #     AddressFamily  = 'IPv4'
-	    #     DependsOn = "[WindowsFeature]DNS"
-        # }
 
         WindowsFeature ADDSInstall { 
             Ensure = "Present" 
