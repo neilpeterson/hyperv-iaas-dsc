@@ -40,16 +40,16 @@ configuration rodc {
         #     DependsOn = '[WaitForDisk]Disk2'
         # }   
 
-        WindowsFeature DNS { 
-            Ensure = "Present" 
-            Name = "DNS"		
-        }
+        # WindowsFeature DNS { 
+        #     Ensure = "Present" 
+        #     Name = "DNS"		
+        # }
 
-        WindowsFeature DnsTools {
-            Ensure = "Present"
-            Name = "RSAT-DNS-Server"
-            DependsOn = "[WindowsFeature]DNS"
-        }
+        # WindowsFeature DnsTools {
+        #     Ensure = "Present"
+        #     Name = "RSAT-DNS-Server"
+        #     DependsOn = "[WindowsFeature]DNS"
+        # }
 
         # TODO dynamically detect interface
         xDnsServerAddress DnsServerAddress { 
@@ -70,15 +70,20 @@ configuration rodc {
             DependsOn = "[WindowsFeature]ADDSInstall"
         }
 
+        xWaitForADDomain DscForestWait { 
+            DomainName = $DomainName 
+            DomainUserCredential= $DomainCreds
+            RetryCount = 30
+            RetryIntervalSec = 60
+            DependsOn = "[xDnsServerAddress]DnsServerAddress"
+        }
+
         ADDomainController RODC {
             DomainName = $DomainName
             Credential = $DomainCreds
             SafemodeAdministratorPassword = $DomainCreds
-            DatabasePath = "C:\NTDS"
-            LogPath = "C:\NTDS"
-            SysvolPath = "C:\SYSVOL"
-            SiteName = "Default-First-Site-Name"
             ReadOnlyReplica = $true
+            SiteName = "Default-First-Site-Name"
             DependsOn = @("[WindowsFeature]ADDSInstall")
         } 
 
