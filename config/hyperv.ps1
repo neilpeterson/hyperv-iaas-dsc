@@ -90,7 +90,7 @@ configuration hyperv {
             DependsOn = "[xComputer]JoinDomain"
         }
 
-        # Need to use script resource for dynamically determining source path
+        # Need to use script to configure Hyper-V NAT
         Script natConfig {
             SetScript = {
                 New-VMSwitch -Name "NATSwitch" -SwitchType Internal
