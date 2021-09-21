@@ -1,5 +1,3 @@
-// Build test
-
 param adminUserName string
 
 @secure()
