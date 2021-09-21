@@ -12,7 +12,6 @@ configuration rodc {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DSCResource -ModuleName StorageDsc
     Import-DscResource -ModuleName ActiveDirectoryDsc
-    Import-DscResource -ModuleName xActiveDirectory
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
 
@@ -26,31 +25,6 @@ configuration rodc {
             ConfigurationMode = 'ApplyAndAutoCorrect'
             RebootNodeIfNeeded = $true
         }
-
-        # WaitForDisk Disk2 {
-        #     DiskId = 2
-        #     RetryIntervalSec = 60
-        #     RetryCount = 20
-        # }
-        
-        # Disk FVolume {
-        #     DiskId = 2
-        #     DriveLetter = 'F'
-        #     FSLabel = 'Data'
-        #     FSFormat = 'NTFS'
-        #     DependsOn = '[WaitForDisk]Disk2'
-        # }   
-
-        # WindowsFeature DNS { 
-        #     Ensure = "Present" 
-        #     Name = "DNS"		
-        # }
-
-        # WindowsFeature DnsTools {
-        #     Ensure = "Present"
-        #     Name = "RSAT-DNS-Server"
-        #     DependsOn = "[WindowsFeature]DNS"
-        # }
 
         # TODO dynamically detect interface
         xDnsServerAddress DnsServerAddress { 
@@ -70,7 +44,7 @@ configuration rodc {
             DependsOn = "[WindowsFeature]ADDSInstall"
         }
 
-        xWaitForADDomain DscForestWait { 
+        WaitForADDomain DscForestWait { 
             DomainName = $DomainName 
             DomainUserCredential= $DomainCreds
             RetryCount = 30
@@ -78,6 +52,8 @@ configuration rodc {
             DependsOn = "[xDnsServerAddress]DnsServerAddress"
         }
 
+        # I am hitting this, but should be using the latest package
+        # https://github.com/dsccommunity/ActiveDirectoryDsc/issues/611
         ADDomainController RODC {
             DomainName = $DomainName
             Credential = $DomainCreds
