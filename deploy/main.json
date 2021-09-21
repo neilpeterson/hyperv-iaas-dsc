@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "13607701448880716171"
+      "templateHash": "775490285450134932"
     }
   },
   "parameters": {
@@ -416,11 +416,21 @@
         "incrementNodeConfigurationBuild": false,
         "configuration": {
           "name": "[parameters('iisConfiguration').name]"
+        },
+        "parameters": {
+          "ConfigurationData": "{\"AllNodes\":[{\"NodeName\":\"localhost\",\"PSDSCAllowPlainTextPassword\":true}]}",
+          "DomainName": "contoso.com",
+          "DNSAddress": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)).ipConfigurations[0].properties.privateIPAddress]"
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('iisConfiguration').name)]"
+        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('iisConfiguration').name)]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xActiveDirectory')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xComputerManagement')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xNetworking')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xPendingReboot')]",
+        "[resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)]"
       ]
     },
     {
@@ -451,15 +461,19 @@
           "name": "[parameters('memberConfiguration').name]"
         },
         "parameters": {
-          "ConfigurationData": "{\"AllNodes\":[{\"NodeName\":\"localhost\",\"PSDSCAllowPlainTextPassword\":true}]}"
+          "ConfigurationData": "{\"AllNodes\":[{\"NodeName\":\"localhost\",\"PSDSCAllowPlainTextPassword\":true}]}",
+          "DomainName": "contoso.com",
+          "DNSAddress": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)).ipConfigurations[0].properties.privateIPAddress]"
         }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
         "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('memberConfiguration').name)]",
-        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'ActiveDirectoryDsc')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xActiveDirectory')]",
         "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xComputerManagement')]",
-        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xPendingReboot')]"
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xNetworking')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xPendingReboot')]",
+        "[resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)]"
       ]
     },
     {
