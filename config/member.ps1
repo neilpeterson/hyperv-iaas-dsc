@@ -1,5 +1,14 @@
 Configuration member {
 
+    param
+    (
+        [Parameter(Mandatory)]
+        [string]$DomainName,
+
+        [Parameter(Mandatory)]
+        [string]$DNSAddress
+    )
+
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     Import-DscResource -ModuleName xActiveDirectory
     Import-DscResource -ModuleName xComputerManagement
