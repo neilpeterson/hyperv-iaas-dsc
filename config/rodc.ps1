@@ -26,19 +26,19 @@ configuration rodc {
             RebootNodeIfNeeded = $true
         }
 
-        WaitForDisk Disk2 {
-            DiskId = 2
-            RetryIntervalSec = 60
-            RetryCount = 20
-        }
+        # WaitForDisk Disk2 {
+        #     DiskId = 2
+        #     RetryIntervalSec = 60
+        #     RetryCount = 20
+        # }
         
-        Disk FVolume {
-            DiskId = 2
-            DriveLetter = 'F'
-            FSLabel = 'Data'
-            FSFormat = 'NTFS'
-            DependsOn = '[WaitForDisk]Disk2'
-        }   
+        # Disk FVolume {
+        #     DiskId = 2
+        #     DriveLetter = 'F'
+        #     FSLabel = 'Data'
+        #     FSFormat = 'NTFS'
+        #     DependsOn = '[WaitForDisk]Disk2'
+        # }   
 
         WindowsFeature DNS { 
             Ensure = "Present" 
@@ -74,9 +74,9 @@ configuration rodc {
             DomainName = $DomainName
             Credential = $DomainCreds
             SafemodeAdministratorPassword = $DomainCreds
-            DatabasePath = "F:\NTDS"
-            LogPath = "F:\NTDS"
-            SysvolPath = "F:\SYSVOL"
+            DatabasePath = "C:\NTDS"
+            LogPath = "C:\NTDS"
+            SysvolPath = "C:\SYSVOL"
             SiteName = "Default"
             ReadOnlyReplica = $true
             DependsOn = @("[WindowsFeature]ADDSInstall")
