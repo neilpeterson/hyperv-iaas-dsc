@@ -338,9 +338,18 @@ resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationj
     configuration: {
       name: iisConfiguration.name
     }
+    parameters: {
+      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+      DomainName: 'contoso.com'
+      DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
+    }
   }
   dependsOn: [
     dscConfigIIS
+    moduleXActiveDirectory
+    moduleXComputerManagement
+    moduleXPendingReboot
+    moduleXNetworking
   ]
 }
 
@@ -370,13 +379,16 @@ resource dscCompilationMember 'Microsoft.Automation/automationAccounts/compilati
     }
     parameters: {
       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+      DomainName: 'contoso.com'
+      DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
     }
   }
   dependsOn: [
     dscConfigMember
-    moduleXPendingReboot
+    moduleXActiveDirectory
     moduleXComputerManagement
-    moduleActiveDirectoryDsc
+    moduleXPendingReboot
+    moduleXNetworking
   ]
 }
 

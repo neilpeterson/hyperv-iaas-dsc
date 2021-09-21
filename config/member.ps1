@@ -1,4 +1,4 @@
-Configuration iis {
+Configuration member {
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     Import-DscResource -ModuleName xActiveDirectory
