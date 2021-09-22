@@ -61,7 +61,7 @@ configuration rodc {
             SafemodeAdministratorPassword = $DomainCreds
             ReadOnlyReplica = $true
             SiteName = "Default-First-Site-Name"
-            DependsOn = @("[WaitForADDomain]DscForestWait")
+            # DependsOn = @("[WaitForADDomain]DscForestWait")
         } 
 
         xPendingReboot Reboot { 
