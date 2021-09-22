@@ -10,7 +10,7 @@ Configuration iis {
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
-    Import-DscResource -ModuleName xActiveDirectory
+    Import-DscResource -ModuleName ActiveDirectory
     Import-DscResource -ModuleName xComputerManagement
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
@@ -32,7 +32,7 @@ Configuration iis {
             AddressFamily  = 'IPv4'
         }
 
-        xWaitForADDomain DscForestWait { 
+        WaitForADDomain DscForestWait { 
             DomainName = $DomainName 
             DomainUserCredential= $DomainCreds
             RetryCount = 30

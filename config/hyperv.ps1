@@ -13,7 +13,7 @@ configuration hyperv {
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
-    Import-DscResource -ModuleName xActiveDirectory
+    Import-DscResource -ModuleName ActiveDirectory
     Import-DscResource -ModuleName xComputerManagement
     Import-DscResource -ModuleName xHyper-V
     Import-DscResource -ModuleName xNetworking
@@ -24,6 +24,12 @@ configuration hyperv {
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
     node localhost {
+
+        LocalConfigurationManager {
+            ActionAfterReboot = 'ContinueConfiguration'            
+            ConfigurationMode = 'ApplyAndAutoCorrect'
+            RebootNodeIfNeeded = $true
+        }
 
         WaitForDisk Disk2 {
             DiskId = 2
@@ -37,12 +43,6 @@ configuration hyperv {
             FSLabel = 'Virtual Machines'
             FSFormat = 'NTFS'
             DependsOn = '[WaitForDisk]Disk2'
-        }
-
-        LocalConfigurationManager {
-            ActionAfterReboot = 'ContinueConfiguration'            
-            ConfigurationMode = 'ApplyAndAutoCorrect'
-            RebootNodeIfNeeded = $true
         }
 
         WindowsFeature Hyper-V {
@@ -70,7 +70,7 @@ configuration hyperv {
             AddressFamily  = 'IPv4'
         }
 
-        xWaitForADDomain DscForestWait { 
+        WaitForADDomain DscForestWait { 
             DomainName = $DomainName 
             DomainUserCredential= $DomainCreds
             RetryCount = 30

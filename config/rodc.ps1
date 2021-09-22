@@ -44,14 +44,13 @@ configuration rodc {
             DependsOn = "[WindowsFeature]ADDSInstall"
         }
 
-        # WaitForADDomain DscForestWait { 
-        #     DomainName = $DomainName
-        #     Credential = $DomainCreds
-        #     # DomainUserCredential= $DomainCreds
-        #     # RetryCount = 30
-        #     # RetryIntervalSec = 60
-        #     DependsOn = "[xDnsServerAddress]DnsServerAddress"
-        # }
+        WaitForADDomain DscForestWait { 
+            DomainName = $DomainName 
+            DomainUserCredential= $DomainCreds
+            RetryCount = 30
+            RetryIntervalSec = 60
+            DependsOn = "[xDnsServerAddress]DnsServerAddress"
+        }
 
         # I am hitting this, but should be using the latest package
         # https://github.com/dsccommunity/ActiveDirectoryDsc/issues/611

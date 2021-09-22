@@ -8,7 +8,7 @@ configuration addc {
     
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DSCResource -ModuleName StorageDsc
-    Import-DscResource -ModuleName xActiveDirectory
+    Import-DscResource -ModuleName ActiveDirectoryDsc
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
 
@@ -66,7 +66,7 @@ configuration addc {
             DependsOn = "[WindowsFeature]ADDSInstall"
         }
          
-        xADDomain FirstDS {
+        ADDomain FirstDS {
             DomainName = $DomainName
             DomainAdministratorCredential = $DomainCreds
             SafemodeAdministratorPassword = $DomainCreds
