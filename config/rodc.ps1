@@ -46,9 +46,7 @@ configuration rodc {
 
         WaitForADDomain DscForestWait { 
             DomainName = $DomainName 
-            DomainUserCredential= $DomainCreds
-            RetryCount = 30
-            RetryIntervalSec = 60
+            Credential = $DomainCreds
             DependsOn = "[xDnsServerAddress]DnsServerAddress"
         }
 

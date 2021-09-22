@@ -68,7 +68,7 @@ configuration addc {
          
         ADDomain FirstDS {
             DomainName = $DomainName
-            DomainAdministratorCredential = $DomainCreds
+            Credential = $DomainCreds
             SafemodeAdministratorPassword = $DomainCreds
             DatabasePath = "F:\NTDS"
             LogPath = "F:\NTDS"
@@ -78,7 +78,7 @@ configuration addc {
 
         xPendingReboot Reboot { 
             Name = "RebootServer"
-            DependsOn = "[xADDomain]FirstDS"
+            DependsOn = "[ADDomain]FirstDS"
         }
    }
 } 

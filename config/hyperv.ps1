@@ -13,7 +13,7 @@ configuration hyperv {
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
-    Import-DscResource -ModuleName ActiveDirectory
+    Import-DscResource -ModuleName ActiveDirectoryDsc
     Import-DscResource -ModuleName xComputerManagement
     Import-DscResource -ModuleName xHyper-V
     Import-DscResource -ModuleName xNetworking
@@ -72,9 +72,7 @@ configuration hyperv {
 
         WaitForADDomain DscForestWait { 
             DomainName = $DomainName 
-            DomainUserCredential= $DomainCreds
-            RetryCount = 30
-            RetryIntervalSec = 60
+            Credential = $DomainCreds
             DependsOn = "[xDnsServerAddress]DnsServerAddress"
         }
          
@@ -82,7 +80,7 @@ configuration hyperv {
             Name = $ComputerName
             DomainName = $DomainName
             Credential = $DomainCreds
-            DependsOn = "[xWaitForADDomain]DscForestWait"
+            DependsOn = "[WaitForADDomain]DscForestWait"
         }
 
         xPendingReboot Reboot { 
