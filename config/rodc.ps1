@@ -46,7 +46,7 @@ configuration rodc {
 
         WaitForADDomain DscForestWait { 
             DomainName = $DomainName
-            PsDscRunAsCredential = $DomainCreds
+            Credential = $DomainCreds
             # DomainUserCredential= $DomainCreds
             # RetryCount = 30
             # RetryIntervalSec = 60
