@@ -250,5 +250,9 @@ resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationj
   }
   dependsOn: [
     dscConfigIIS
+    moduleXComputerManagement
+    moduleXPendingReboot
+    moduleXNetworking
+    moduleActiveDirectoryDsc
   ]
 }
