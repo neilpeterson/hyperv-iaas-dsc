@@ -159,27 +159,6 @@ resource dscConfigADDC 'Microsoft.Automation/automationAccounts/configurations@2
   ]
 }
 
-resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-  // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
-  // https://stackoverflow.com/questions/54508062/how-to-i-prevent-microsoft-automation-automationaccounts-compilationjobs-to-alwa
-  parent: automationAccount
-  name: addcConfiguration.name
-  location: location
-  properties: {
-    configuration: {
-      name: addcConfiguration.name
-    }
-    parameters: { 
-      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
-      DomainName: 'contoso.com'
-    }
-  }
-  dependsOn: [
-    dscConfigADDC
-    automationCredentials
-  ]
-}
-
 resource dscConfigHyperv 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccount
   name: hypervConfiguration.name
@@ -200,29 +179,6 @@ resource dscConfigHyperv 'Microsoft.Automation/automationAccounts/configurations
   ]
 }
 
-// resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-//   // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
-//   parent: automationAccount
-//   name: '${hypervConfiguration.name}'
-//   location: location
-//   properties: {
-//     incrementNodeConfigurationBuild: false
-//     configuration: {
-//       name: hypervConfiguration.name
-//     }
-//     parameters: { 
-//       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
-//       DomainName: 'contoso.com'
-//       DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
-//       ComputerName: hypervVirtualMachine.name
-//     }
-//   }
-//   dependsOn: [
-//     dscConfigHyperv
-//     automationCredentials
-//   ]
-// }
-
 resource dscConfigIIS 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccount
   name: iisConfiguration.name
@@ -235,24 +191,4 @@ resource dscConfigIIS 'Microsoft.Automation/automationAccounts/configurations@20
       value: iisConfiguration.script
     }
   }
-}
-
-resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-  // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
-  parent: automationAccount
-  name: '${iisConfiguration.name}'
-  location: location
-  properties: {
-    incrementNodeConfigurationBuild: false
-    configuration: {
-      name: iisConfiguration.name
-    }
-  }
-  dependsOn: [
-    dscConfigIIS
-    moduleXComputerManagement
-    moduleXPendingReboot
-    moduleXNetworking
-    moduleActiveDirectoryDsc
-  ]
 }
