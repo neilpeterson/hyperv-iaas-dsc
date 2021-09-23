@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "7679119805774804528"
+      "templateHash": "18353461085808638635"
     }
   },
   "parameters": {
@@ -98,6 +98,21 @@
         "contentLink": {
           "uri": "https://www.powershellgallery.com/api/v2/package/StorageDsc/5.0.1",
           "version": "5.0.1"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), 'ActiveDirectoryDsc')]",
+      "location": "eastus",
+      "properties": {
+        "contentLink": {
+          "uri": "https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.0.1",
+          "version": "6.0.1"
         }
       },
       "dependsOn": [
@@ -252,6 +267,21 @@
         "source": {
           "type": "uri",
           "value": "[parameters('iisConfiguration').script]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/compilationjobs",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('iisConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "incrementNodeConfigurationBuild": false,
+        "configuration": {
+          "name": "[parameters('iisConfiguration').name]"
         }
       },
       "dependsOn": [
