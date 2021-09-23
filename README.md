@@ -2,20 +2,18 @@ Azure Bicep template + DSC Configurations to do the following:
 
 - Deploy Azure Automation State Configuration
 - Deploy an Azure Automation credential object
-- Import all needed PowerShell DSC modules
-- Deploy a VM which is configured as an ADDC .via state configuration
-- Deploy a VM which is configured as a Hyper-V host .via state configuration
 - Deploy a log analytic instance and configure some logging
+- Import all needed PowerShell DSC modules *
+- Deploy a VM which is configured as an ADDC .via state configuration *
+- Deploy a VM which is configured as a Hyper-V host .via state configuration *
+
+* There are two templates found in this repository. The first deploys only the solution shared components (Azure Automation account, Log Analytics instance, PowerShell Modules, Credentials, and DSC configurations). The second template deploys and end to end sandboxed experience with virtual machines etc. however has a dependency on a managed disk found in my Azure subscription. 
 
 ## Deploy
 
-Click this button to deploy the solution. On the deployment form, create a new resource group, specify an admin username and password. Leave the default values for the remaining parameters.
+Click this button to deploy an Azure Automation instance, configuration modules, configuration credentials, and a domain controller and Hyper-V configuration. On the deployment form, create a new resource group, specify an admin username and password. Leave the default values for the remaining parameters.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fneilpeterson%2Fhyperv-iaas-dsc%2Fmaster%2Fdeploy%2Fmain.json)
-
-Once completed, find that the two virtual machines have been onboarded into Azure Automation State Configuration and that they are both compliant.
-
-![Screen shot of Azure Automation State Configuration as seen in the Azure portal.](./documentation/dsc-results.png)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fneilpeterson%2Fhyperv-iaas-dsc%2Fmaster%2Fdeploy%2Fautomation-only.json)
 
 ## Other things
 

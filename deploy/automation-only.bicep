@@ -4,6 +4,7 @@ param adminUserName string
 param adminPassword string
 
 param location string = resourceGroup().location
+param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
 param automationAccountName string = uniqueString(resourceGroup().id)
 
 param hypervConfiguration object = {
@@ -22,6 +23,16 @@ param iisConfiguration object = {
   name: 'IIS'
   description: 'A configuration for installing IIS.'
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/iis.ps1'
+}
+
+resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
+  name: logAnalyticsWorkspaceName
+  location: location
+  properties: {
+    sku: {
+      name: 'Free'
+    }
+  }
 }
 
 resource automationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
