@@ -1,0 +1,262 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.613.9944",
+      "templateHash": "7679119805774804528"
+    }
+  },
+  "parameters": {
+    "adminUserName": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "secureString"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "defaultValue": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]"
+    },
+    "automationAccountName": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id)]"
+    },
+    "hypervConfiguration": {
+      "type": "object",
+      "defaultValue": {
+        "name": "hyperv",
+        "description": "A configuration for installing Hyper-V.",
+        "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/hyperv.ps1"
+      }
+    },
+    "addcConfiguration": {
+      "type": "object",
+      "defaultValue": {
+        "name": "ADDC",
+        "description": "A configuration for installing AADC.",
+        "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/addc.ps1"
+      }
+    },
+    "iisConfiguration": {
+      "type": "object",
+      "defaultValue": {
+        "name": "IIS",
+        "description": "A configuration for installing IIS.",
+        "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/iis.ps1"
+      }
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-08-01",
+      "name": "[parameters('logAnalyticsWorkspaceName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "Free"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[parameters('automationAccountName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "Basic"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/credentials",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), 'Admincreds')]",
+      "properties": {
+        "description": "Admin credentials.",
+        "password": "[parameters('adminPassword')]",
+        "userName": "[parameters('adminUserName')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), 'StorageDsc')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "contentLink": {
+          "uri": "https://www.powershellgallery.com/api/v2/package/StorageDsc/5.0.1",
+          "version": "5.0.1"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xActiveDirectory')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "contentLink": {
+          "uri": "https://www.powershellgallery.com/api/v2/package/xActiveDirectory/3.0.0.0",
+          "version": "3.0.0.0"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xNetworking')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "contentLink": {
+          "uri": "https://www.powershellgallery.com/api/v2/package/xNetworking/5.7.0.0",
+          "version": "5.7.0.0"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xPendingReboot')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "contentLink": {
+          "uri": "https://www.powershellgallery.com/api/v2/package/xPendingReboot/0.4.0.0",
+          "version": "0.4.0.0"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xHyper-V')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "contentLink": {
+          "uri": "https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0",
+          "version": "3.17.0.0"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/modules",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xComputerManagement')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "contentLink": {
+          "uri": "https://www.powershellgallery.com/api/v2/package/xComputerManagement/4.1.0",
+          "version": "3.0.0.0"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/configurations",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('addcConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "logVerbose": false,
+        "description": "[parameters('addcConfiguration').description]",
+        "source": {
+          "type": "uri",
+          "value": "[parameters('addcConfiguration').script]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'StorageDsc')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xActiveDirectory')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xNetworking')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xPendingReboot')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/compilationjobs",
+      "apiVersion": "2020-01-13-preview",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('addcConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "configuration": {
+          "name": "[parameters('addcConfiguration').name]"
+        },
+        "parameters": {
+          "ConfigurationData": "{\"AllNodes\":[{\"NodeName\":\"localhost\",\"PSDSCAllowPlainTextPassword\":true}]}",
+          "DomainName": "contoso.com"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/credentials', parameters('automationAccountName'), 'Admincreds')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('addcConfiguration').name)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/configurations",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('hypervConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "logVerbose": false,
+        "description": "[parameters('hypervConfiguration').description]",
+        "source": {
+          "type": "uri",
+          "value": "[parameters('hypervConfiguration').script]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xActiveDirectory')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xComputerManagement')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xHyper-V')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xPendingReboot')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/configurations",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('iisConfiguration').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "logVerbose": false,
+        "description": "[parameters('iisConfiguration').description]",
+        "source": {
+          "type": "uri",
+          "value": "[parameters('iisConfiguration').script]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+      ]
+    }
+  ]
+}
