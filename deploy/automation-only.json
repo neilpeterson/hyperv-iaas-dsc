@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "10398768108273999969"
+      "templateHash": "11818425134169195937"
     }
   },
   "parameters": {
@@ -216,26 +216,6 @@
       ]
     },
     {
-      "type": "Microsoft.Automation/automationAccounts/compilationjobs",
-      "apiVersion": "2020-01-13-preview",
-      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('addcConfiguration').name)]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "configuration": {
-          "name": "[parameters('addcConfiguration').name]"
-        },
-        "parameters": {
-          "ConfigurationData": "{\"AllNodes\":[{\"NodeName\":\"localhost\",\"PSDSCAllowPlainTextPassword\":true}]}",
-          "DomainName": "contoso.com"
-        }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-        "[resourceId('Microsoft.Automation/automationAccounts/credentials', parameters('automationAccountName'), 'Admincreds')]",
-        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('addcConfiguration').name)]"
-      ]
-    },
-    {
       "type": "Microsoft.Automation/automationAccounts/configurations",
       "apiVersion": "2019-06-01",
       "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('hypervConfiguration').name)]",
@@ -271,26 +251,6 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Automation/automationAccounts/compilationjobs",
-      "apiVersion": "2020-01-13-preview",
-      "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('iisConfiguration').name)]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "incrementNodeConfigurationBuild": false,
-        "configuration": {
-          "name": "[parameters('iisConfiguration').name]"
-        }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('iisConfiguration').name)]",
-        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'ActiveDirectoryDsc')]",
-        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xComputerManagement')]",
-        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xNetworking')]",
-        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xPendingReboot')]"
       ]
     }
   ]
