@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "13971493424985227733"
+      "templateHash": "10398768108273999969"
     }
   },
   "parameters": {
@@ -286,7 +286,11 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]",
-        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('iisConfiguration').name)]"
+        "[resourceId('Microsoft.Automation/automationAccounts/configurations', parameters('automationAccountName'), parameters('iisConfiguration').name)]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'ActiveDirectoryDsc')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xComputerManagement')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xNetworking')]",
+        "[resourceId('Microsoft.Automation/automationAccounts/modules', parameters('automationAccountName'), 'xPendingReboot')]"
       ]
     }
   ]
