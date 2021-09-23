@@ -248,4 +248,7 @@ resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationj
       name: iisConfiguration.name
     }
   }
+  dependsOn: [
+    dscConfigIIS
+  ]
 }
