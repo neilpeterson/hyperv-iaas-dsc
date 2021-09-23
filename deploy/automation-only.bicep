@@ -188,28 +188,28 @@ resource dscConfigHyperv 'Microsoft.Automation/automationAccounts/configurations
   ]
 }
 
-resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-  // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
-  parent: automationAccount
-  name: '${hypervConfiguration.name}'
-  location: location
-  properties: {
-    incrementNodeConfigurationBuild: false
-    configuration: {
-      name: hypervConfiguration.name
-    }
-    parameters: { 
-      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
-      DomainName: 'contoso.com'
-      DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
-      ComputerName: hypervVirtualMachine.name
-    }
-  }
-  dependsOn: [
-    dscConfigHyperv
-    automationCredentials
-  ]
-}
+// resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+//   // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
+//   parent: automationAccount
+//   name: '${hypervConfiguration.name}'
+//   location: location
+//   properties: {
+//     incrementNodeConfigurationBuild: false
+//     configuration: {
+//       name: hypervConfiguration.name
+//     }
+//     parameters: { 
+//       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+//       DomainName: 'contoso.com'
+//       DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
+//       ComputerName: hypervVirtualMachine.name
+//     }
+//   }
+//   dependsOn: [
+//     dscConfigHyperv
+//     automationCredentials
+//   ]
+// }
 
 resource dscConfigIIS 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   parent: automationAccount
@@ -225,15 +225,15 @@ resource dscConfigIIS 'Microsoft.Automation/automationAccounts/configurations@20
   }
 }
 
-resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
-  // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
-  parent: automationAccount
-  name: '${iisConfiguration.name}'
-  location: location
-  properties: {
-    incrementNodeConfigurationBuild: false
-    configuration: {
-      name: iisConfiguration.name
-    }
-  }
-}
+// resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+//   // compilation job is not idempotent? - https://github.com/Azure/azure-powershell/issues/8921
+//   parent: automationAccount
+//   name: '${iisConfiguration.name}'
+//   location: location
+//   properties: {
+//     incrementNodeConfigurationBuild: false
+//     configuration: {
+//       name: iisConfiguration.name
+//     }
+//   }
+// }
