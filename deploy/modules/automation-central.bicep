@@ -1,29 +1,10 @@
-param adminUserName string
 
 @secure()
 param adminPassword string
-
+param adminUserName string
+param automationAccountName string = uniqueString(resourceGroup().id)
 param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
-param automationAccountName string = uniqueString(resourceGroup().id)
-
-param hypervConfiguration object = {
-  name: 'hyperv'
-  description: 'A configuration for installing Hyper-V.'
-  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/hyperv.ps1'
-}
-
-param addcConfiguration object = {
-  name: 'ADDC'
-  description: 'A configuration for installing AADC.'
-  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/addc.ps1'
-}
-
-param iisConfiguration object = {
-  name: 'IIS'
-  description: 'A configuration for installing IIS.'
-  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/master/config/iis.ps1'
-}
 
 resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: logAnalyticsWorkspaceName
@@ -139,56 +120,6 @@ resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modu
   }
 }
 
-resource dscConfigADDC 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
-  name: addcConfiguration.name
-  parent: automationAccount
-  location: location
-  properties: {
-    logVerbose: false
-    description: addcConfiguration.description
-    source: {
-      type: 'uri'
-      value: addcConfiguration.script
-    }
-  }
-  dependsOn: [
-    moduleStorageDsc
-    moduleXActiveDirectory
-    moduleXNetworking
-    moduleXPendingReboot
-  ]
-}
-
-resource dscConfigHyperv 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
-  parent: automationAccount
-  name: hypervConfiguration.name
-  location: location
-  properties: {
-    logVerbose: false
-    description: hypervConfiguration.description
-    source: {
-      type: 'uri'
-      value: hypervConfiguration.script
-    }
-  }
-  dependsOn: [
-    moduleXActiveDirectory
-    moduleXComputerManagement
-    moduleXHyperv
-    moduleXPendingReboot
-  ]
-}
-
-resource dscConfigIIS 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
-  parent: automationAccount
-  name: iisConfiguration.name
-  location: location
-  properties: {
-    logVerbose: false
-    description: iisConfiguration.description
-    source: {
-      type: 'uri'
-      value: iisConfiguration.script
-    }
-  }
-}
+output automationAccountKey string = listKeys(automationAccount.id, '2019-06-01').Keys[0].value
+output automationAccountName string = automationAccountName
+output autoamtionAccountURL string = automationAccount.properties.registrationUrl

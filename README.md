@@ -7,7 +7,7 @@ Azure Bicep template + DSC Configurations to do the following:
 - Deploy a VM which is configured as an ADDC .via state configuration *
 - Deploy a VM which is configured as a Hyper-V host .via state configuration *
 
-* There are two templates found in this repository. The first deploys only the solution shared components (Azure Automation account, Log Analytics instance, PowerShell Modules, Credentials, and DSC configurations). The second template deploys and end to end sandboxed experience with virtual machines etc. however has a dependency on a managed disk found in my Azure subscription. 
+There are two templates found in this repository. The first deploys only the solution shared components (Azure Automation account, Log Analytics instance, PowerShell Modules, Credentials, and DSC configurations). The second template deploys and end to end sandboxed experience with virtual machines etc. however has a dependency on a managed disk found in my Azure subscription. 
 
 ## Deploy
 
