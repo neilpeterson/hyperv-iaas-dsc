@@ -8,11 +8,11 @@
 instance of MSFT_WebDownloadManager as $MSFT_WebDownloadManager1ref
 {
 SourceInfo = "C:\\Users\\azureadmin\\Desktop\\metaconfig.ps1::66::10::ConfigurationRepositoryWeb";
- ServerURL = "<replace>";
+ ServerURL = "";
  ResourceID = "[ConfigurationRepositoryWeb]AzureAutomationStateConfiguration";
- RegistrationKey = "<replace>";
+ RegistrationKey = "";
  ConfigurationNames = {
-    "ADDC.localhost"
+    "iis.localhost"
 };
 
 };
@@ -20,18 +20,18 @@ SourceInfo = "C:\\Users\\azureadmin\\Desktop\\metaconfig.ps1::66::10::Configurat
 instance of MSFT_WebResourceManager as $MSFT_WebResourceManager1ref
 {
 SourceInfo = "C:\\Users\\azureadmin\\Desktop\\metaconfig.ps1::73::14::ResourceRepositoryWeb";
- ServerURL = "<replace>";
+ ServerURL = "";
  ResourceID = "[ResourceRepositoryWeb]AzureAutomationStateConfiguration";
- RegistrationKey = "<replace>";
+ RegistrationKey = "";
 
 };
 
 instance of MSFT_WebReportManager as $MSFT_WebReportManager1ref
 {
 SourceInfo = "C:\\Users\\azureadmin\\Desktop\\metaconfig.ps1::80::10::ReportServerWeb";
- ServerURL = "<replace>";
+ ServerURL = "";
  ResourceID = "[ReportServerWeb]AzureAutomationStateConfiguration";
- RegistrationKey = "<replace>";
+ RegistrationKey = "";
 
 };
 

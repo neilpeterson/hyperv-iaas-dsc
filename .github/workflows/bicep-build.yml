@@ -14,7 +14,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          path: master
+          path: main
 
       - name: Install Bicep build
         run: |
@@ -25,12 +25,12 @@ jobs:
 
       - name: Run Bicep build
         run: |
-            bicep build master/deploy/automation-only.bicep
-            ls -l master/deploy/*.json
+            bicep build main/deploy/main.bicep
+            ls -l main/deploy/*.json
 
       - name: Commit files
         run: |
-          cd master
+          cd main
           git config --local user.email "$(git log --format='%ae' HEAD^!)"
           git config --local user.name "$(git log --format='%an' HEAD^!)"
           git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
