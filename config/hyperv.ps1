@@ -25,11 +25,11 @@ configuration hyperv {
 
     node localhost {
 
-        LocalConfigurationManager {
-            ActionAfterReboot = 'ContinueConfiguration'            
-            ConfigurationMode = 'ApplyAndAutoCorrect'
-            RebootNodeIfNeeded = $true
-        }
+        # LocalConfigurationManager {
+        #     ActionAfterReboot = 'ContinueConfiguration'            
+        #     ConfigurationMode = 'ApplyAndAutoCorrect'
+        #     RebootNodeIfNeeded = $true
+        # }
 
         WaitForDisk Disk2 {
             DiskId = 2
