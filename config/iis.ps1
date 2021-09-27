@@ -49,11 +49,5 @@ Configuration iis {
             Name = "RebootServer"
             DependsOn = "[xComputer]JoinDomain"
         }
-
-        File DirectoryCopy {
-            Ensure = "Present"
-            Type = "Directory"
-            DestinationPath = "C:\temp"
-        }
     }
 }

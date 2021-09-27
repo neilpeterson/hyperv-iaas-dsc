@@ -20,11 +20,11 @@ configuration rodc {
     
     Node localhost
     {
-        LocalConfigurationManager {
-            ActionAfterReboot = 'ContinueConfiguration'            
-            ConfigurationMode = 'ApplyAndAutoCorrect'
-            RebootNodeIfNeeded = $true
-        }
+        # LocalConfigurationManager {
+        #     ActionAfterReboot = 'ContinueConfiguration'            
+        #     ConfigurationMode = 'ApplyAndAutoCorrect'
+        #     RebootNodeIfNeeded = $true
+        # }
 
         # TODO dynamically detect interface
         xDnsServerAddress DnsServerAddress { 
