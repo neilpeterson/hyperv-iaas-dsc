@@ -1,19 +1,40 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+variables:
+- name: resource-group
+  value: tue-100-automation-central
+- name: automation-account
+  value: ir75wgbevjpqg
+- name: location
+  value: eastus
+- name: config-location
+  value: 'config/iis.ps1'
 
 trigger:
-- main
+  branches:
+    include:
+    - main
+  # paths:
+  #   include:
+  #     - /solutions/azure-hub-spoke/*
+  #   exclude:
+  #     - '/solutions/azure-hub-spoke/README.md'
+  #     - '/solutions/azure-hub-spoke/bicep/*'
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'ls'
+
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
+    ScriptType: 'InlineScript'
+    Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
+    azurePowerShellVersion: 'LatestVersion'
+
