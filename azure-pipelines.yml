@@ -5,31 +5,23 @@ variables:
   value: ir75wgbevjpqg
 - name: location
   value: eastus
+- name: config-name
+  value: iis
 - name: config-location
-  value: 'config/iis.ps1'
+  value: config/iis.ps1
 
 trigger:
   branches:
     include:
     - main
-  # paths:
-  #   include:
-  #     - /solutions/azure-hub-spoke/*
-  #   exclude:
-  #     - '/solutions/azure-hub-spoke/README.md'
-  #     - '/solutions/azure-hub-spoke/bicep/*'
+  paths:
+    include:
+      - config/*
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: 'ls'
 
 - task: AzurePowerShell@5
   inputs:
@@ -38,3 +30,12 @@ steps:
     Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
     azurePowerShellVersion: 'LatestVersion'
 
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
+    ScriptType: 'InlineScript'
+    azurePowerShellVersion: 'LatestVersion'
+    Inline: |
+      $Params = @{"DomainName"="contoso.com";"DNSAddress"="10.0.2.4"}
+      Start-AzAutomationDscCompilationJob -ConfigurationName $(config-name) -Parameters $Params -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group)
+    
