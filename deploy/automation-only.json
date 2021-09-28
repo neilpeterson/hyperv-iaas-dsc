@@ -1,0 +1,402 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.613.9944",
+      "templateHash": "6982762230248213214"
+    }
+  },
+  "parameters": {
+    "adminUserName": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "secureString"
+    },
+    "resourceGroupNamePrefix": {
+      "type": "string"
+    },
+    "deploySharedResources": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "condition": "[parameters('deploySharedResources')]",
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-01-01",
+      "name": "[format('{0}-automation-central', parameters('resourceGroupNamePrefix'))]",
+      "location": "eastus"
+    },
+    {
+      "condition": "[parameters('deploySharedResources')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "automationCentral",
+      "resourceGroup": "[format('{0}-automation-central', parameters('resourceGroupNamePrefix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "adminUserName": {
+            "value": "[parameters('adminUserName')]"
+          },
+          "adminPassword": {
+            "value": "[parameters('adminPassword')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "14410080709340913651"
+            }
+          },
+          "parameters": {
+            "adminPassword": {
+              "type": "secureString"
+            },
+            "adminUserName": {
+              "type": "string"
+            },
+            "automationAccountName": {
+              "type": "string",
+              "defaultValue": "[uniqueString(resourceGroup().id)]"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "logAnalyticsWorkspaceName": {
+              "type": "string",
+              "defaultValue": "[uniqueString(subscription().subscriptionId, resourceGroup().id)]"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2020-08-01",
+              "name": "[parameters('logAnalyticsWorkspaceName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "sku": {
+                  "name": "Free"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[parameters('automationAccountName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "sku": {
+                  "name": "Basic"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/credentials",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), 'Admincreds')]",
+              "properties": {
+                "description": "Admin credentials.",
+                "password": "[parameters('adminPassword')]",
+                "userName": "[parameters('adminUserName')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/modules",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), 'StorageDsc')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "contentLink": {
+                  "uri": "https://www.powershellgallery.com/api/v2/package/StorageDsc/5.0.1",
+                  "version": "5.0.1"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/modules",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), 'ActiveDirectoryDsc')]",
+              "location": "eastus",
+              "properties": {
+                "contentLink": {
+                  "uri": "https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.0.1",
+                  "version": "6.0.1"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/modules",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xActiveDirectory')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "contentLink": {
+                  "uri": "https://www.powershellgallery.com/api/v2/package/xActiveDirectory/3.0.0.0",
+                  "version": "3.0.0.0"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/modules",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xNetworking')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "contentLink": {
+                  "uri": "https://www.powershellgallery.com/api/v2/package/xNetworking/5.7.0.0",
+                  "version": "5.7.0.0"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/modules",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xPendingReboot')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "contentLink": {
+                  "uri": "https://www.powershellgallery.com/api/v2/package/xPendingReboot/0.4.0.0",
+                  "version": "0.4.0.0"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/modules",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xHyper-V')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "contentLink": {
+                  "uri": "https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0",
+                  "version": "3.17.0.0"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/modules",
+              "apiVersion": "2020-01-13-preview",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xComputerManagement')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "contentLink": {
+                  "uri": "https://www.powershellgallery.com/api/v2/package/xComputerManagement/4.1.0",
+                  "version": "3.0.0.0"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "automationAccountKey": {
+              "type": "string",
+              "value": "[listKeys(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName')), '2019-06-01').Keys[0].value]"
+            },
+            "automationAccountName": {
+              "type": "string",
+              "value": "[parameters('automationAccountName')]"
+            },
+            "autoamtionAccountURL": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))).registrationUrl]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-automation-central', parameters('resourceGroupNamePrefix')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "configs",
+      "resourceGroup": "[format('{0}-automation-central', parameters('resourceGroupNamePrefix'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "automationAccountName": {
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-automation-central', parameters('resourceGroupNamePrefix'))), 'Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.automationAccountName.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.613.9944",
+              "templateHash": "8192049623230101443"
+            }
+          },
+          "parameters": {
+            "automationAccountName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "hypervConfiguration": {
+              "type": "object",
+              "defaultValue": {
+                "name": "hyperv",
+                "description": "A configuration for installing Hyper-V.",
+                "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/main/config/hyperv.ps1"
+              }
+            },
+            "addcConfiguration": {
+              "type": "object",
+              "defaultValue": {
+                "name": "addc",
+                "description": "A configuration for installing AADC.",
+                "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/main/config/addc.ps1"
+              }
+            },
+            "iisConfiguration": {
+              "type": "object",
+              "defaultValue": {
+                "name": "iis",
+                "description": "A configuration for installing IIS.",
+                "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/main/config/iis.ps1"
+              }
+            },
+            "rodcConfiguration": {
+              "type": "object",
+              "defaultValue": {
+                "name": "rodc",
+                "description": "A configuration for installing a read only domain controller.",
+                "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/main/config/rodc.ps1"
+              }
+            },
+            "memberConfiguration": {
+              "type": "object",
+              "defaultValue": {
+                "name": "member",
+                "description": "A configuration for installing a member server.",
+                "script": "https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/main/config/member.ps1"
+              }
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.Automation/automationAccounts/configurations",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('addcConfiguration').name)]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "logVerbose": false,
+                "description": "[parameters('addcConfiguration').description]",
+                "source": {
+                  "type": "uri",
+                  "value": "[parameters('addcConfiguration').script]"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/configurations",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('hypervConfiguration').name)]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "logVerbose": false,
+                "description": "[parameters('hypervConfiguration').description]",
+                "source": {
+                  "type": "uri",
+                  "value": "[parameters('hypervConfiguration').script]"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/configurations",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('rodcConfiguration').name)]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "logVerbose": false,
+                "description": "[parameters('rodcConfiguration').description]",
+                "source": {
+                  "type": "uri",
+                  "value": "[parameters('rodcConfiguration').script]"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/configurations",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('iisConfiguration').name)]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "logVerbose": false,
+                "description": "[parameters('iisConfiguration').description]",
+                "source": {
+                  "type": "uri",
+                  "value": "[parameters('iisConfiguration').script]"
+                }
+              }
+            },
+            {
+              "type": "Microsoft.Automation/automationAccounts/configurations",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), parameters('memberConfiguration').name)]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "logVerbose": false,
+                "description": "[parameters('memberConfiguration').description]",
+                "source": {
+                  "type": "uri",
+                  "value": "[parameters('memberConfiguration').script]"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-automation-central', parameters('resourceGroupNamePrefix'))), 'Microsoft.Resources/deployments', 'automationCentral')]",
+        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-automation-central', parameters('resourceGroupNamePrefix')))]"
+      ]
+    }
+  ]
+}
