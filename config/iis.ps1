@@ -49,5 +49,11 @@ Configuration iis {
             Name = "RebootServer"
             DependsOn = "[xComputer]JoinDomain"
         }
+
+        File updateDemo {
+            Ensure = "Present"
+            Type = "Directory"
+            DestinationPath = "C:\update-demo\"
+        }
     }
 }
