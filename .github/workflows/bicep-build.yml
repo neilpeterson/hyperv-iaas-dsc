@@ -25,7 +25,7 @@ jobs:
 
       - name: Run Bicep build
         run: |
-            bicep build main/deploy/automation-only.bicep -outdir main/deploy/arm-native
+            bicep build main/deploy/automation-only.bicep -outdir main/deploy/arm-native/
             ls -l main/deploy/*.json
 
       - name: Commit files
