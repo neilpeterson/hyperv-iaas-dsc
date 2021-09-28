@@ -2,7 +2,7 @@ variables:
 - name: resource-group
   value: tue-100-automation-central
 - name: automation-account
-  value: tue-100-automation-central
+  value: agtmhyhhww5tw
 - name: location
   value: eastus
 - name: config-location
