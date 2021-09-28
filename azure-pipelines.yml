@@ -16,7 +16,7 @@ trigger:
     - main
   paths:
     include:
-      - '/config/*''
+      - config/*
 
 pool:
   vmImage: ubuntu-latest
