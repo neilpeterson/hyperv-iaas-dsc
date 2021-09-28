@@ -13,7 +13,7 @@ There are two templates found in this repository. The first deploys only the sol
 
 Click this button to deploy an Azure Automation instance, configuration modules, configuration credentials, and a domain controller and Hyper-V configuration. On the deployment form, create a new resource group, specify an admin username and password. Leave the default values for the remaining parameters.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fneilpeterson%2Fhyperv-iaas-dsc%2Fmain%2Fdeploy%2Fautomation-only.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fneilpeterson%2Fhyperv-iaas-dsc%2Fmain%2Fdeploy%2Farm-native%2Fautomation-only.json)
 
 ## Other things
 

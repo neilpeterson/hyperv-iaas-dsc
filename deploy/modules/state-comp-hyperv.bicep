@@ -38,7 +38,7 @@ resource dscCompilationHyperv 'Microsoft.Automation/automationAccounts/compilati
       ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
       DomainName: 'contoso.com'
       DNSAddress: dnsServer
-      ComputerName: 'hyperv'
+      // ComputerName: 'hyperv'
     }
   }
 }
