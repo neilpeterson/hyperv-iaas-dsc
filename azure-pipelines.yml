@@ -31,10 +31,10 @@ steps:
     scriptLocation: 'inlineScript'
     inlineScript: 'ls'
 
-# - task: AzurePowerShell@5
-#   inputs:
-#     azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
-#     ScriptType: 'InlineScript'
-#     Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
-#     azurePowerShellVersion: 'LatestVersion'
+- task: AzurePowerShell@5
+  inputs:
+    azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
+    ScriptType: 'InlineScript'
+    Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
+    azurePowerShellVersion: 'LatestVersion'
 
