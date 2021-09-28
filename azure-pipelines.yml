@@ -36,6 +36,6 @@ steps:
     ScriptType: 'InlineScript'
     azurePowerShellVersion: 'LatestVersion'
     Inline: |
-      $Params = @{"DomainName"="contoso.com";DNSAddress"="10.0.2.4"}
+      $Params = @{"DomainName"="contoso.com";"DNSAddress"="10.0.2.4"}
       Start-AzAutomationDscCompilationJob -ConfigurationName $(config-name) -Parameters $Params -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group)
     
