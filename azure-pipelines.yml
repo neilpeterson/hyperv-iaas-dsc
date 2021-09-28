@@ -6,7 +6,7 @@ variables:
 - name: location
   value: eastus
 - name: config-location
-  value: '/config/iis.ps1'
+  value: 'config/iis.ps1'
 
 trigger:
   branches:
