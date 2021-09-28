@@ -3,9 +3,6 @@ configuration hyperv {
     param
     (
         [Parameter(Mandatory)]
-        [string]$ComputerName,
-
-        [Parameter(Mandatory)]
         [string]$DomainName,
 
         [Parameter(Mandatory)]
@@ -24,12 +21,6 @@ configuration hyperv {
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
     node localhost {
-
-        # LocalConfigurationManager {
-        #     ActionAfterReboot = 'ContinueConfiguration'            
-        #     ConfigurationMode = 'ApplyAndAutoCorrect'
-        #     RebootNodeIfNeeded = $true
-        # }
 
         WaitForDisk Disk2 {
             DiskId = 2
@@ -77,7 +68,6 @@ configuration hyperv {
         }
          
         xComputer JoinDomain {
-            Name = $ComputerName
             DomainName = $DomainName
             Credential = $DomainCreds
             DependsOn = "[WaitForADDomain]DscForestWait"

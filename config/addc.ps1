@@ -17,12 +17,6 @@ configuration addc {
     
     Node localhost {
         
-        # LocalConfigurationManager {
-        #     ActionAfterReboot = 'ContinueConfiguration'            
-        #     ConfigurationMode = 'ApplyAndAutoCorrect'
-        #     RebootNodeIfNeeded = $true
-        # }
-
         WaitForDisk Disk2 {
             DiskId = 2
             RetryIntervalSec = 60
