@@ -68,6 +68,7 @@ configuration hyperv {
         }
          
         xComputer JoinDomain {
+            Name = $ComputerName
             DomainName = $DomainName
             Credential = $DomainCreds
             DependsOn = "[WaitForADDomain]DscForestWait"
