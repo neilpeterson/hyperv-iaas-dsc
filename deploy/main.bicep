@@ -5,9 +5,8 @@ param adminUserName string
 param adminPassword string
 param domainName string = 'contoso.com'
 param resourceGroupNamePrefix string
-param deploySharedResources bool = true
 
-resource centralResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = if (deploySharedResources) {
+resource centralResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01' = {
   name: '${resourceGroupNamePrefix}-automation-central'
   location: 'eastus'
 }
@@ -18,7 +17,7 @@ resource mocFactoryResourceGroup 'Microsoft.Resources/resourceGroups@2021-01-01'
 }
 
 // Automation Account, Credentials, DSC Modules, Log Analytics
-module automationCentral 'modules/automation-central.bicep' = if (deploySharedResources) {
+module automationCentral 'modules/automation-central.bicep' = {
   name: 'automationCentral'
   scope: centralResourceGroup
   params: {
