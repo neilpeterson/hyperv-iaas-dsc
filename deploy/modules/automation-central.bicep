@@ -51,7 +51,7 @@ resource moduleStorageDsc 'Microsoft.Automation/automationAccounts/modules@2020-
 resource moduleActiveDirectoryDsc 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
   parent: automationAccount
   name: 'ActiveDirectoryDsc'
-  location: 'eastus'
+  location: location
   properties: {
     contentLink: {
       uri: 'https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.0.1'
