@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "518782972802188377"
+      "templateHash": "13365332292922882077"
     }
   },
   "parameters": {
@@ -42,7 +42,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "14410080709340913651"
+              "templateHash": "8532754069414807314"
             }
           },
           "parameters": {
@@ -121,7 +121,7 @@
               "type": "Microsoft.Automation/automationAccounts/modules",
               "apiVersion": "2020-01-13-preview",
               "name": "[format('{0}/{1}', parameters('automationAccountName'), 'ActiveDirectoryDsc')]",
-              "location": "eastus",
+              "location": "[parameters('location')]",
               "properties": {
                 "contentLink": {
                   "uri": "https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.0.1",
