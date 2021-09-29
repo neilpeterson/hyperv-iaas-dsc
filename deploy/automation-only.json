@@ -1,11 +1,11 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "6982762230248213214"
+      "templateHash": "518782972802188377"
     }
   },
   "parameters": {
@@ -14,30 +14,14 @@
     },
     "adminPassword": {
       "type": "secureString"
-    },
-    "resourceGroupNamePrefix": {
-      "type": "string"
-    },
-    "deploySharedResources": {
-      "type": "bool",
-      "defaultValue": true
     }
   },
   "functions": [],
   "resources": [
     {
-      "condition": "[parameters('deploySharedResources')]",
-      "type": "Microsoft.Resources/resourceGroups",
-      "apiVersion": "2021-01-01",
-      "name": "[format('{0}-automation-central', parameters('resourceGroupNamePrefix'))]",
-      "location": "eastus"
-    },
-    {
-      "condition": "[parameters('deploySharedResources')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "automationCentral",
-      "resourceGroup": "[format('{0}-automation-central', parameters('resourceGroupNamePrefix'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -239,16 +223,12 @@
             }
           }
         }
-      },
-      "dependsOn": [
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-automation-central', parameters('resourceGroupNamePrefix')))]"
-      ]
+      }
     },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "configs",
-      "resourceGroup": "[format('{0}-automation-central', parameters('resourceGroupNamePrefix'))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -256,7 +236,7 @@
         "mode": "Incremental",
         "parameters": {
           "automationAccountName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-automation-central', parameters('resourceGroupNamePrefix'))), 'Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.automationAccountName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.automationAccountName.value]"
           }
         },
         "template": {
@@ -394,8 +374,7 @@
         }
       },
       "dependsOn": [
-        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-automation-central', parameters('resourceGroupNamePrefix'))), 'Microsoft.Resources/deployments', 'automationCentral')]",
-        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', format('{0}-automation-central', parameters('resourceGroupNamePrefix')))]"
+        "[resourceId('Microsoft.Resources/deployments', 'automationCentral')]"
       ]
     }
   ]
