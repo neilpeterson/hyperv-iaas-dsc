@@ -1,8 +1,8 @@
 variables:
 - name: resource-group
-  value: tue-100-automation-central
+  value: demo-007-automation-central
 - name: automation-account
-  value: ir75wgbevjpqg
+  value: 7j32hiwyb3r3o
 - name: location
   value: eastus
 - name: config-name
