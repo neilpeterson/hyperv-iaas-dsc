@@ -23,12 +23,20 @@ pool:
 
 steps:
 
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'custom'
+    custom: 'tool'
+    arguments: 'install --global azuresigntool'
+  displayName: Install AzureSignTool
+
 - task: AzurePowerShell@5
   inputs:
     azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
     ScriptType: 'InlineScript'
     Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
     azurePowerShellVersion: 'LatestVersion'
+  displayName: Import Configuration
 
 - task: AzurePowerShell@5
   inputs:
@@ -38,4 +46,5 @@ steps:
     Inline: |
       $Params = @{"DomainName"="contoso.com";"DNSAddress"="10.0.2.4"}
       Start-AzAutomationDscCompilationJob -ConfigurationName $(config-name) -Parameters $Params -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group)
+  displayName: Compile Configuration
     
