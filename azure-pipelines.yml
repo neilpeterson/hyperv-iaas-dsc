@@ -31,6 +31,13 @@ pool:
 
 steps:
 
+- task: AzureKeyVault@2
+  inputs:
+    azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
+    KeyVaultName: 'aphsovkb7zgqhob'
+    SecretsFilter: '*'
+    RunAsPreJob: true
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'custom'
