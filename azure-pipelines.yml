@@ -19,7 +19,7 @@ trigger:
       - config/*
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: windows-2019
 
 steps:
 
