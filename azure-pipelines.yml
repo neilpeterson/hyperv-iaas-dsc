@@ -9,6 +9,14 @@ variables:
   value: iis
 - name: config-location
   value: config/iis.ps1
+- name: vaultURL
+  value: ""
+- name: appId
+  value: ""
+- name: appSecret
+  value: ""
+- name: certName
+  value: ""
 
 trigger:
   branches:
@@ -29,6 +37,11 @@ steps:
     custom: 'tool'
     arguments: 'install --global azuresigntool'
   displayName: Install AzureSignTool
+
+- task: CmdLine@2
+  displayName: 'Sign outputted .exe with global AzureSignTool'
+  inputs:
+    script: AzureSignTool sign -du 'https://contoso.com' -kvu $(vaultURL) -kvi $(appId) -kvs $(appSecret) -kvc $(certName) -v $(config-location)
 
 - task: AzurePowerShell@5
   inputs:
