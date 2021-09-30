@@ -2,7 +2,7 @@ variables:
 - name: resource-group
   value: kv-001
 - name: automation-account
-  value: aphsovkb7zgqhob
+  value: phsovkb7zgqho
 - name: location
   value: eastus
 - name: config-name
