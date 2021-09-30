@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "13365332292922882077"
+      "templateHash": "13820965338734016888"
     }
   },
   "parameters": {
@@ -42,19 +42,23 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "8532754069414807314"
+              "templateHash": "14327021892286560941"
             }
           },
           "parameters": {
-            "adminPassword": {
-              "type": "secureString"
-            },
             "adminUserName": {
               "type": "string"
+            },
+            "adminPassword": {
+              "type": "secureString"
             },
             "automationAccountName": {
               "type": "string",
               "defaultValue": "[uniqueString(resourceGroup().id)]"
+            },
+            "keyVaultName": {
+              "type": "string",
+              "defaultValue": "[format('a{0}b', uniqueString(resourceGroup().id))]"
             },
             "location": {
               "type": "string",
@@ -101,6 +105,20 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))]"
               ]
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2019-09-01",
+              "name": "[parameters('keyVaultName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "sku": {
+                  "family": "A",
+                  "name": "standard"
+                },
+                "accessPolicies": [],
+                "tenantId": "[subscription().tenantId]"
+              }
             },
             {
               "type": "Microsoft.Automation/automationAccounts/modules",
