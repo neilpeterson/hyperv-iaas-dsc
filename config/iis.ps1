@@ -2,11 +2,7 @@ Configuration iis {
 
     param
     (
-        [Parameter(Mandatory)]
-        [string]$DomainName,
 
-        [Parameter(Mandatory)]
-        [string]$DNSAddress
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
@@ -27,7 +23,7 @@ Configuration iis {
 
         # TODO dynamically detect interface
         xDnsServerAddress DnsServerAddress { 
-            Address = $DNSAddress,'8.8.8.8'
+            Address = '8.8.8.8'
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
         }
