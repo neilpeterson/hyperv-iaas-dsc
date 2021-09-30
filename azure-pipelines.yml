@@ -37,26 +37,31 @@ steps:
     arguments: 'install --global azuresigntool'
   displayName: Install AzureSignTool
 
-- task: CmdLine@2
-  displayName: 'Sign outputted .exe with global AzureSignTool'
+- task: PowerShell@2
   inputs:
-    script: AzureSignTool sign -du 'https://contoso.com' -kvu "$(SigningVaultURL)" -kvi "$(SigningClientId)" -kvs "$(SigningClientSecret)" -kvc 'dsc-poc' -v $(config-location)
+    targetType: 'inline'
+    script: '& AzureSignTool sign'
 
-- task: AzurePowerShell@5
-  inputs:
-    azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
-    ScriptType: 'InlineScript'
-    Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
-    azurePowerShellVersion: 'LatestVersion'
-  displayName: Import Configuration
+# - task: CmdLine@2
+#   displayName: 'Sign outputted .exe with global AzureSignTool'
+#   inputs:
+#     script: AzureSignTool sign -du 'https://contoso.com' -kvu "$(SigningVaultURL)" -kvi "$(SigningClientId)" -kvs "$(SigningClientSecret)" -kvc 'dsc-poc' -v $(config-location)
 
-- task: AzurePowerShell@5
-  inputs:
-    azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
-    ScriptType: 'InlineScript'
-    azurePowerShellVersion: 'LatestVersion'
-    Inline: |
-      $Params = @{"DomainName"="contoso.com";"DNSAddress"="10.0.2.4"}
-      Start-AzAutomationDscCompilationJob -ConfigurationName $(config-name) -Parameters $Params -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group)
-  displayName: Compile Configuration
+# - task: AzurePowerShell@5
+#   inputs:
+#     azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
+#     ScriptType: 'InlineScript'
+#     Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
+#     azurePowerShellVersion: 'LatestVersion'
+#   displayName: Import Configuration
+
+# - task: AzurePowerShell@5
+#   inputs:
+#     azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
+#     ScriptType: 'InlineScript'
+#     azurePowerShellVersion: 'LatestVersion'
+#     Inline: |
+#       $Params = @{"DomainName"="contoso.com";"DNSAddress"="10.0.2.4"}
+#       Start-AzAutomationDscCompilationJob -ConfigurationName $(config-name) -Parameters $Params -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group)
+#   displayName: Compile Configuration
     
