@@ -33,5 +33,11 @@ Configuration iis {
             Type = "Directory"
             DestinationPath = "C:\update-demo\"
         }
+
+        File updateDemoTwo {
+            Ensure = "Present"
+            Type = "Directory"
+            DestinationPath = "C:\update-demo-two\"
+        }
     }
 }
