@@ -1,8 +1,11 @@
 
+param adminUserName string
+
 @secure()
 param adminPassword string
-param adminUserName string
+
 param automationAccountName string = uniqueString(resourceGroup().id)
+param keyVaultName string = 'a${uniqueString(resourceGroup().id)}b'
 param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
 
@@ -33,6 +36,21 @@ resource automationCredentials 'Microsoft.Automation/automationAccounts/credenti
     description: 'Admin credentials.'
     password: adminPassword
     userName: adminUserName
+  }
+}
+
+resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
+  name: keyVaultName
+  location: location
+  properties: {
+    sku: {
+      family: 'A'
+      name: 'standard'
+    }
+    accessPolicies: [
+      
+    ]
+    tenantId: subscription().tenantId
   }
 }
 

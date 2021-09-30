@@ -32,40 +32,10 @@ Configuration iis {
             AddressFamily  = 'IPv4'
         }
 
-        WaitForADDomain DscForestWait { 
-            DomainName = $DomainName 
-            Credential = $DomainCreds
-            DependsOn = "[xDnsServerAddress]DnsServerAddress"
-        }
-            
-        xComputer JoinDomain {
-            Name = $ComputerName
-            DomainName = $DomainName
-            Credential = $DomainCreds
-            DependsOn = "[WaitForADDomain]DscForestWait"
-        }
-
-        xPendingReboot Reboot { 
-            Name = "RebootServer"
-            DependsOn = "[xComputer]JoinDomain"
-        }
-
         File updateDemo {
             Ensure = "Present"
             Type = "Directory"
             DestinationPath = "C:\update-demo\"
-        }
-
-        File updateDemoTwo {
-            Ensure = "Present"
-            Type = "Directory"
-            DestinationPath = "C:\update-demo-two\"
-        }
-
-        File updateDemoThree {
-            Ensure = "Present"
-            Type = "Directory"
-            DestinationPath = "C:\update-demo-three\"
         }
     }
 }
