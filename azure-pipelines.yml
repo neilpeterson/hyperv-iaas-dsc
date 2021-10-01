@@ -46,6 +46,7 @@ steps:
       write-output "$(SigningClientId)"
       write-output "$(SigningClientSecret)"
       write-output "$(SigningTenantId)"
+      write-output "$(ferfe)"
       write-output "---------"
 
 # - task: CmdLine@2
