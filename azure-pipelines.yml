@@ -37,10 +37,18 @@ steps:
     arguments: 'install --global azuresigntool'
   displayName: Install AzureSignTool
 
-- task: CmdLine@2
-  displayName: 'Sign outputted .exe with global AzureSignTool'
+
+
+# - task: CmdLine@2
+#   displayName: 'Sign outputted .exe with global AzureSignTool'
+#   inputs:
+#     script: AzureSignTool sign -kvu "$(- task: PowerShell@2
   inputs:
-    script: AzureSignTool sign -kvu "$(SigningVaultURL)" -kvi "$(SigningClientId)" -kvs "$(SigningClientSecret)" --azure-key-vault-tenant-id "$(SigningTenantId)" -kvc 'dsc-poc' -v $(config-location)
+    targetType: 'inline'
+    script: |
+      write-output "---------"
+      write-output $env:SigningVaultURL
+      write-output "---------")" -kvi "$(SigningClientId)" -kvs "$(SigningClientSecret)" --azure-key-vault-tenant-id "$(SigningTenantId)" -kvc 'dsc-poc' -v $(config-location)
 
 # - task: AzurePowerShell@5
 #   inputs:
