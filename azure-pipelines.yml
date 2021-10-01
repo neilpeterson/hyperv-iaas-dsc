@@ -42,7 +42,7 @@ steps:
     targetType: 'inline'
     script: |
       write-output "---------"
-      write-output $env:SigningVaultURL
+      write-output "$(SigningVaultURL)"
       write-output "---------"
 
 # - task: CmdLine@2
