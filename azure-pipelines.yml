@@ -40,7 +40,7 @@ steps:
 - task: CmdLine@2
   displayName: 'Sign outputted .exe with global AzureSignTool'
   inputs:
-    script: AzureSignTool sign -kvu "$(SigningVaultURL)" -kvi "$(SigningClientId)" -kvs "$(SigningClientSecret)" --azure-key-vault-tenant-id "$(SigningTenantId)" -kvc 'dsc-poc' -v $(config-location)
+    script: AzureSignTool sign -kvu "$(SigningVaultURL)" -kvi "$(SigningClientId)" -kvs "$(SigningClientSecret)" --azure-key-vault-tenant-id "$(SigningTenantId)" -kvc 'dsc-poc-self-signed' -v $(config-location)
 
 # - task: AzurePowerShell@5
 #   inputs:
