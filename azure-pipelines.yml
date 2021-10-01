@@ -48,7 +48,7 @@ steps:
 - task: CmdLine@2
   displayName: 'Sign outputted .exe with global AzureSignTool'
   inputs:
-    script: AzureSignTool sign -du 'https://contoso.com' -kvu $(vaultURL) -kvi $(appId) -kvs $(appSecret) -kvc $(certName) -v $(config-location)
+    script: AzureSignTool sign -du 'https://contoso.com' -kvu "$(SigningVaultURL)" -kvi "$(SigningClientId)" -kvs "$(SigningClientSecret)" -kvc 'dsc-poc' -v $(config-location)
 
 - task: AzurePowerShell@5
   inputs:
