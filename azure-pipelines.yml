@@ -9,7 +9,7 @@ variables:
   value: iis
 - name: config-location
   value: config/iis.ps1
-- group: singing-certificates
+- group: signing-certificates
 
 trigger:
   branches:
