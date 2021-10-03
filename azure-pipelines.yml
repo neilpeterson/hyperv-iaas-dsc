@@ -96,21 +96,34 @@ stages:
         ArtifactName: 'SignedScripts'
         publishLocation: 'Container'
 
-# - task: AzurePowerShell@5
-#   inputs:
-#     azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
-#     ScriptType: 'InlineScript'
-#     Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
-#     azurePowerShellVersion: 'LatestVersion'
-#   displayName: Import Configuration
+- stage: deployStage
+  dependsOn: build
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
-# - task: AzurePowerShell@5
-#   inputs:
-#     azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
-#     ScriptType: 'InlineScript'
-#     azurePowerShellVersion: 'LatestVersion'
-#     Inline: |
-#       $Params = @{"DomainName"="contoso.com";"DNSAddress"="10.0.2.4"}
-#       Start-AzAutomationDscCompilationJob -ConfigurationName $(config-name) -Parameters $Params -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group)
-#   displayName: Compile Configuration
+  jobs:
+  - job: build
+    pool: 
+      vmImage: windows-2019
+    continueOnError: false
+    timeoutInMinutes: 20
+
+    steps:
+
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
+        ScriptType: 'InlineScript'
+        Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
+        azurePowerShellVersion: 'LatestVersion'
+      displayName: Import Configuration
+
+    - task: AzurePowerShell@5
+      inputs:
+        azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
+        ScriptType: 'InlineScript'
+        azurePowerShellVersion: 'LatestVersion'
+        Inline: |
+          $Params = @{"DomainName"="contoso.com";"DNSAddress"="10.0.2.4"}
+          Start-AzAutomationDscCompilationJob -ConfigurationName $(config-name) -Parameters $Params -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group)
+      displayName: Compile Configuration
     
