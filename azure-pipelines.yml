@@ -9,7 +9,7 @@ variables:
   value: iis
 - name: config-location
   value: config/iis.ps1
-- group: CodeSigning
+- group: singing-certificates
 
 trigger:
   branches:
@@ -29,7 +29,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $secretBytes = [System.Convert]::FromBase64String("$(CodeSigning)")
+      $secretBytes = [System.Convert]::FromBase64String("$(singing-certificates)")
       # Build pfx
       $pfxcert = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2
       $keyStoreFlags = [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable `
