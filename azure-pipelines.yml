@@ -119,7 +119,7 @@ stages:
     - task: PowerShell@2
       inputs:
         targetType: 'inline'
-        script: 'Get-Item $(System.ArtifactsDirectory)'
+        script: 'Get-ChildItem $(System.ArtifactsDirectory)'
 
     # - task: AzurePowerShell@5
     #   inputs:
