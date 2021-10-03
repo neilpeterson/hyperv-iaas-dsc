@@ -8,7 +8,8 @@ variables:
 - name: config-name
   value: iis
 - name: config-location
-  value: config/iis.ps1
+  # value: config/iis.ps1
+  value: $(Build.ArtifactStagingDirectory)/iis.ps1
 - group: signing-certificates
 
 trigger:
@@ -18,6 +19,7 @@ trigger:
   paths:
     include:
       - config/*
+      - azure-pipelines.yml
 
 stages:
 
