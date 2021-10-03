@@ -114,12 +114,12 @@ stages:
       inputs:
         buildType: 'current'
         downloadType: 'specific'
-        downloadPath: '$(System.ArtifactsDirectory)/SignedScripts/'
+        downloadPath: '$(System.ArtifactsDirectory)'
 
     - task: PowerShell@2
       inputs:
         targetType: 'inline'
-        script: 'Get-ChildItem $(System.ArtifactsDirectory)'
+        script: 'Get-ChildItem $(System.ArtifactsDirectory)/SignedScripts/'
 
     # - task: AzurePowerShell@5
     #   inputs:
