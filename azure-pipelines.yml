@@ -46,7 +46,7 @@ stages:
 
   jobs:
   - job: build
-    pool: Hosted Ubuntu 1604
+    pool: 'windows-latest'
     continueOnError: false
     timeoutInMinutes: 20
     
