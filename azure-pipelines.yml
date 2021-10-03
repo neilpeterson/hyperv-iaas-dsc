@@ -29,7 +29,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $secretBytes = [System.Convert]::FromBase64String("$(singing-certificates)")
+      $secretBytes = [System.Convert]::FromBase64String("$(code-sign-windows)")
       # Build pfx
       $pfxcert = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2
       $keyStoreFlags = [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable `
