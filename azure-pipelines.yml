@@ -116,10 +116,10 @@ stages:
         downloadType: 'specific'
         downloadPath: '$(System.ArtifactsDirectory)'
 
-    - task: Bash@3
+    - task: PowerShell@2
       inputs:
         targetType: 'inline'
-        script: 'ls $(System.ArtifactsDirectory)'
+        script: 'Get-Item $(System.ArtifactsDirectory)'
 
     # - task: AzurePowerShell@5
     #   inputs:
