@@ -8,8 +8,7 @@ variables:
 - name: config-name
   value: iis
 - name: config-location
-  # value: config/iis.ps1
-  value: $(Build.ArtifactStagingDirectory)/iis.ps1
+  value: config/iis.ps1
 - group: signing-certificates
 
 trigger:
@@ -115,7 +114,8 @@ stages:
       inputs:
         azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
         ScriptType: 'InlineScript'
-        Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
+        # Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(config-location) -Force -Published'
+        Inline: 'Import-AzAutomationDscConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -SourcePath $(Build.ArtifactStagingDirectory)/iis.ps1 -Force -Published'
         azurePowerShellVersion: 'LatestVersion'
       displayName: Import Configuration
 
