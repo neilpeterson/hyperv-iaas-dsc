@@ -19,53 +19,81 @@ trigger:
     include:
       - config/*
 
-pool:
-  vmImage: windows-2019
+stages:
 
-steps:
+- stage: test
+  dependsOn: []
+  
+  jobs:
+  - job: tests
+    pool:
+      vmImage: 'windows-latest'
+    continueOnError: false
+    timeoutInMinutes: 20
 
-- task: PowerShell@2
-  displayName: "Import code signing cert to agent"
-  inputs:
-    targetType: 'inline'
-    script: |
-      $secretBytes = [System.Convert]::FromBase64String("$(code-sign-windows)")
-      # Build pfx
-      $pfxcert = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2
-      $keyStoreFlags = [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable `
-          -bxor [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::MachineKeySet `
-          -bxor [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet
-      $pfxcert.Import($secretBytes, $null, $keyStoreFlags)
-      # import to personal store
-      $store = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Store -ArgumentList @("My", "CurrentUser")
-      $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
-      $store.Add($pfxcert)
-      $store.Close()
+    steps:
 
-- task: PowerShell@2
-  displayName: "Sign PowerShell scripts"
-  inputs:
-    targetType: 'inline'
-    script: |
-      $encoding = "UTF8"
-      $scriptFolder = "./config/"
-      $scripts = Get-ChildItem -Path $scriptFolder -Filter "*.ps1" -Recurse -ErrorAction Stop
-      foreach ($script in $scripts) {
-          try {
-              $codeSigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1
-              Write-Output "Signing script `"$($script.Name)`" with certificate `"$($codeSigningCert.Thumbprint)`""
-              $null = Set-AuthenticodeSignature -Certificate $codeSigningCert -FilePath $script.FullName -TimestampServer "http://timestamp.comodoca.com/rfc3161"
-              $null = Copy-Item -Path $script.FullName -Destination $env:Build_ArtifactStagingDirectory
-          } catch {
-              Write-Error $_
+    - task: PowerShell@2
+      displayName: Install Pester
+      inputs:
+        targetType: 'inline'
+        script: |
+          Find-Module pester | Install-Module -Force
+
+- stage: build
+  dependsOn: test
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+  jobs:
+  - job: build
+    pool: Hosted Ubuntu 1604
+    continueOnError: false
+    timeoutInMinutes: 20
+    
+    steps:
+
+    - task: PowerShell@2
+      displayName: "Import code signing cert to agent"
+      inputs:
+        targetType: 'inline'
+        script: |
+          $secretBytes = [System.Convert]::FromBase64String("$(code-sign-windows)")
+          # Build pfx
+          $pfxcert = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2
+          $keyStoreFlags = [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable `
+              -bxor [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::MachineKeySet `
+              -bxor [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet
+          $pfxcert.Import($secretBytes, $null, $keyStoreFlags)
+          # import to personal store
+          $store = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Store -ArgumentList @("My", "CurrentUser")
+          $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+          $store.Add($pfxcert)
+          $store.Close()
+
+    - task: PowerShell@2
+      displayName: "Sign PowerShell scripts"
+      inputs:
+        targetType: 'inline'
+        script: |
+          $encoding = "UTF8"
+          $scriptFolder = "./config/"
+          $scripts = Get-ChildItem -Path $scriptFolder -Filter "*.ps1" -Recurse -ErrorAction Stop
+          foreach ($script in $scripts) {
+              try {
+                  $codeSigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1
+                  Write-Output "Signing script `"$($script.Name)`" with certificate `"$($codeSigningCert.Thumbprint)`""
+                  $null = Set-AuthenticodeSignature -Certificate $codeSigningCert -FilePath $script.FullName -TimestampServer "http://timestamp.comodoca.com/rfc3161"
+                  $null = Copy-Item -Path $script.FullName -Destination $env:Build_ArtifactStagingDirectory
+              } catch {
+                  Write-Error $_
+              }
           }
-      }
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'SignedScripts'
-    publishLocation: 'Container'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'SignedScripts'
+        publishLocation: 'Container'
 
 # - task: AzurePowerShell@5
 #   inputs:
