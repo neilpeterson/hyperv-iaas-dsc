@@ -47,26 +47,16 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      $magicToken = "#PerformScriptSigning"
       $encoding = "UTF8"
       $scriptFolder = "./config/"
       $scripts = Get-ChildItem -Path $scriptFolder -Filter "*.ps1" -Recurse -ErrorAction Stop
       foreach ($script in $scripts) {
           try {
-              # $content = Get-Content -Path $script.FullName -Encoding $encoding
-              # if ($content.Contains($magicToken)) {
-                  # $content = $content | Where-Object {$_ -notmatch $magicToken}
-                  # Set-Content -Value $content -Path $script.FullName -Encoding $encoding -Force
-                  # load cert
-                  $codeSigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1
-                  Write-Output "Signing script `"$($script.Name)`" with certificate `"$($codeSigningCert.Thumbprint)`""
-                  # sign script
-                  $null = Set-AuthenticodeSignature -Certificate $codeSigningCert -FilePath $script.FullName -TimestampServer "http://timestamp.comodoca.com/rfc3161"
-                  # copy to artifact staging location
-                  $null = Copy-Item -Path $script.FullName -Destination $env:Build_ArtifactStagingDirectory
-              }
-          }
-          catch {
+              $codeSigningCert = Get-ChildItem Cert:\CurrentUser\My -CodeSigningCert | Select-Object -First 1
+              Write-Output "Signing script `"$($script.Name)`" with certificate `"$($codeSigningCert.Thumbprint)`""
+              $null = Set-AuthenticodeSignature -Certificate $codeSigningCert -FilePath $script.FullName -TimestampServer "http://timestamp.comodoca.com/rfc3161"
+              $null = Copy-Item -Path $script.FullName -Destination $env:Build_ArtifactStagingDirectory
+          } catch {
               Write-Error $_
           }
       }
