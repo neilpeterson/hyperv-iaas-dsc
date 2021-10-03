@@ -97,23 +97,28 @@ stages:
         ArtifactName: 'SignedScripts'
         publishLocation: 'Container'
 
-- stage: deployStage
-  dependsOn: build
-  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-
-  jobs:
-  - job: build
-    pool: 
-      vmImage: windows-2019
-    continueOnError: false
-    timeoutInMinutes: 20
-
-    steps:
-
     - task: Bash@3
       inputs:
         targetType: 'inline'
         script: 'ls $(Build.ArtifactStagingDirectory)'
+
+# - stage: deployStage
+#   dependsOn: build
+#   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+
+#   jobs:
+#   - job: build
+#     pool: 
+#       vmImage: windows-2019
+#     continueOnError: false
+#     timeoutInMinutes: 20
+
+#     steps:
+
+#     - task: Bash@3
+#       inputs:
+#         targetType: 'inline'
+#         script: 'ls $(Build.ArtifactStagingDirectory)'
 
     # - task: AzurePowerShell@5
     #   inputs:
