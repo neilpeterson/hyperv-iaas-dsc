@@ -96,7 +96,7 @@ stages:
         ArtifactName: 'SignedScripts'
         publishLocation: 'Container'
 
-- stage: deploy-stage
+- stage: deployStage
   dependsOn: build
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
