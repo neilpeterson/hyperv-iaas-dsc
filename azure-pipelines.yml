@@ -9,6 +9,7 @@ variables:
   value: iis
 - name: config-location
   value: config/iis.ps1
+- group: CodeSigning
 
 trigger:
   branches:
@@ -23,24 +24,23 @@ pool:
 
 steps:
 
-- task: AzureKeyVault@2
+- task: PowerShell@2
+  displayName: "Import code signing cert to agent"
   inputs:
-    azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
-    KeyVaultName: 'aphsovkb7zgqhob'
-    SecretsFilter: '*'
-    RunAsPreJob: true
-
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'custom'
-    custom: 'tool'
-    arguments: 'install --global azuresigntool'
-  displayName: Install AzureSignTool
-
-- task: CmdLine@2
-  displayName: 'Sign outputted .exe with global AzureSignTool'
-  inputs:
-    script: AzureSignTool sign -kvu "$(SigningVaultURL)" -kvi "$(SigningClientId)" -kvs "$(SigningClientSecret)" --azure-key-vault-tenant-id "$(SigningTenantId)" -kvc 'code-sign-windows' -v $(config-location)
+    targetType: 'inline'
+    script: |
+      $secretBytes = [System.Convert]::FromBase64String("$(CodeSigning)")
+      # Build pfx
+      $pfxcert = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Certificate2
+      $keyStoreFlags = [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable `
+          -bxor [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::MachineKeySet `
+          -bxor [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::PersistKeySet
+      $pfxcert.Import($secretBytes, $null, $keyStoreFlags)
+      # import to personal store
+      $store = New-Object -TypeName System.Security.Cryptography.X509Certificates.X509Store -ArgumentList @("My", "CurrentUser")
+      $store.Open([System.Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+      $store.Add($pfxcert)
+      $store.Close()
 
 # - task: AzurePowerShell@5
 #   inputs:
