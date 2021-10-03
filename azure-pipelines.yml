@@ -42,7 +42,7 @@ stages:
 #           Find-Module pester | Install-Module -Force
 
 - stage: build
-  dependsOn: test
+  # dependsOn: test
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
   jobs:
@@ -98,7 +98,7 @@ stages:
         publishLocation: 'Container'
 
 - stage: deployStage
-  # dependsOn: build
+  dependsOn: build
   condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
   jobs:
