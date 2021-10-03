@@ -27,7 +27,7 @@ stages:
   jobs:
   - job: tests
     pool:
-      vmImage: 'windows-latest'
+      vmImage: windows-2019
     continueOnError: false
     timeoutInMinutes: 20
 
@@ -46,7 +46,7 @@ stages:
 
   jobs:
   - job: build
-    pool: 'windows-latest'
+    pool: windows-2019
     continueOnError: false
     timeoutInMinutes: 20
     
