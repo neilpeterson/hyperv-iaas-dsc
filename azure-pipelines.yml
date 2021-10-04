@@ -138,6 +138,7 @@ stages:
           . $(System.ArtifactsDirectory)/SignedScripts/iis.ps1
           iis
           Import-AzAutomationDscNodeConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -ConfigurationName "iis" -Path ./localhost.mof -Force
+        azurePowerShellVersion: 'LatestVersion'
 
     # - task: AzurePowerShell@5
     #   inputs:
