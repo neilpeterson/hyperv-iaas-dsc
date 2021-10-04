@@ -9,7 +9,7 @@ configuration addc {
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DSCResource -ModuleName StorageDsc
     Import-DscResource -ModuleName ActiveDirectoryDsc
-    Import-DscResource -ModuleName xNetworking
+    Import-DscResource -ModuleName NetworkingDsc
     Import-DscResource -ModuleName xPendingReboot
 
     $Admincreds = Get-AutomationPSCredential 'Admincreds'

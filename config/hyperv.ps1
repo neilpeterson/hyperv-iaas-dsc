@@ -13,7 +13,7 @@ configuration hyperv {
     Import-DscResource -ModuleName ActiveDirectoryDsc
     Import-DscResource -ModuleName xComputerManagement
     Import-DscResource -ModuleName xHyper-V
-    Import-DscResource -ModuleName xNetworking
+    Import-DscResource -ModuleName NetworkingDsc
     Import-DscResource -ModuleName xPendingReboot
     Import-DSCResource -ModuleName StorageDsc
 
@@ -55,7 +55,7 @@ configuration hyperv {
         }
 
         # TODO dynamically detect interface
-        xDnsServerAddress DnsServerAddress { 
+        DnsServerAddress DnsServerAddress { 
             Address = $DNSAddress,'8.8.8.8'
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
