@@ -1,13 +1,7 @@
 Configuration iis {
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
-    Import-DscResource -ModuleName ActiveDirectoryDsc
-    Import-DscResource -ModuleName xComputerManagement
-    Import-DscResource -ModuleName xNetworking
-    Import-DscResource -ModuleName xPendingReboot
-
-    $Admincreds = Get-AutomationPSCredential 'Admincreds'
-    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
+    Import-DscResource -ModuleName NetworkingDsc
 
     node localhost {
         
@@ -17,7 +11,7 @@ Configuration iis {
         }
 
         # TODO dynamically detect interface
-        xDnsServerAddress DnsServerAddress { 
+        DnsServerAddress DnsServerAddress { 
             Address = '8.8.8.8'
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
