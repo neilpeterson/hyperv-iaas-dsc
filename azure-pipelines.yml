@@ -135,6 +135,8 @@ stages:
         targetType: 'inline'
         script: |
           . $(System.ArtifactsDirectory)/SignedScripts/iis.ps1
+          iis
+          Import-AzAutomationDscNodeConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -ConfigurationName "iis" -Path ./localhost.mof -IncrementNodeConfigurationBuild
 
     # - task: AzurePowerShell@5
     #   inputs:
