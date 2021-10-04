@@ -16,7 +16,7 @@ Configuration iis {
         }
 
         # TODO dynamically detect interface
-        xDnsServerAddress DnsServerAddress { 
+        DnsServerAddress DnsServerAddress { 
             Address = '8.8.8.8'
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
