@@ -130,10 +130,11 @@ stages:
           Find-Module xNetworking | Install-Module -Force
           Find-Module xPendingReboot | Install-Module -Force
 
-    - task: PowerShell@2
+    - task: AzurePowerShell@5
       inputs:
-        targetType: 'inline'
-        script: |
+        azureSubscription: 'ca-nepeters-demo-test(3762d87c-ddb8-425f-b2fc-29e5e859edaf)'
+        ScriptType: 'InlineScript'
+        Inline: |
           . $(System.ArtifactsDirectory)/SignedScripts/iis.ps1
           iis
           Import-AzAutomationDscNodeConfiguration -AutomationAccountName $(automation-account) -ResourceGroupName $(resource-group) -ConfigurationName "iis" -Path ./localhost.mof -IncrementNodeConfigurationBuild
