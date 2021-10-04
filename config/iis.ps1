@@ -1,10 +1,5 @@
 Configuration iis {
 
-    param
-    (
-
-    )
-
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     Import-DscResource -ModuleName ActiveDirectoryDsc
     Import-DscResource -ModuleName xComputerManagement
