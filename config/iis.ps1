@@ -11,8 +11,8 @@ Configuration iis {
     Import-DscResource -ModuleName xNetworking
     Import-DscResource -ModuleName xPendingReboot
 
-    $Admincreds = Get-AutomationPSCredential 'Admincreds'
-    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
+    # $Admincreds = Get-AutomationPSCredential 'Admincreds'
+    # [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
     node localhost {
         
