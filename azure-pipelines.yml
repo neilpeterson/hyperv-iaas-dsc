@@ -125,10 +125,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          Find-Module ActiveDirectoryDsc | Install-Module -Force
-          Find-Module xComputerManagement | Install-Module -Force
-          Find-Module xNetworking | Install-Module -Force
-          Find-Module xPendingReboot | Install-Module -Force
+          Find-Module NetworkingDsc | Install-Module -Force
 
     - task: PowerShell@2
       inputs:
