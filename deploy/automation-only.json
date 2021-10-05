@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "13820965338734016888"
+      "templateHash": "631991852152520010"
     }
   },
   "parameters": {
@@ -42,7 +42,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "14327021892286560941"
+              "templateHash": "11266854009442656398"
             }
           },
           "parameters": {
@@ -168,12 +168,12 @@
             {
               "type": "Microsoft.Automation/automationAccounts/modules",
               "apiVersion": "2020-01-13-preview",
-              "name": "[format('{0}/{1}', parameters('automationAccountName'), 'xNetworking')]",
+              "name": "[format('{0}/{1}', parameters('automationAccountName'), 'NetworkingDsc')]",
               "location": "[parameters('location')]",
               "properties": {
                 "contentLink": {
-                  "uri": "https://www.powershellgallery.com/api/v2/package/xNetworking/5.7.0.0",
-                  "version": "5.7.0.0"
+                  "uri": "https://www.powershellgallery.com/api/v2/package/NetworkingDsc/8.2.0",
+                  "version": "8.2.0"
                 }
               },
               "dependsOn": [
