@@ -35,7 +35,7 @@ Configuration member {
         WaitForADDomain DscForestWait { 
             DomainName = $DomainName 
             Credential = $DomainCreds
-            DependsOn = "[xDnsServerAddress]DnsServerAddress"
+            DependsOn = "[DnsServerAddress]DnsServerAddress"
         }
             
         xComputer JoinDomain {

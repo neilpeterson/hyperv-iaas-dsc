@@ -22,24 +22,24 @@ trigger:
 
 stages:
 
-# - stage: test
-#   dependsOn: []
+- stage: test
+  dependsOn: []
   
-#   jobs:
-#   - job: tests
-#     pool:
-#       vmImage: windows-2019
-#     continueOnError: false
-#     timeoutInMinutes: 20
+  jobs:
+  - job: tests
+    pool:
+      vmImage: windows-2019
+    continueOnError: false
+    timeoutInMinutes: 20
 
-#     steps:
+    steps:
 
-#     - task: PowerShell@2
-#       displayName: Install Pester
-#       inputs:
-#         targetType: 'inline'
-#         script: |
-#           Find-Module pester | Install-Module -Force
+    - task: PowerShell@2
+      displayName: Install Pester
+      inputs:
+        targetType: 'inline'
+        script: |
+          Find-Module pester | Install-Module -Force
 
 - stage: build
   # dependsOn: test

@@ -90,14 +90,14 @@ resource moduleXActiveDirectory 'Microsoft.Automation/automationAccounts/modules
   }
 }
 
-resource moduleXNetworking 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+resource moduleNetworking 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
   parent: automationAccount
-  name: 'xNetworking'
+  name: 'NetworkingDsc'
   location: location
   properties: {
     contentLink: {
-      uri: 'https://www.powershellgallery.com/api/v2/package/xNetworking/5.7.0.0'
-      version: '5.7.0.0'
+      uri: 'https://www.powershellgallery.com/api/v2/package/NetworkingDsc/8.2.0'
+      version: '8.2.0'
     }
   }
 }

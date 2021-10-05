@@ -22,7 +22,7 @@ configuration rodc {
     {
 
         # TODO dynamically detect interface
-        DnsServerAddress DnsServerAddress { 
+        `DnsServerAddress DnsServerAddress { 
             Address = $DNSAddress,'8.8.8.8'
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
@@ -42,7 +42,7 @@ configuration rodc {
         WaitForADDomain DscForestWait { 
             DomainName = $DomainName 
             Credential = $DomainCreds
-            DependsOn = "[xDnsServerAddress]DnsServerAddress"
+            DependsOn = "[DnsServerAddress]DnsServerAddress"
         }
 
         # I am hitting this, but should be using the latest package
