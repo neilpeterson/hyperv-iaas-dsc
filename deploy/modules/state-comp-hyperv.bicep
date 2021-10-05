@@ -55,9 +55,6 @@ resource dscCompilationRODC 'Microsoft.Automation/automationAccounts/compilation
       DNSAddress: dnsServer
     }
   }
-  dependsOn: [
-    dscCompilationHyperv
-  ]
 }
 
 resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
@@ -68,15 +65,7 @@ resource dscCompilationIIS 'Microsoft.Automation/automationAccounts/compilationj
     configuration: {
       name: iisConfiguration.name
     }
-    parameters: {
-      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
-      DomainName: 'contoso.com'
-      DNSAddress: dnsServer
-    }
   }
-  dependsOn: [
-    dscCompilationRODC
-  ]
 }
 
 resource dscCompilationMember 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
@@ -93,7 +82,4 @@ resource dscCompilationMember 'Microsoft.Automation/automationAccounts/compilati
       DNSAddress: dnsServer
     }
   }
-  dependsOn: [
-    dscCompilationIIS
-  ]
 }
