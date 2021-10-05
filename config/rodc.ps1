@@ -22,7 +22,7 @@ configuration rodc {
     {
 
         # TODO dynamically detect interface
-        `DnsServerAddress DnsServerAddress { 
+        DnsServerAddress DnsServerAddress { 
             Address = $DNSAddress,'8.8.8.8'
             InterfaceAlias = "Ethernet 2"
             AddressFamily  = 'IPv4'
