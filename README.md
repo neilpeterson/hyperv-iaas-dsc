@@ -1,4 +1,4 @@
-There are two deployments found in this repository. The first template deploys an Azure Auzotomation account, Automation credentials, a Log Analytics workspace, a set of sample DSC configurations, and required PowerShell modules.
+There are two deployments found in this repository. The first template deploys an Azure Auzotomation account, Automation credentials, a Log Analytics workspace, a set of sample DSC configurations, required PowerShell modules, a domain controller (using DSC), and the Azure Monitor solution for Active Directory health.
 
 Use this button to deploy this template:
 
