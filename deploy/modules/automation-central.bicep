@@ -9,13 +9,30 @@ param keyVaultName string = 'a${uniqueString(resourceGroup().id)}b'
 param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
 
-resource logAnalyticsWrokspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
   name: logAnalyticsWorkspaceName
   location: location
   properties: {
     sku: {
       name: 'Free'
     }
+  }
+}
+
+resource dcSolution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
+  name: 'ADAssessment(${logAnalyticsWorkspaceName})'
+  location: location
+  properties: {
+    workspaceResourceId: logAnalyticsWorkspace.id
+    containedResources: [
+      '${logAnalyticsWorkspace.id}/views/ADAssessment(${logAnalyticsWorkspace.name})'
+    ]
+  }
+  plan: {
+    name: 'ADAssessment(${logAnalyticsWorkspaceName})'
+    product: 'OMSGallery/ADAssessment'
+    publisher: 'Microsoft'
+    promotionCode: ''
   }
 }
 
