@@ -61,7 +61,7 @@ configuration rodc {
                 Install-ADDSDomainController -Credential $DomainCreds -DomainName $DomainName -ReadOnlyReplica:$true -SiteName "Default-First-Site-Name" -Force:$true -NoRebootOnCompletion
             }
             TestScript = { 
-                return $true
+                return $false
             }
             GetScript  = { @{} }
         }
