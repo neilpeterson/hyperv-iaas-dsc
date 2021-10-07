@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "13785153648713828090"
+      "templateHash": "8632015658059109372"
     }
   },
   "parameters": {
@@ -45,7 +45,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "13927313545825881159"
+              "templateHash": "6016026888700919056"
             }
           },
           "parameters": {
@@ -262,6 +262,14 @@
             "autoamtionAccountURL": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Automation/automationAccounts', parameters('automationAccountName'))).registrationUrl]"
+            },
+            "workspaceId": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.OperationalInsights/workspaces/', parameters('logAnalyticsWorkspaceName')), '2020-08-01').customerId]"
+            },
+            "workspaceKey": {
+              "type": "string",
+              "value": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName')), '2020-08-01').primarySharedKey]"
             }
           }
         }
@@ -800,6 +808,12 @@
           },
           "automationAccountKey": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.automationAccountKey.value]"
+          },
+          "workspaceId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.workspaceId.value]"
+          },
+          "workspaceKey": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.workspaceKey.value]"
           }
         },
         "template": {
@@ -809,7 +823,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "5280011884493128632"
+              "templateHash": "16207172197981306271"
             }
           },
           "parameters": {
@@ -835,6 +849,12 @@
             "vmSize": {
               "type": "string",
               "defaultValue": "Standard_D8s_v3"
+            },
+            "workspaceId": {
+              "type": "string"
+            },
+            "workspaceKey": {
+              "type": "secureString"
             },
             "addcVirtualMachine": {
               "type": "object",
@@ -929,6 +949,27 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Compute/disks', parameters('addcVirtualMachine').diskName)]",
                 "[resourceId('Microsoft.Network/networkInterfaces', parameters('addcVirtualMachine').nicName)]"
+              ]
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines/extensions",
+              "apiVersion": "2021-04-01",
+              "name": "[format('{0}/{1}', parameters('addcVirtualMachine').name, 'OMSExtension')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                "type": "MicrosoftMonitoringAgent",
+                "typeHandlerVersion": "1.0",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                  "workspaceId": "[parameters('workspaceId')]"
+                },
+                "protectedSettings": {
+                  "workspaceKey": "[parameters('workspaceKey')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', parameters('addcVirtualMachine').name)]"
               ]
             },
             {
