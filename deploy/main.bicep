@@ -65,6 +65,8 @@ module addc 'modules/compute-addc.bicep' = {
     subnetId: network.outputs.resourceSubnetId
     autoamtionAccountURL: automationCentral.outputs.autoamtionAccountURL
     automationAccountKey: automationCentral.outputs.automationAccountKey
+    workspaceId: automationCentral.outputs.workspaceId
+    workspaceKey: automationCentral.outputs.workspaceKey
    }
    dependsOn: [
     configs
@@ -95,6 +97,8 @@ module hyperv 'modules/compute-hyperv.bicep' = {
     subnetId: network.outputs.resourceSubnetId
     autoamtionAccountURL: automationCentral.outputs.autoamtionAccountURL
     automationAccountKey: automationCentral.outputs.automationAccountKey
+    workspaceId: automationCentral.outputs.workspaceId
+    workspaceKey: automationCentral.outputs.workspaceKey
    }
    dependsOn: [
     configs

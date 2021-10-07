@@ -45,16 +45,26 @@ configuration rodc {
             DependsOn = "[DnsServerAddress]DnsServerAddress"
         }
 
-        # I am hitting this, but should be using the latest package
-        # https://github.com/dsccommunity/ActiveDirectoryDsc/issues/611
-        ADDomainController RODC {
-            DomainName = $DomainName
-            Credential = $DomainCreds
-            SafemodeAdministratorPassword = $DomainCreds
-            ReadOnlyReplica = $true
-            SiteName = "Default-First-Site-Name"
-            # DependsOn = @("[WaitForADDomain]DscForestWait")
-        } 
+        # # I am hitting this, but should be using the latest package
+        # # https://github.com/dsccommunity/ActiveDirectoryDsc/issues/611
+        # ADDomainController RODC {
+        #     DomainName = $DomainName
+        #     Credential = $DomainCreds
+        #     SafemodeAdministratorPassword = $DomainCreds
+        #     ReadOnlyReplica = $true
+        #     SiteName = "Default-First-Site-Name"
+        # } 
+
+        # Need to use script to configure Hyper-V NAT
+        Script rodcConfig {
+            SetScript = {
+                Install-ADDSDomainController -Credential $DomainCreds -DomainName $DomainName -ReadOnlyReplica:$true -SiteName "Default-First-Site-Name" -Force:$true
+            }
+            TestScript = { 
+                return $true
+            }
+            GetScript  = { @{} }
+        }
 
         xPendingReboot Reboot { 
             Name = "RebootServer"

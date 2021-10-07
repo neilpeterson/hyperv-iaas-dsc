@@ -7,6 +7,9 @@ param location string = resourceGroup().location
 param sharedManagedDisk string = '/subscriptions/3762d87c-ddb8-425f-b2fc-29e5e859edaf/resourceGroups/AUTOMATION-CENTRAL-POC/providers/Microsoft.Compute/disks/generalized-dsc-vhd'
 param subnetId string
 param vmSize string = 'Standard_D8s_v3'
+param workspaceId string
+@secure()
+param workspaceKey string
 
 param hypervVirtualMachine object = {
   name: 'vm-hyperv'
@@ -99,6 +102,24 @@ resource vmHyperv 'Microsoft.Compute/virtualMachines@2019-07-01' = {
   dependsOn: [
     nicHyperv
   ]
+}
+
+resource azureMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+  parent: vmHyperv
+  name: 'OMSExtension'
+  location: location
+  properties: {
+    publisher: 'Microsoft.EnterpriseCloud.Monitoring'
+    type: 'MicrosoftMonitoringAgent'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {
+      workspaceId: workspaceId
+    }
+    protectedSettings: {
+      workspaceKey: workspaceKey
+    }
+  }
 }
 
 resource dscHyperv 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
