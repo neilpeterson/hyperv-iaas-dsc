@@ -58,10 +58,16 @@ configuration rodc {
         # Need to use script to configure Hyper-V NAT
         Script rodcConfig {
             SetScript = {
-                Install-ADDSDomainController -Credential $DomainCreds -DomainName "contoso.com" -ReadOnlyReplica:$true -SiteName "Default-First-Site-Name" -Force:$true -NoRebootOnCompletion
+                Install-ADDSDomainController -Credential $DomainCreds -SafemodeAdministratorPassword $DomainCreds.Password -DomainName $DomainName -ReadOnlyReplica -SiteName "Default-First-Site-Name" -NoRebootOnCompletion -Force
             }
             TestScript = { 
-                return $false
+                $DomainRole = Get-WmiObject -Class Win32_ComputerSystem | Select-Object -ExpandProperty DomainRole
+                
+                if ($DomainRole -eq 4) {
+                    return $true
+                } else {
+                   return $false
+                } 
             }
             GetScript  = { @{} }
         }
