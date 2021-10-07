@@ -7,6 +7,9 @@ param autoamtionAccountURL string
 param location string = resourceGroup().location
 param subnetId string
 param vmSize string = 'Standard_D8s_v3'
+param workspaceId string
+@secure()
+param workspaceKey string
 
 param addcVirtualMachine object = {
   name: 'vm-addc'
@@ -92,6 +95,24 @@ resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = {
   dependsOn: [
     nicADDC
   ]
+}
+
+resource azureMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
+  parent: vmADDC
+  name: 'OMSExtension'
+  location: location
+  properties: {
+    publisher: 'Microsoft.EnterpriseCloud.Monitoring'
+    type: 'MicrosoftMonitoringAgent'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {
+      workspaceId: workspaceId
+    }
+    protectedSettings: {
+      workspaceKey: workspaceKey
+    }
+  }
 }
 
 resource dscADDC 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {

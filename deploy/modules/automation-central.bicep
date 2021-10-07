@@ -158,3 +158,5 @@ resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modu
 output automationAccountKey string = listKeys(automationAccount.id, '2019-06-01').Keys[0].value
 output automationAccountName string = automationAccountName
 output autoamtionAccountURL string = automationAccount.properties.registrationUrl
+output workspaceId string = reference(resourceId('Microsoft.OperationalInsights/workspaces/', logAnalyticsWorkspaceName), '2020-08-01').customerId
+output workspaceKey string = listKeys(logAnalyticsWorkspace.id, '2020-08-01').primarySharedKey

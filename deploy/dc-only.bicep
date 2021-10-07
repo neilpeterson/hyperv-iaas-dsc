@@ -42,11 +42,13 @@ module network 'modules/network-bastion.bicep' = {
 module addc 'modules/compute-addc.bicep' = {
   name: 'addc'
   params: {
-    adminUserName: adminUserName
-    adminPassword: adminPassword
-    subnetId: network.outputs.resourceSubnetId
-    autoamtionAccountURL: automationCentral.outputs.autoamtionAccountURL
-    automationAccountKey: automationCentral.outputs.automationAccountKey
+      adminUserName: adminUserName
+      adminPassword: adminPassword
+      subnetId: network.outputs.resourceSubnetId
+      autoamtionAccountURL: automationCentral.outputs.autoamtionAccountURL
+      automationAccountKey: automationCentral.outputs.automationAccountKey
+      workspaceId: automationCentral.outputs.workspaceId
+      workspaceKey: automationCentral.outputs.workspaceKey
    }
    dependsOn: [
     configs
