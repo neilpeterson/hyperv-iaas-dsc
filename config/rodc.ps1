@@ -68,7 +68,7 @@ configuration rodc {
 
         xPendingReboot Reboot { 
             Name = "RebootServer"
-            DependsOn = "[ADDomainController]RODC"
+            DependsOn = "[Script]rodcConfig"
         }
    }
 } 
