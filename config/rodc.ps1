@@ -16,7 +16,7 @@ configuration rodc {
     Import-DscResource -ModuleName xPendingReboot
 
     $Admincreds = Get-AutomationPSCredential 'Admincreds'
-    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
+    # [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
     
     Node localhost
     {
@@ -58,7 +58,7 @@ configuration rodc {
         # Need to use script to configure Hyper-V NAT
         Script rodcConfig {
             SetScript = {
-                Install-ADDSDomainController -Credential $DomainCreds -SafemodeAdministratorPassword $DomainCreds -DomainName $DomainName -ReadOnlyReplica -SiteName "Default-First-Site-Name" -NoRebootOnCompletion -Force
+                Install-ADDSDomainController -Credential $Admincreds -SafemodeAdministratorPassword $Admincreds.password -DomainName $DomainName -ReadOnlyReplica -SiteName "Default-First-Site-Name" -NoRebootOnCompletion -Force
             }
             TestScript = { 
                 $DomainRole = Get-WmiObject -Class Win32_ComputerSystem | Select-Object -ExpandProperty DomainRole
