@@ -14,14 +14,14 @@ The dc-only.bicep file is also converted to an ARM JSON template .via a GitHub a
 When building configs, the following command can be used to import an updated configuration into Azure Automation State Configuration.
 
 ```
-Import-AzAutomationDscConfiguration -SourcePath ./config/rodc.ps1 -AutomationAccountName a2nv6bwbeged4 -ResourceGroupName rodc-001-automation-central -Published -Force
+Import-AzAutomationDscConfiguration -SourcePath ./config/rodc.ps1 -AutomationAccountName jmvrhkrlg7vho -ResourceGroupName rodc-999-automation-central -Published -Force
 ```
 
 And the following command to compile the configuration, which will also push to any assigned node.
 
 ```
 $Params = @{"DomainName"="contoso.com";"DNSAddress"="10.0.2.4"}
-Start-AzAutomationDscCompilationJob -ConfigurationName rodc -Parameters $Params -AutomationAccountName a2nv6bwbeged4 -ResourceGroupName rodc-001-automation-central
+Start-AzAutomationDscCompilationJob -ConfigurationName rodc -Parameters $Params -AutomationAccountName jmvrhkrlg7vho -ResourceGroupName rodc-999-automation-central
 ```
 
 

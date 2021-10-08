@@ -89,8 +89,8 @@ resource moduleActiveDirectoryDsc 'Microsoft.Automation/automationAccounts/modul
   location: location
   properties: {
     contentLink: {
-      uri: 'https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.0.1'
-      version: '6.0.1'
+      uri: 'https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.2.0'
+      version: '6.2.0'
     }
   }
 }
