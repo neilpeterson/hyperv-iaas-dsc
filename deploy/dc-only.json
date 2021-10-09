@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.613.9944",
-      "templateHash": "2733025553603671014"
+      "templateHash": "8973920021659841691"
     }
   },
   "parameters": {
@@ -45,7 +45,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.4.613.9944",
-              "templateHash": "17090093053869002751"
+              "templateHash": "15548593725486841710"
             }
           },
           "parameters": {
@@ -166,7 +166,7 @@
               "location": "[parameters('location')]",
               "properties": {
                 "contentLink": {
-                  "uri": "https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.2.0",
+                  "uri": "https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.2.0-preview0001",
                   "version": "6.2.0"
                 }
               },
