@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.613.9944",
-      "templateHash": "8973920021659841691"
+      "version": "0.4.1008.15138",
+      "templateHash": "1662057294061751702"
     }
   },
   "parameters": {
@@ -23,7 +23,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "automationCentral",
       "properties": {
         "expressionEvaluationOptions": {
@@ -44,8 +44,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "15548593725486841710"
+              "version": "0.4.1008.15138",
+              "templateHash": "4677895518422114011"
             }
           },
           "parameters": {
@@ -277,7 +277,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "configs",
       "properties": {
         "expressionEvaluationOptions": {
@@ -286,7 +286,7 @@
         "mode": "Incremental",
         "parameters": {
           "automationAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.automationAccountName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2020-06-01').outputs.automationAccountName.value]"
           }
         },
         "template": {
@@ -295,8 +295,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "8192049623230101443"
+              "version": "0.4.1008.15138",
+              "templateHash": "9978913891990629862"
             }
           },
           "parameters": {
@@ -429,7 +429,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "compile-addc",
       "properties": {
         "expressionEvaluationOptions": {
@@ -438,7 +438,7 @@
         "mode": "Incremental",
         "parameters": {
           "automationAccountName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.automationAccountName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2020-06-01').outputs.automationAccountName.value]"
           },
           "domainName": {
             "value": "[parameters('domainName')]"
@@ -450,8 +450,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "4725204992315601625"
+              "version": "0.4.1008.15138",
+              "templateHash": "10660429614341498975"
             }
           },
           "parameters": {
@@ -501,7 +501,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "network",
       "properties": {
         "expressionEvaluationOptions": {
@@ -514,8 +514,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "13690343157057358812"
+              "version": "0.4.1008.15138",
+              "templateHash": "11268827383744200314"
             }
           },
           "parameters": {
@@ -786,7 +786,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "addc",
       "properties": {
         "expressionEvaluationOptions": {
@@ -801,19 +801,19 @@
             "value": "[parameters('adminPassword')]"
           },
           "subnetId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network'), '2019-10-01').outputs.resourceSubnetId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network'), '2020-06-01').outputs.resourceSubnetId.value]"
           },
           "autoamtionAccountURL": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.autoamtionAccountURL.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2020-06-01').outputs.autoamtionAccountURL.value]"
           },
           "automationAccountKey": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.automationAccountKey.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2020-06-01').outputs.automationAccountKey.value]"
           },
           "workspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.workspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2020-06-01').outputs.workspaceId.value]"
           },
           "workspaceKey": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2019-10-01').outputs.workspaceKey.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'automationCentral'), '2020-06-01').outputs.workspaceKey.value]"
           }
         },
         "template": {
@@ -822,8 +822,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.4.613.9944",
-              "templateHash": "16207172197981306271"
+              "version": "0.4.1008.15138",
+              "templateHash": "6732849415968862296"
             }
           },
           "parameters": {
