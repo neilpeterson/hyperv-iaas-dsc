@@ -116,7 +116,7 @@ configuration hyperv {
             SwitchName = "NATSwitch"
             # State = "Running"
             Path = "z:\rodc"
-            Generation = 1
+            Generation = 2
             StartupMemory = 4294967296
             MinimumMemory = 4294967296
             MaximumMemory = 4294967296
@@ -143,7 +143,7 @@ configuration hyperv {
             SwitchName = "NATSwitch"
             # State = "Running"
             Path = "z:\iis"
-            Generation = 1
+            Generation = 2
             StartupMemory = 4294967296
             MinimumMemory = 4294967296
             MaximumMemory = 4294967296
@@ -170,7 +170,7 @@ configuration hyperv {
             SwitchName = "NATSwitch"
             # State = "Running"
             Path = "z:\member"
-            Generation = 1
+            Generation = 2
             StartupMemory = 4294967296
             MinimumMemory = 4294967296
             MaximumMemory = 4294967296
