@@ -4,7 +4,7 @@ param adminUserName string
 param automationAccountKey string
 param autoamtionAccountURL string
 param location string = resourceGroup().location
-param sharedManagedDisk string = '/subscriptions/3762d87c-ddb8-425f-b2fc-29e5e859edaf/resourceGroups/AUTOMATION-CENTRAL-POC/providers/Microsoft.Compute/disks/generalized-dsc-vhd'
+param sharedManagedDisk string = '/subscriptions/3762d87c-ddb8-425f-b2fc-29e5e859edaf/resourcegroups/vhd-storage/providers/Microsoft.Compute/disks/dsc-vhd'
 param subnetId string
 param vmSize string = 'Standard_D8s_v3'
 param workspaceId string
