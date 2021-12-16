@@ -1,9 +1,8 @@
 param adminUserName string
-
 @secure()
 param adminPassword string
-
 param domainName string
+param deployHyperV bool = true
 
 module automationCentral 'modules/automation-central.bicep' = {
   name: 'automationCentral'
@@ -32,11 +31,22 @@ module compileaddc 'modules/state-comp-addc.bicep' = {
    ]
 }
 
+// Compile State Hyper-V
+module compilehyperv 'modules/state-comp-hyperv.bicep' =  if (deployHyperV) {
+  name: 'compile-hyperv'
+  params: {
+    automationAccountName: automationCentral.outputs.automationAccountName
+    dnsServer: addc.outputs.privateIP
+   }
+   dependsOn: [
+     configs
+   ]
+}
+
 // Networking and Bastion
 module network 'modules/network-bastion.bicep' = {
   name: 'network'
 }
-
 
 // Active Directory Domain Controller VM
 module addc 'modules/compute-addc.bicep' = {
@@ -53,5 +63,23 @@ module addc 'modules/compute-addc.bicep' = {
    dependsOn: [
     configs
     compileaddc
+   ]
+}
+
+// Hyper-V VM
+module hyperv 'modules/compute-hyperv.bicep' = if (deployHyperV) {
+  name: 'hyperv'
+  params: {
+    adminUserName: adminUserName
+    adminPassword: adminPassword
+    subnetId: network.outputs.resourceSubnetId
+    autoamtionAccountURL: automationCentral.outputs.autoamtionAccountURL
+    automationAccountKey: automationCentral.outputs.automationAccountKey
+    workspaceId: automationCentral.outputs.workspaceId
+    workspaceKey: automationCentral.outputs.workspaceKey
+   }
+   dependsOn: [
+    configs
+    compilehyperv
    ]
 }
