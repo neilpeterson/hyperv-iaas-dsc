@@ -7,7 +7,7 @@ Two deployments can be found under the deployments directory:
 
 The dc-only.bicep file is also converted to an ARM JSON template .via a GitHub action. This is so that a deploy to Azure button can be used from this repo. Click the button to deploy the solution. For now, deploy to the **east us** or **east us2** region.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fneilpeterson%2Fhyperv-iaas-dsc%2Fmain%2Fdeploy%2Fdc-only.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fneilpeterson%2Fhyperv-iaas-dsc%2Fmain%2Fdeploy%2Fmain-no-vm.json)
 
 ## Authoring configs
 

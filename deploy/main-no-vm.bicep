@@ -1,14 +1,31 @@
 param adminUserName string
-
 @secure()
 param adminPassword string
 param domainName string
-
 param automationAccountName string = uniqueString(resourceGroup().id)
 param keyVaultName string = 'a${uniqueString(resourceGroup().id)}b'
 param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
 param vmSize string = 'Standard_D8s_v3'
+
+param bastionHost object = {
+  name: 'AzureBastionHost'
+  publicIPAddressName: 'pip-bastion'
+  subnetName: 'AzureBastionSubnet'
+  nsgName: 'nsg-hub-bastion'
+  subnetPrefix: '10.0.1.0/29'
+}
+
+param hubNetwork object = {
+  name: 'vnet-hub'
+  addressPrefix: '10.0.0.0/20'
+}
+
+param resourceSubnet object = {
+  subnetName: 'ResourceSubnet'
+  nsgName: 'nsg-hub-resources'
+  subnetPrefix: '10.0.2.0/24'
+}
 
 param addcVirtualMachine object = {
   name: 'vm-addc'
@@ -186,25 +203,6 @@ resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modu
       version: '3.0.0.0'
     }
   }
-}
-
-param bastionHost object = {
-  name: 'AzureBastionHost'
-  publicIPAddressName: 'pip-bastion'
-  subnetName: 'AzureBastionSubnet'
-  nsgName: 'nsg-hub-bastion'
-  subnetPrefix: '10.0.1.0/29'
-}
-
-param hubNetwork object = {
-  name: 'vnet-hub'
-  addressPrefix: '10.0.0.0/20'
-}
-
-param resourceSubnet object = {
-  subnetName: 'ResourceSubnet'
-  nsgName: 'nsg-hub-resources'
-  subnetPrefix: '10.0.2.0/24'
 }
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
@@ -958,11 +956,3 @@ resource dscHyperv 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
     dscCompilationADDC
   ]
 }
-
-
-// output automationAccountKey string = listKeys(automationAccount.id, '2019-06-01').Keys[0].value
-// output automationAccountName string = automationAccountName
-// output autoamtionAccountURL string = automationAccount.properties.registrationUrl
-// output workspaceId string = reference(resourceId('Microsoft.OperationalInsights/workspaces/', logAnalyticsWorkspaceName), '2020-08-01').customerId
-// output workspaceKey string = listKeys(logAnalyticsWorkspace.id, '2020-08-01').primarySharedKey
-// output resourceSubnetId string = '${vnetHub.id}/subnets/${resourceSubnet.subnetName}'
