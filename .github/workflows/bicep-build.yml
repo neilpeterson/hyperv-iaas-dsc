@@ -25,7 +25,7 @@ jobs:
 
       - name: Run Bicep build
         run: |
-            bicep build main/deploy/dc-only.bicep
+            bicep build main/deploy/main-no-vm.bicep
             ls -l main/deploy/*.json
 
       - name: Commit files
