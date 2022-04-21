@@ -10,7 +10,7 @@ param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptio
 param vmSize string = 'Standard_D8s_v3'
 
 param baseOSConfiguration object = {
-  name: 'hyperv'
+  name: 'base-fit'
   description: 'Configures an S360 compliant VM.'
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/vms-with-no-config/config/base-fit.ps1'
 }

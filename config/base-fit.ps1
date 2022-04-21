@@ -1,28 +1,36 @@
 Configuration base-fit {
 
-    param ( )
+    param (
+
+        [Parameter(Mandatory)]
+        [String]$AzSecPackRole,
+
+        [Parameter(Mandatory)]
+        [String]$AzSecPackAcct,
+
+        [Parameter(Mandatory)]
+        [String]$AzSecPackNS,
+
+        [Parameter(Mandatory)]
+        [String]$AzSecPackCert
+     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     Import-DscResource -ModuleName ComputerManagementDsc
     Import-DscResource -ModuleName SChannelDsc
 
-    node $AllNodes.NodeName {
-
-        $Role = $Node.AzSecPackRole
-        $Account = $Node.AzSecPackAcct
-        $NameSpace = $Node.AzSecPackNS
-        $CertThumb = $Node.AzSecPackCert
+    node localhost {
 
         $AzSecPackCMD = "
         set MONITORING_DATA_DIRECTORY=C:\Monitoring\Data
         set MONITORING_TENANT=%USERNAME%
-        set MONITORING_ROLE=$Role
+        set MONITORING_ROLE=$AzSecPackRole
         set MONITORING_ROLE_INSTANCE=%COMPUTERNAME%
         set MONITORING_GCS_ENVIRONMENT=DiagnosticsProd
-        set MONITORING_GCS_ACCOUNT=$Account
-        set MONITORING_GCS_NAMESPACE=$NameSpace
+        set MONITORING_GCS_ACCOUNT=$AzSecPackAcct
+        set MONITORING_GCS_NAMESPACE=$AzSecPackNS
         set MONITORING_GCS_REGION=centralus
-        set MONITORING_GCS_THUMBPRINT=$CertThumb
+        set MONITORING_GCS_THUMBPRINT=$AzSecPackCert
         set MONITORING_GCS_CERTSTORE=LOCAL_MACHINE\MY
         set MONITORING_CONFIG_VERSION=1.0
         %MonAgentClientLocation%\MonAgentClient.exe -useenv"
