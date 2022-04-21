@@ -4,7 +4,6 @@ param adminPassword string
 param vmCount int = 2
 
 param automationAccountName string = uniqueString(resourceGroup().id)
-param hybridRunbookWorkerGroupName string = uniqueString(resourceGroup().id)
 param keyVaultName string = 'a${uniqueString(resourceGroup().id)}b'
 param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
@@ -102,6 +101,60 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' 
       name: 'Basic'
     }
   }
+}
+
+resource moduleComputerManagement 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'ComputerManagementDsc'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/ComputerManagementDsc/6.0.0.0'
+      version: '6.0.0.0'
+    }
+  }
+}
+
+resource moduleSChannelDsc 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'SChannelDsc'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/SChannelDsc/1.3.0'
+      version: '1.3.0'
+    }
+  }
+}
+
+resource dscConfigBaseOS 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+  name: '${automationAccountName}/${baseOSConfiguration.name}'
+  location: location
+  properties: {
+    logVerbose: false
+    description: baseOSConfiguration.description
+    source: {
+      type: 'uri'
+      value: baseOSConfiguration.script
+    }
+  }
+  dependsOn: [
+    automationAccount
+  ]
+}
+
+resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+  name: '${automationAccountName}/${baseOSConfiguration.name}'
+  location: location
+  properties: {
+    configuration: {
+      name: baseOSConfiguration.name
+    }
+  }
+  dependsOn: [
+    automationAccount
+    dscConfigBaseOS
+  ]
 }
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
