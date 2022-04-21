@@ -75,24 +75,6 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   }
 }
 
-resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' = {
-  name: automationAccountName
-  location: location
-  properties: {
-    sku: {
-      name: 'Basic'
-    }
-  }
-}
-
-resource hybridRunbookWorkerGroup 'Microsoft.Automation/automationAccounts/hybridRunbookWorkerGroups@2021-06-22' = {
-  parent: automationAccount
-  name: hybridRunbookWorkerGroupName
-  // credential: {
-  //   name: 'string'
-  // }
-}
-
 resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: keyVaultName
   location: location
@@ -103,6 +85,16 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
     }
     accessPolicies: []
     tenantId: subscription().tenantId
+  }
+}
+
+resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' = {
+  name: automationAccountName
+  location: location
+  properties: {
+    sku: {
+      name: 'Basic'
+    }
   }
 }
 
@@ -278,43 +270,51 @@ resource bastion 'Microsoft.Network/bastionHosts@2020-06-01' = {
   }
 }
 
-resource nsgVirtualMachines 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
+resource nsgVirtualMachines 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {
   name: 'nsgVirtualMachines'
   location: location
   properties: {
-    securityRules: [
-      {
-        name: 'bastion-in-vnet'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: bastionHost.subnetPrefix
-          destinationPortRanges: [
-            '22'
-            '3389'
-          ]
-          destinationAddressPrefix: '*'
-          access: 'Allow'
-          priority: 100
-          direction: 'Inbound'
-        }
-      }
-      {
-        name: 'DenyAllInBound'
-        properties: {
-          protocol: 'Tcp'
-          sourcePortRange: '*'
-          sourceAddressPrefix: '*'
-          destinationPortRange: '443'
-          destinationAddressPrefix: '*'
-          access: 'Deny'
-          priority: 1000
-          direction: 'Inbound'
-        }
-      }
-    ]
+    securityRules: []
   }
 }
+
+// resource nsgVirtualMachines 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
+//   name: 'nsgVirtualMachines'
+//   location: location
+//   properties: {
+//     securityRules: [
+//       {
+//         name: 'bastion-in-vnet'
+//         properties: {
+//           protocol: 'Tcp'
+//           sourcePortRange: '*'
+//           sourceAddressPrefix: bastionHost.subnetPrefix
+//           destinationPortRanges: [
+//             '22'
+//             '3389'
+//           ]
+//           destinationAddressPrefix: '*'
+//           access: 'Allow'
+//           priority: 100
+//           direction: 'Inbound'
+//         }
+//       }
+//       {
+//         name: 'DenyAllInBound'
+//         properties: {
+//           protocol: 'Tcp'
+//           sourcePortRange: '*'
+//           sourceAddressPrefix: '*'
+//           destinationPortRange: '443'
+//           destinationAddressPrefix: '*'
+//           access: 'Deny'
+//           priority: 1000
+//           direction: 'Inbound'
+//         }
+//       }
+//     ]
+//   }
+// }
 
 resource nicADDC 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, vmCount): {
   name: '${addcVirtualMachine.nicName}-${i}'
@@ -377,14 +377,6 @@ resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range
   }
 }]
 
-// resource hybridRunbookWorkerVM 'Microsoft.Automation/automationAccounts/hybridRunbookWorkerGroups/hybridRunbookWorkers@2021-06-22' = {
-//   name: 'hybridRunbookWorkerVM'
-//   parent: hybridRunbookWorkerGroup
-//   properties: {
-//     vmResourceId: vmADDC[0].id
-//   }
-// }
-
 resource azureMonitoringDependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = [for i in range(0, vmCount): {
   parent: vmADDC[i]
   name: 'DependencyAgentWindows'
@@ -417,6 +409,49 @@ resource azureMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021
   }
 }]
 
+resource GenevaMonitoring 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = [for i in range(0, vmCount):  {
+  parent: vmADDC[i]
+  name: 'GenevaMonitoring'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.Geneva'
+    type: 'GenevaMonitoring'
+    typeHandlerVersion: '2.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+  }
+}]
+
+resource ManagementPortJITPolicy 'Microsoft.Security/locations/jitNetworkAccessPolicies@2020-01-01' = [for i in range(0, vmCount): {
+  name: '${location}/${addcVirtualMachine.name}-${i}'
+  kind: 'Basic'
+  properties: {
+    virtualMachines: [
+      {
+        id: vmADDC[i].id
+        ports: [
+          {
+            number: 3389
+            protocol: '*'
+            allowedSourceAddressPrefixes: [
+              bastionHost.subnetPrefix
+            ]
+            maxRequestAccessDuration: 'PT3H'
+          }
+          {
+            number: 5985
+            protocol: '*'
+            allowedSourceAddressPrefixes: [
+              bastionHost.subnetPrefix
+            ]
+            maxRequestAccessDuration: 'PT3H'
+          }
+        ]
+      }
+    ]
+  }
+}]
+
 // resource hybridRunbookWorker 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
 //   parent: vmADDC[0]
 //   name: 'hybridRunbookWorker'
@@ -430,4 +465,17 @@ resource azureMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021
 //       AutomationAccountURL: reference(automationAccount.id).AutomationHybridServiceUrl
 //     }
 //   }
+// }
+
+// resource hybridRunbookWorkerVM 'Microsoft.Automation/automationAccounts/hybridRunbookWorkerGroups/hybridRunbookWorkers@2021-06-22' = {
+//   name: 'hybridRunbookWorkerVM'
+//   parent: hybridRunbookWorkerGroup
+//   properties: {
+//     vmResourceId: vmADDC[0].id
+//   }
+// }
+
+// resource hybridRunbookWorkerGroup 'Microsoft.Automation/automationAccounts/hybridRunbookWorkerGroups@2021-06-22' = {
+//   parent: automationAccount
+//   name: hybridRunbookWorkerGroupName
 // }
