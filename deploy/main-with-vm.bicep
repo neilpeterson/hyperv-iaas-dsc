@@ -10,6 +10,12 @@ param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
 param vmSize string = 'Standard_D8s_v3'
 
+param baseOSConfiguration object = {
+  name: 'hyperv'
+  description: 'Configures an S360 compliant VM.'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/remove-hypv-vm/config/hyperv-novn.ps1'
+}
+
 param addcVirtualMachine object = {
   name: 'vm-addc'
   nicName: 'nic-addc'
