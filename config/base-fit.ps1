@@ -1,4 +1,4 @@
-Configuration lab-base {
+Configuration base-fit {
 
     param ( )
 

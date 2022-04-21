@@ -12,7 +12,7 @@ param vmSize string = 'Standard_D8s_v3'
 param baseOSConfiguration object = {
   name: 'hyperv'
   description: 'Configures an S360 compliant VM.'
-  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/remove-hypv-vm/config/hyperv-novn.ps1'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/vms-with-no-config/config/base-fit.ps1'
 }
 
 param addcVirtualMachine object = {
