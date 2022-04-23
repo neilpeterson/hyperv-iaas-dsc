@@ -9,15 +9,22 @@ param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
 param vmSize string = 'Standard_D8s_v3'
 
+param AzSecPackRole string = 'MTPFITADDomainSvc'
+param AzSecPackAcct string = 'RoverAzSecPackGenevaLogAccnt1'
+param AzSecPackNS string = 'MTPFITADDomainSvc'
+param AzSecPackCert string = '67cf050d3732fb104a46a9b3b5a56521f837f39f'
+
 param baseOSConfiguration object = {
   name: 'base-fit'
   description: 'Configures an S360 compliant VM.'
   script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/vms-with-no-config/config/base-fit.ps1'
 }
 
+param AzSecPackCertificate string = 'https://US01-PROD-MTPAUTOMATION.vault.azure.net/secrets/AzSecPack'
+
 param addcVirtualMachine object = {
-  name: 'vm-addc'
-  nicName: 'nic-addc'
+  name: 'fit-lab-vm'
+  nicName: 'fit-lab-vm'
   windowsOSVersion: '2022-datacenter'
   diskName: 'data'
 }
@@ -109,8 +116,8 @@ resource moduleComputerManagement 'Microsoft.Automation/automationAccounts/modul
   location: location
   properties: {
     contentLink: {
-      uri: 'https://www.powershellgallery.com/api/v2/package/ComputerManagementDsc/6.0.0.0'
-      version: '6.0.0.0'
+      uri: 'https://www.powershellgallery.com/api/v2/package/ComputerManagementDsc/8.5.0'
+      version: '8.5.0'
     }
   }
 }
@@ -143,17 +150,25 @@ resource dscConfigBaseOS 'Microsoft.Automation/automationAccounts/configurations
   ]
 }
 
-resource dscCompilationADDC 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+resource dscCompilationBaseOS 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
   name: '${automationAccountName}/${baseOSConfiguration.name}'
   location: location
   properties: {
     configuration: {
       name: baseOSConfiguration.name
     }
+    parameters: {
+      AzSecPackRole: AzSecPackRole
+      AzSecPackAcct: AzSecPackAcct
+      AzSecPackNS: AzSecPackNS
+      AzSecPackCert: AzSecPackCert
+    }
   }
   dependsOn: [
     automationAccount
     dscConfigBaseOS
+    moduleComputerManagement
+    moduleSChannelDsc
   ]
 }
 
@@ -337,45 +352,7 @@ resource nsgVirtualMachines 'Microsoft.Network/networkSecurityGroups@2019-11-01'
   }
 }
 
-// resource nsgVirtualMachines 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
-//   name: 'nsgVirtualMachines'
-//   location: location
-//   properties: {
-//     securityRules: [
-//       {
-//         name: 'bastion-in-vnet'
-//         properties: {
-//           protocol: 'Tcp'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: bastionHost.subnetPrefix
-//           destinationPortRanges: [
-//             '22'
-//             '3389'
-//           ]
-//           destinationAddressPrefix: '*'
-//           access: 'Allow'
-//           priority: 100
-//           direction: 'Inbound'
-//         }
-//       }
-//       {
-//         name: 'DenyAllInBound'
-//         properties: {
-//           protocol: 'Tcp'
-//           sourcePortRange: '*'
-//           sourceAddressPrefix: '*'
-//           destinationPortRange: '443'
-//           destinationAddressPrefix: '*'
-//           access: 'Deny'
-//           priority: 1000
-//           direction: 'Inbound'
-//         }
-//       }
-//     ]
-//   }
-// }
-
-resource nicADDC 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, vmCount): {
+resource nicFITVM 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, vmCount): {
   name: '${addcVirtualMachine.nicName}-${i}'
   location: location
   properties: {
@@ -393,7 +370,7 @@ resource nicADDC 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in ra
   }
 }]
 
-resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, vmCount): {
+resource FITVM 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(0, vmCount): {
   name: '${addcVirtualMachine.name}-${i}'
   location: location
   properties: {
@@ -420,7 +397,7 @@ resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range
     networkProfile: {
       networkInterfaces: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', '${addcVirtualMachine.nicName}-${i}')
+          id: nicFITVM[i].id
         }
       ]
     }
@@ -436,8 +413,116 @@ resource vmADDC 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range
   }
 }]
 
+module KeyVaultAccess './modules/key-vault-access.bicep' = [for i in range(0, vmCount): {
+  scope: resourceGroup('7aab1e63-3115-4365-89bc-bf1172dc93c9','US01-PRDMTPAA-RG')
+  name: FITVM[i].name
+  params: {
+    KeyVaultName: 'US01-PROD-MTPAUTOMATION'
+    VirtualMachineIdentity: reference(FITVM[i].id, '2019-07-01', 'full').identity.principalId
+  }
+}]
+
+resource KeyVaultCertificates 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = [for i in range(0, vmCount): {
+  name: '${FITVM[i].name}/KeyVaultForWindows'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Azure.KeyVault'
+    type: 'KeyVaultForWindows'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    settings: {
+      secretsManagementSettings: {
+        pollingIntervalInS: '3600'
+        certificateStoreName: 'MY'
+        certificateStoreLocation: 'LocalMachine'
+        observedCertificates: [
+          AzSecPackCertificate
+        ]
+      }
+    }
+  }
+  dependsOn: [
+    KeyVaultAccess
+  ]
+}]
+
+resource dscBaseOS 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = [for i in range(0, vmCount): {
+  parent: FITVM[i]
+  name: 'Microsoft.Powershell.DSC'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Powershell'
+    type: 'DSC'
+    typeHandlerVersion: '2.76'
+    protectedSettings: {
+      Items: {
+        registrationKeyPrivate: listKeys(automationAccount.id, '2019-06-01').Keys[0].value
+      }
+    }
+    settings: {
+      Properties: [
+        {
+          Name: 'RegistrationKey'
+          Value: {
+            UserName: 'PLACEHOLDER_DONOTUSE'
+            Password: 'PrivateSettingsRef:registrationKeyPrivate'
+          }
+          TypeName: 'System.Management.Automation.PSCredential'
+        }
+        {
+          Name: 'RegistrationUrl'
+          Value: automationAccount.properties.registrationUrl
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'NodeConfigurationName'
+          Value: 'fit.localhost'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'ConfigurationMode'
+          Value: 'ApplyAndAutoCorrect'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'ConfigurationModeFrequencyMins'
+          Value: 15
+          TypeName: 'System.Int32'
+        }
+        {
+          Name: 'RefreshFrequencyMins'
+          Value: 30
+          TypeName: 'System.Int32'
+        }
+        {
+          Name: 'RebootNodeIfNeeded'
+          Value: true
+          TypeName: 'System.Boolean'
+        }
+        {
+          Name: 'ActionAfterReboot'
+          Value: 'ContinueConfiguration'
+          TypeName: 'System.String'
+        }
+        {
+          Name: 'AllowModuleOverwrite'
+          Value: false
+          TypeName: 'System.Boolean'
+        }
+      ]
+    }
+  }
+  dependsOn: [
+    moduleComputerManagement
+    moduleComputerManagement
+    FITVM[i]
+    dscCompilationBaseOS
+    dscConfigBaseOS
+  ]
+}]
+
 resource azureMonitoringDependencyAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = [for i in range(0, vmCount): {
-  parent: vmADDC[i]
+  parent: FITVM[i]
   name: 'DependencyAgentWindows'
   location: location
   properties: {
@@ -449,7 +534,7 @@ resource azureMonitoringDependencyAgent 'Microsoft.Compute/virtualMachines/exten
 }]
 
 resource azureMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = [for i in range(0, vmCount): {
-  parent: vmADDC[i]
+  parent: FITVM[i]
   name: 'MMAExtension'
   location: location
   properties: {
@@ -459,7 +544,7 @@ resource azureMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021
     autoUpgradeMinorVersion: true
     settings: {
       workspaceId: reference(resourceId('Microsoft.OperationalInsights/workspaces/', logAnalyticsWorkspaceName), '2020-08-01').customerId
-      azureResourceId: vmADDC[i].id
+      azureResourceId: FITVM[i].id
       stopOnMultipleConnections: true
     }
     protectedSettings: {
@@ -469,7 +554,7 @@ resource azureMonitoringAgent 'Microsoft.Compute/virtualMachines/extensions@2021
 }]
 
 resource GenevaMonitoring 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = [for i in range(0, vmCount):  {
-  parent: vmADDC[i]
+  parent: FITVM[i]
   name: 'GenevaMonitoring'
   location: location
   properties: {
@@ -487,7 +572,7 @@ resource ManagementPortJITPolicy 'Microsoft.Security/locations/jitNetworkAccessP
   properties: {
     virtualMachines: [
       {
-        id: vmADDC[i].id
+        id: FITVM[i].id
         ports: [
           {
             number: 3389
@@ -495,15 +580,15 @@ resource ManagementPortJITPolicy 'Microsoft.Security/locations/jitNetworkAccessP
             allowedSourceAddressPrefixes: [
               bastionHost.subnetPrefix
             ]
-            maxRequestAccessDuration: 'PT3H'
+            maxRequestAccessDuration: 'PT8H'
           }
           {
             number: 5985
             protocol: '*'
             allowedSourceAddressPrefixes: [
-              bastionHost.subnetPrefix
+              resourceSubnet.subnetPrefix
             ]
-            maxRequestAccessDuration: 'PT3H'
+            maxRequestAccessDuration: 'PT8H'
           }
         ]
       }
@@ -511,30 +596,14 @@ resource ManagementPortJITPolicy 'Microsoft.Security/locations/jitNetworkAccessP
   }
 }]
 
-// resource hybridRunbookWorker 'Microsoft.Compute/virtualMachines/extensions@2021-04-01' = {
-//   parent: vmADDC[0]
-//   name: 'hybridRunbookWorker'
-//   location: location
-//   properties: {
-//     publisher: 'Microsoft.Azure.Automation.HybridWorker'
-//     type: 'HybridWorkerForWindows'
-//     typeHandlerVersion: '0.1'
-//     autoUpgradeMinorVersion: true
-//     settings: {
-//       AutomationAccountURL: reference(automationAccount.id).AutomationHybridServiceUrl
-//     }
-//   }
-// }
-
-// resource hybridRunbookWorkerVM 'Microsoft.Automation/automationAccounts/hybridRunbookWorkerGroups/hybridRunbookWorkers@2021-06-22' = {
-//   name: 'hybridRunbookWorkerVM'
-//   parent: hybridRunbookWorkerGroup
-//   properties: {
-//     vmResourceId: vmADDC[0].id
-//   }
-// }
-
-// resource hybridRunbookWorkerGroup 'Microsoft.Automation/automationAccounts/hybridRunbookWorkerGroups@2021-06-22' = {
-//   parent: automationAccount
-//   name: hybridRunbookWorkerGroupName
-// }
+resource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = [for i in range(0, vmCount): {
+  name: '${FITVM[i].name}/AzurePolicyforWindows'
+  location: location
+  properties: {
+    publisher: 'Microsoft.GuestConfiguration'
+    type: 'ConfigurationforWindows'
+    typeHandlerVersion: '1.0'
+    autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
+  }
+}]
