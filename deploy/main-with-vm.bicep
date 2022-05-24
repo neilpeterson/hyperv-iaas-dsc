@@ -4,10 +4,10 @@ param adminPassword string
 param vmCount int = 2
 
 param automationAccountName string = uniqueString(resourceGroup().id)
-param keyVaultName string = 'a${uniqueString(resourceGroup().id)}b'
 param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
 param vmSize string = 'Standard_D3_v2'
+param avalilabilitySetName string = uniqueString(resourceGroup().id)
 
 param AzSecPackRole string = 'MTPFITADDomainSvc'
 param AzSecPackAcct string = 'RoverAzSecPackGenevaLogAccnt1'
@@ -17,7 +17,13 @@ param AzSecPackCert string = '67cf050d3732fb104a46a9b3b5a56521f837f39f'
 param baseOSConfiguration object = {
   name: 'base-fit'
   description: 'Configures an S360 compliant VM.'
-  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/vms-with-no-config/config/base-fit.ps1'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/hyper-v-lab/config/base-fit.ps1'
+}
+
+param hypervConfiguration object = {
+  name: 'hyperv'
+  description: 'A configuration for installing Hyper-V.'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/hyper-v-lab/config/hyperv.ps1'
 }
 
 param AzSecPackCertificate string = 'https://US01-PROD-MTPAUTOMATION.vault.azure.net/secrets/AzSecPack'
@@ -157,6 +163,57 @@ resource dscCompilationBaseOS 'Microsoft.Automation/automationAccounts/compilati
     moduleComputerManagement
     moduleSChannelDsc
   ]
+}
+
+resource dscConfigHyperV 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
+  name: '${automationAccountName}/${hypervConfiguration.name}'
+  location: location
+  properties: {
+    logVerbose: false
+    description: hypervConfiguration.description
+    source: {
+      type: 'uri'
+      value: hypervConfiguration.script
+    }
+  }
+  dependsOn: [
+    automationAccount
+  ]
+}
+
+
+resource dscCompilationHyperV 'Microsoft.Automation/automationAccounts/compilationjobs@2020-01-13-preview' = {
+  name: '${automationAccountName}/${hypervConfiguration.name}'
+  location: location
+  properties: {
+    configuration: {
+      name: hypervConfiguration.name
+    }
+    parameters: {
+      AzSecPackRole: AzSecPackRole
+      AzSecPackAcct: AzSecPackAcct
+      AzSecPackNS: AzSecPackNS
+      AzSecPackCert: AzSecPackCert
+    }
+  }
+  dependsOn: [
+    automationAccount
+    dscConfigBaseOS
+    moduleComputerManagement
+    moduleSChannelDsc
+  ]
+}
+
+resource AvailabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {
+  name: avalilabilitySetName
+  location: location
+  sku: {
+    name: 'Aligned'
+  }
+  properties: {
+    platformFaultDomainCount: 2
+    platformUpdateDomainCount: 2
+  }
 }
 
 resource vnetHub 'Microsoft.Network/virtualNetworks@2020-05-01' = {
@@ -394,6 +451,9 @@ resource FITVM 'Microsoft.Compute/virtualMachines@2019-07-01' = [for i in range(
         storageUri: storageaccount.properties.primaryEndpoints.blob
       }
     }
+    availabilitySet: {
+      id: AvailabilitySet.id
+    }
   }
   identity: {
     type: 'SystemAssigned'
@@ -604,7 +664,7 @@ resource Reboot 'Microsoft.Compute/virtualMachines/extensions@2020-06-01'= [for 
     typeHandlerVersion: '1.7'
     autoUpgradeMinorVersion: true
     protectedSettings: {
-      commandToExecute: 'Restart-Computer -Force'
+      commandToExecute: 'powershell.exe -c Restart-Computer -Force'
     }
   }
   dependsOn: [
