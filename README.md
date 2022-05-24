@@ -8,3 +8,11 @@ The Bicep template is also converted to an ARM JSON template .via a GitHub actio
 
 Once deployed, both the domain controller and the Hyper-V host can be accessed .via Bastion.
 
+## Notes:
+
+Create template spec.
+
+```
+az ts create --resource-group template-spec-collection --name azure-runbook-with-vm --version 1.0 --template-file ./deploy/main-with-vm.bicep
+```
+

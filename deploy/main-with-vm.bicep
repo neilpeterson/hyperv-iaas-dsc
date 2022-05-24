@@ -7,7 +7,7 @@ param automationAccountName string = uniqueString(resourceGroup().id)
 param keyVaultName string = 'a${uniqueString(resourceGroup().id)}b'
 param location string = resourceGroup().location
 param logAnalyticsWorkspaceName string = uniqueString(subscription().subscriptionId, resourceGroup().id)
-param vmSize string = 'Standard_D8s_v3'
+param vmSize string = 'Standard_D3_v2'
 
 param AzSecPackRole string = 'MTPFITADDomainSvc'
 param AzSecPackAcct string = 'RoverAzSecPackGenevaLogAccnt1'
@@ -84,19 +84,6 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
-  }
-}
-
-resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
-  name: keyVaultName
-  location: location
-  properties: {
-    sku: {
-      family: 'A'
-      name: 'standard'
-    }
-    accessPolicies: []
-    tenantId: subscription().tenantId
   }
 }
 
@@ -566,35 +553,35 @@ resource GenevaMonitoring 'Microsoft.Compute/virtualMachines/extensions@2020-06-
   }
 }]
 
-resource ManagementPortJITPolicy 'Microsoft.Security/locations/jitNetworkAccessPolicies@2020-01-01' = [for i in range(0, vmCount): {
-  name: '${location}/${addcVirtualMachine.name}-${i}'
-  kind: 'Basic'
-  properties: {
-    virtualMachines: [
-      {
-        id: FITVM[i].id
-        ports: [
-          {
-            number: 3389
-            protocol: '*'
-            allowedSourceAddressPrefixes: [
-              bastionHost.subnetPrefix
-            ]
-            maxRequestAccessDuration: 'PT8H'
-          }
-          {
-            number: 5985
-            protocol: '*'
-            allowedSourceAddressPrefixes: [
-              resourceSubnet.subnetPrefix
-            ]
-            maxRequestAccessDuration: 'PT8H'
-          }
-        ]
-      }
-    ]
-  }
-}]
+// resource ManagementPortJITPolicy 'Microsoft.Security/locations/jitNetworkAccessPolicies@2020-01-01' = [for i in range(0, vmCount): {
+//   name: '${location}/${addcVirtualMachine.name}-${i}'
+//   kind: 'Basic'
+//   properties: {
+//     virtualMachines: [
+//       {
+//         id: FITVM[i].id
+//         ports: [
+//           {
+//             number: 3389
+//             protocol: '*'
+//             allowedSourceAddressPrefixes: [
+//               bastionHost.subnetPrefix
+//             ]
+//             maxRequestAccessDuration: 'PT8H'
+//           }
+//           {
+//             number: 5985
+//             protocol: '*'
+//             allowedSourceAddressPrefixes: [
+//               resourceSubnet.subnetPrefix
+//             ]
+//             maxRequestAccessDuration: 'PT8H'
+//           }
+//         ]
+//       }
+//     ]
+//   }
+// }]
 
 resource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = [for i in range(0, vmCount): {
   name: '${FITVM[i].name}/AzurePolicyforWindows'
@@ -606,4 +593,27 @@ resource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extens
     autoUpgradeMinorVersion: true
     enableAutomaticUpgrade: true
   }
+}]
+
+resource Reboot 'Microsoft.Compute/virtualMachines/extensions@2020-06-01'= [for i in range(0, vmCount): {
+  name: '${FITVM[i].name}/LCMBootStrap'
+  location: location
+  properties: {
+    publisher: 'Microsoft.Compute'
+    type: 'CustomScriptExtension'
+    typeHandlerVersion: '1.7'
+    autoUpgradeMinorVersion: true
+    protectedSettings: {
+      commandToExecute: 'Restart-Computer -Force'
+    }
+  }
+  dependsOn: [
+    KeyVaultAccess
+    KeyVaultCertificates
+    dscBaseOS
+    azureMonitoringDependencyAgent
+    azureMonitoringAgent
+    GenevaMonitoring
+    windowsVMGuestConfigExtension
+  ]
 }]
