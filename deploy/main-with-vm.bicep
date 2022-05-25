@@ -127,6 +127,78 @@ resource moduleSChannelDsc 'Microsoft.Automation/automationAccounts/modules@2020
   }
 }
 
+resource moduleActiveDirectoryDsc 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'ActiveDirectoryDsc'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.2.0-preview0001'
+      version: '6.2.0'
+    }
+  }
+}
+
+resource moduleNetworking 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'NetworkingDsc'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/NetworkingDsc/8.2.0'
+      version: '8.2.0'
+    }
+  }
+}
+
+resource moduleXHyperv 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'xHyper-V'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0'
+      version: '3.17.0.0'
+    }
+  }
+}
+
+resource moduleXPendingReboot 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'xPendingReboot'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xPendingReboot/0.4.0.0'
+      version: '0.4.0.0'
+    }
+  }
+}
+
+resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'xComputerManagement'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/xComputerManagement/4.1.0'
+      version: '3.0.0.0'
+    }
+  }
+}
+
+resource moduleStorageDsc 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
+  parent: automationAccount
+  name: 'StorageDsc'
+  location: location
+  properties: {
+    contentLink: {
+      uri: 'https://www.powershellgallery.com/api/v2/package/StorageDsc/5.0.1'
+      version: '5.0.1'
+    }
+  }
+}
+
 resource dscConfigBaseOS 'Microsoft.Automation/automationAccounts/configurations@2019-06-01' = {
   name: '${automationAccountName}/${baseOSConfiguration.name}'
   location: location
@@ -190,10 +262,9 @@ resource dscCompilationHyperV 'Microsoft.Automation/automationAccounts/compilati
       name: hypervConfiguration.name
     }
     parameters: {
-      AzSecPackRole: AzSecPackRole
-      AzSecPackAcct: AzSecPackAcct
-      AzSecPackNS: AzSecPackNS
-      AzSecPackCert: AzSecPackCert
+      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
+      DomainName: 'contoso.com'
+      DNSAddress: nicADDC.properties.ipConfigurations[0].properties.privateIPAddress
     }
   }
   dependsOn: [
@@ -201,6 +272,13 @@ resource dscCompilationHyperV 'Microsoft.Automation/automationAccounts/compilati
     dscConfigBaseOS
     moduleComputerManagement
     moduleSChannelDsc
+    moduleActiveDirectoryDsc
+    moduleComputerManagement
+    moduleNetworking
+    moduleStorageDsc
+    moduleXComputerManagement
+    moduleXHyperv
+    moduleXPendingReboot
   ]
 }
 

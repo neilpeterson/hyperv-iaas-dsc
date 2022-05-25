@@ -3,10 +3,7 @@ configuration hyperv {
     param
     (
         [Parameter(Mandatory)]
-        [string]$DomainName,
-
-        [Parameter(Mandatory)]
-        [string]$DNSAddress
+        [string]$DomainName
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
@@ -56,7 +53,7 @@ configuration hyperv {
 
         # TODO dynamically detect interface
         DnsServerAddress DnsServerAddress { 
-            Address = $DNSAddress,'8.8.8.8'
+            Address = '172.0.0.1','8.8.8.8'
             InterfaceAlias = "Ethernet"
             AddressFamily  = 'IPv4'
         }
