@@ -1,24 +1,9 @@
 configuration hyperv {
 
-    param
-    (
-        [Parameter(Mandatory)]
-        [string]$DomainName,
-
-        [Parameter(Mandatory)]
-        [string]$DNSAddress
-    )
-
     Import-DscResource -ModuleName PsDesiredStateConfiguration
-    Import-DscResource -ModuleName ActiveDirectoryDsc
-    Import-DscResource -ModuleName xComputerManagement
-    Import-DscResource -ModuleName xHyper-V
-    Import-DscResource -ModuleName NetworkingDsc
-    Import-DscResource -ModuleName xPendingReboot
+    Import-DscResource -ModuleName ComputerManagementDsc
     Import-DSCResource -ModuleName StorageDsc
-
-    $Admincreds = Get-AutomationPSCredential 'Admincreds'
-    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
+    Import-DscResource -ModuleName SChannelDsc
 
     node localhost {
 
@@ -53,32 +38,7 @@ configuration hyperv {
             Name = "Hyper-V-PowerShell"
             IncludeAllSubFeature = $true
         }
-
-        # TODO dynamically detect interface
-        DnsServerAddress DnsServerAddress { 
-            Address = $DNSAddress,'8.8.8.8'
-            InterfaceAlias = "Ethernet"
-            AddressFamily  = 'IPv4'
-        }
-
-        WaitForADDomain DscForestWait { 
-            DomainName = $DomainName 
-            Credential = $DomainCreds
-            DependsOn = "[DnsServerAddress]DnsServerAddress"
-        }
-         
-        xComputer JoinDomain {
-            Name = $ComputerName
-            DomainName = $DomainName
-            Credential = $DomainCreds
-            DependsOn = "[WaitForADDomain]DscForestWait"
-        }
-
-        xPendingReboot Reboot { 
-            Name = "RebootServer"
-            DependsOn = "[xComputer]JoinDomain"
-        }
-
+       
         # Need to use script to configure Hyper-V NAT
         Script natConfig {
             SetScript = {
