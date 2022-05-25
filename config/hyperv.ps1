@@ -53,7 +53,7 @@ configuration hyperv {
 
         # TODO dynamically detect interface
         DnsServerAddress DnsServerAddress { 
-            Address = '172.0.0.1','8.8.8.8'
+            Address = '127.0.0.1','8.8.8.8'
             InterfaceAlias = "Ethernet"
             AddressFamily  = 'IPv4'
         }
