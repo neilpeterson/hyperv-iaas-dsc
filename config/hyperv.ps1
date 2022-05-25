@@ -1,10 +1,6 @@
 configuration hyperv {
 
-    param
-    (
-        [Parameter(Mandatory)]
-        [string]$DomainName
-    )
+    param ( )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     Import-DscResource -ModuleName ComputerManagementDsc
