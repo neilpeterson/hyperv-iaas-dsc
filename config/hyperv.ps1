@@ -7,11 +7,8 @@ configuration hyperv {
     )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
-    Import-DscResource -ModuleName ActiveDirectoryDsc
-    Import-DscResource -ModuleName xComputerManagement
-    Import-DscResource -ModuleName xHyper-V
+    Import-DscResource -ModuleName ComputerManagement
     Import-DscResource -ModuleName NetworkingDsc
-    Import-DscResource -ModuleName xPendingReboot
     Import-DSCResource -ModuleName StorageDsc
 
     $Admincreds = Get-AutomationPSCredential 'Admincreds'

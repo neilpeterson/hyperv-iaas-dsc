@@ -127,18 +127,6 @@ resource moduleSChannelDsc 'Microsoft.Automation/automationAccounts/modules@2020
   }
 }
 
-resource moduleActiveDirectoryDsc 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  parent: automationAccount
-  name: 'ActiveDirectoryDsc'
-  location: location
-  properties: {
-    contentLink: {
-      uri: 'https://www.powershellgallery.com/api/v2/package/ActiveDirectoryDsc/6.2.0-preview0001'
-      version: '6.2.0'
-    }
-  }
-}
-
 resource moduleNetworking 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
   parent: automationAccount
   name: 'NetworkingDsc'
@@ -147,42 +135,6 @@ resource moduleNetworking 'Microsoft.Automation/automationAccounts/modules@2020-
     contentLink: {
       uri: 'https://www.powershellgallery.com/api/v2/package/NetworkingDsc/8.2.0'
       version: '8.2.0'
-    }
-  }
-}
-
-resource moduleXHyperv 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  parent: automationAccount
-  name: 'xHyper-V'
-  location: location
-  properties: {
-    contentLink: {
-      uri: 'https://www.powershellgallery.com/api/v2/package/xHyper-V/3.17.0.0'
-      version: '3.17.0.0'
-    }
-  }
-}
-
-resource moduleXPendingReboot 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  parent: automationAccount
-  name: 'xPendingReboot'
-  location: location
-  properties: {
-    contentLink: {
-      uri: 'https://www.powershellgallery.com/api/v2/package/xPendingReboot/0.4.0.0'
-      version: '0.4.0.0'
-    }
-  }
-}
-
-resource moduleXComputerManagement 'Microsoft.Automation/automationAccounts/modules@2020-01-13-preview' = {
-  parent: automationAccount
-  name: 'xComputerManagement'
-  location: location
-  properties: {
-    contentLink: {
-      uri: 'https://www.powershellgallery.com/api/v2/package/xComputerManagement/4.1.0'
-      version: '3.0.0.0'
     }
   }
 }
@@ -261,23 +213,16 @@ resource dscCompilationHyperV 'Microsoft.Automation/automationAccounts/compilati
     configuration: {
       name: hypervConfiguration.name
     }
-    parameters: {
-      ConfigurationData: '{"AllNodes":[{"NodeName":"localhost","PSDSCAllowPlainTextPassword":true}]}'
-      DomainName: 'contoso.com'
-    }
+    parameters: { }
   }
   dependsOn: [
     automationAccount
     dscConfigBaseOS
     moduleComputerManagement
     moduleSChannelDsc
-    moduleActiveDirectoryDsc
     moduleComputerManagement
     moduleNetworking
     moduleStorageDsc
-    moduleXComputerManagement
-    moduleXHyperv
-    moduleXPendingReboot
   ]
 }
 
