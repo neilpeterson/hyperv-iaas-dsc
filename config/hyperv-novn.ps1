@@ -81,20 +81,6 @@ configuration hyperv {
             BuiltInAccount      = 'System'
         }
 
-        WaitForDisk Disk2 {
-            DiskId = 2
-            RetryIntervalSec = 60
-            RetryCount = 60
-        }
-        
-        Disk ZVolume {
-            DiskId = 2
-            DriveLetter = 'Z'
-            FSLabel = 'Virtual Machines'
-            FSFormat = 'NTFS'
-            DependsOn = '[WaitForDisk]Disk2'
-        }
-
         WindowsFeature Hyper-V {
             Ensure = "Present"
             Name = "Hyper-V"
