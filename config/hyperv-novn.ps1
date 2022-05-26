@@ -1,5 +1,20 @@
 configuration hyperv {
 
+    param (
+
+        [Parameter(Mandatory)]
+        [String]$AzSecPackRole,
+
+        [Parameter(Mandatory)]
+        [String]$AzSecPackAcct,
+
+        [Parameter(Mandatory)]
+        [String]$AzSecPackNS,
+
+        [Parameter(Mandatory)]
+        [String]$AzSecPackCert
+    )
+
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     Import-DscResource -ModuleName ComputerManagementDsc
     Import-DSCResource -ModuleName StorageDsc

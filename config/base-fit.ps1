@@ -13,7 +13,7 @@ Configuration base-fit {
 
         [Parameter(Mandatory)]
         [String]$AzSecPackCert
-     )
+    )
 
     Import-DscResource -ModuleName PsDesiredStateConfiguration
     Import-DscResource -ModuleName ComputerManagementDsc
