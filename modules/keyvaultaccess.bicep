@@ -1,17 +1,17 @@
-param KeyVaultName string
-param VirtualMachineIdentity string
+param keyVaultName string
+param virtualMachineIdentity string
 
 resource keyVault 'Microsoft.KeyVault/vaults@2021-11-01-preview' existing = {
-  name: KeyVaultName
+  name: keyVaultName
 }
 
-resource KeyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2021-11-01-preview' = {
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2021-11-01-preview' = {
   name: 'add'
   parent: keyVault
   properties: {
     accessPolicies: [
       {
-        objectId: VirtualMachineIdentity
+        objectId: virtualMachineIdentity
         tenantId: subscription().tenantId
         permissions: {
           secrets: [
