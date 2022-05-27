@@ -8,13 +8,13 @@ param location string
 param baseOSConfiguration object = {
   name: 'base-fit'
   description: 'Configures an S360 compliant VM.'
-  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/hyper-v-lab/config/base-fit.ps1'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/hyper-v-lab/configs/baseos.ps1'
 }
 
 param hypervConfiguration object = {
   name: 'hyperv'
   description: 'A configuration for installing Hyper-V.'
-  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/hyper-v-lab/config/hyperv-novn.ps1'
+  script: 'https://raw.githubusercontent.com/neilpeterson/hyperv-iaas-dsc/hyper-v-lab/configs/hyperv.ps1'
 }
 
 resource automationAccount 'Microsoft.Automation/automationAccounts@2021-06-22' = {
