@@ -45,28 +45,12 @@ param resourceSubnet object = {
   subnetPrefix: '10.0.2.0/24'
 }
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
-  name: randomString
-  location: location
-  properties: {
-    sku: {
-      name: 'PerGB2018'
-    }
-    retentionInDays: 30
-    features: {
-      legacy: 0
-      searchVersion: 1
-      enableLogAccessUsingOnlyResourcePermissions: true
-    }
-  }
-}
-
-resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name: randomString
-  location: location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_LRS'
+module diagnostics './modules/diagnostics.bicep' = {
+  name: 'diagnostics'
+  params: {
+    location: location
+    logAnalyticsName: randomString
+    storageAccountName: randomString
   }
 }
 
@@ -108,10 +92,10 @@ module baseVirtualMachines 'modules/virtualmachine.bicep' = {
     keyVaultResourceGroup: 'US01-PRDMTPAA-RG'
     keyVaultSubscriptionID: '7aab1e63-3115-4365-89bc-bf1172dc93c9'
     location: location
-    logAnalyticsWorkspaceID: logAnalyticsWorkspace.id
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.name
+    logAnalyticsWorkspaceID: diagnostics.outputs.logAnalyticsWoekspaceId
+    logAnalyticsWorkspaceName: diagnostics.outputs.logAnalyticsWoekspaceName
     nicNamePrefix: baseVirtualMachine.nicName
-    storageAccountName: storageaccount.name
+    storageAccountName: diagnostics.outputs.storageAccountName
     subnetName: resourceSubnet.subnetName
     virtualMachineNamePrefix: baseVirtualMachine.name
     virtualMachineSize: baseVirtualMachine.size
@@ -139,10 +123,10 @@ module hypervVirtualMachines 'modules/virtualmachine.bicep' = {
     keyVaultResourceGroup: 'US01-PRDMTPAA-RG'
     keyVaultSubscriptionID: '7aab1e63-3115-4365-89bc-bf1172dc93c9'
     location: location
-    logAnalyticsWorkspaceID: logAnalyticsWorkspace.id
-    logAnalyticsWorkspaceName: logAnalyticsWorkspace.name
+    logAnalyticsWorkspaceID: diagnostics.outputs.logAnalyticsWoekspaceId
+    logAnalyticsWorkspaceName: diagnostics.outputs.logAnalyticsWoekspaceName
     nicNamePrefix: hyperVirtualMachine.nicName
-    storageAccountName: storageaccount.name
+    storageAccountName: diagnostics.outputs.storageAccountName
     subnetName: resourceSubnet.subnetName
     virtualMachineNamePrefix: hyperVirtualMachine.name
     virtualMachineSize: hyperVirtualMachine.Size
