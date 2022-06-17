@@ -1,6 +1,8 @@
 param adminUserName string
 @secure()
 param adminPassword string
+param virtualMachineCount int
+param deployHyperV bool
 param location string = resourceGroup().location
 param randomString string =  uniqueString(subscription().subscriptionId, resourceGroup().id)
 
@@ -16,7 +18,6 @@ param baseVirtualMachine object = {
   nicName: 'fit-lab-vm'
   windowsOSVersion: '2022-datacenter'
   Size: 'Standard_D3_v2'
-  Count: 1
 }
 
 param hyperVirtualMachine object = {
@@ -24,7 +25,6 @@ param hyperVirtualMachine object = {
   nicName: 'fit-lab-host'
   windowsOSVersion: '2022-datacenter'
   Size: 'Standard_D8s_v3'
-  Count: 1
 }
 
 param hubNetwork object = {
@@ -101,7 +101,7 @@ module baseVirtualMachines 'modules/virtualmachine.bicep' = {
     virtualMachineSize: baseVirtualMachine.size
     virtualMachineSKU: baseVirtualMachine.windowsOSVersion
     virtualNetworkID: networking.outputs.networkID
-    vmCount: baseVirtualMachine.count
+    vmCount: virtualMachineCount
     automationAccountID: azureAutomaton.outputs.autoamtionAccountID
     automationAccountURI: azureAutomaton.outputs.automationAccountURI
     config: 'BaseOS'
@@ -113,7 +113,7 @@ module baseVirtualMachines 'modules/virtualmachine.bicep' = {
   ]
 }
 
-module hypervVirtualMachines 'modules/virtualmachine.bicep' = {
+module hypervVirtualMachines 'modules/virtualmachine.bicep' = if (deployHyperV) {
   name: 'VirtualMachinesHyperV'
   params: {
     adminPassword: adminPassword
